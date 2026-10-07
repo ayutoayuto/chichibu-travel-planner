@@ -1,0 +1,5532 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        あなたの秩父旅行プラン
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+
+    <style>
+
+        *{
+            box-sizing:border-box;
+        }
+
+
+        html{
+            scroll-behavior:smooth;
+        }
+
+
+        body{
+            margin:0;
+
+            background:#f4f1e9;
+
+            color:#20352d;
+
+            font-family:
+                "Yu Gothic",
+                "Hiragino Kaku Gothic ProN",
+                Meiryo,
+                sans-serif;
+        }
+
+
+        a{
+            color:inherit;
+        }
+
+
+        button{
+            font-family:inherit;
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .result-hero{
+            position:relative;
+
+            min-height:430px;
+
+            display:flex;
+
+            align-items:center;
+
+            color:#fff;
+
+            background:
+
+                linear-gradient(
+                    90deg,
+                    rgba(8,35,28,.96),
+                    rgba(8,35,28,.62),
+                    rgba(8,35,28,.18)
+                ),
+
+                url(
+                    "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=85"
+                );
+
+            background-size:cover;
+
+            background-position:center;
+        }
+
+
+        .result-hero-inner{
+            width:min(
+                1100px,
+                90%
+            );
+
+            margin:auto;
+
+            padding:
+                75px 0;
+        }
+
+
+        .result-label{
+            margin-bottom:20px;
+
+            color:#d9c58b;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            letter-spacing:4px;
+        }
+
+
+        .result-hero h1{
+            margin:
+                0 0
+                20px;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:
+                clamp(
+                    44px,
+                    7vw,
+                    78px
+                );
+
+            line-height:1.08;
+
+            font-weight:400;
+        }
+
+
+        .result-hero h1 span{
+            color:#dcc98e;
+        }
+
+
+        .result-hero p{
+            margin:0;
+
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .82
+                );
+
+            font-size:14px;
+
+            line-height:2;
+        }
+
+
+        /* =====================================================
+           TOP NAVIGATION
+        ===================================================== */
+
+        .result-top-nav{
+            position:absolute;
+
+            top:24px;
+
+            right:28px;
+
+            z-index:20;
+
+            display:flex;
+
+            flex-direction:column;
+
+            align-items:flex-end;
+
+            gap:8px;
+        }
+
+
+        .result-nav-item{
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:7px;
+
+            padding:
+                10px 15px;
+
+            border:
+                1px solid
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .35
+                );
+
+            border-radius:999px;
+
+            background:
+                rgba(
+                    8,
+                    35,
+                    28,
+                    .42
+                );
+
+            color:#fff;
+
+            text-decoration:none;
+
+            font-size:11px;
+
+            font-weight:700;
+
+            letter-spacing:.4px;
+
+            backdrop-filter:
+                blur(8px);
+
+            transition:.25s;
+        }
+
+
+        .result-nav-item:hover{
+            background:#9a8252;
+
+            border-color:#9a8252;
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        .result-nav-count{
+            min-width:20px;
+
+            height:20px;
+
+            padding:
+                0 6px;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:999px;
+
+            background:#dcc98e;
+
+            color:#18392f;
+
+            font-size:9px;
+
+            line-height:1;
+        }
+
+
+        /* =====================================================
+           MAIN
+        ===================================================== */
+
+        main{
+            width:min(
+                1100px,
+                90%
+            );
+
+            margin:
+                0 auto;
+
+            padding:
+                70px 0
+                100px;
+        }
+
+
+        .section{
+            margin-bottom:72px;
+        }
+
+
+        .section-label,
+        .hotel-info-label{
+            margin-bottom:10px;
+
+            color:#9a8252;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            letter-spacing:4px;
+        }
+
+
+        .section-title{
+            margin:
+                0 0
+                28px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:36px;
+
+            font-weight:400;
+        }
+
+
+        /* =====================================================
+           CONDITIONS
+        ===================================================== */
+
+        .condition-grid{
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    1fr
+                );
+
+            gap:14px;
+        }
+
+
+        .condition-card{
+            padding:20px;
+
+            background:#fff;
+
+            border-radius:12px;
+
+            box-shadow:
+                0 10px 30px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .06
+                );
+        }
+
+
+        .condition-card small{
+            display:block;
+
+            margin-bottom:7px;
+
+            color:#9a8252;
+
+            font-size:9px;
+
+            font-weight:700;
+
+            letter-spacing:2px;
+        }
+
+
+        .condition-card strong{
+            color:#20352d;
+
+            font-size:14px;
+
+            line-height:1.6;
+        }
+
+
+        /* =====================================================
+           TRIP FEATURES
+        ===================================================== */
+
+        .feature-list{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:10px;
+        }
+
+
+        .feature{
+            padding:
+                11px 18px;
+
+            border-radius:999px;
+
+            background:#18392f;
+
+            color:#fff;
+
+            font-size:12px;
+        }
+
+
+        /* =====================================================
+           DAY
+        ===================================================== */
+
+        .day-label{
+            margin-bottom:10px;
+
+            color:#9a8252;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            letter-spacing:4px;
+        }
+
+
+        .day-title{
+            margin:
+                0 0
+                22px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:36px;
+
+            font-weight:400;
+        }
+
+
+        /* =====================================================
+           DAY ROUTE
+        ===================================================== */
+
+        .day-route-area{
+            margin:
+                18px 0
+                26px;
+
+            padding:
+                18px 20px;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:
+                space-between;
+
+            gap:16px;
+
+            flex-wrap:wrap;
+
+            border:
+                1px solid
+                #d8cfbb;
+
+            border-radius:14px;
+
+            background:#fffdf8;
+        }
+
+
+        .day-route-text strong{
+            display:block;
+
+            margin-bottom:4px;
+
+            color:#18392f;
+
+            font-size:13px;
+        }
+
+
+        .day-route-text span{
+            color:#68746e;
+
+            font-size:10px;
+
+            line-height:1.7;
+        }
+
+
+        .day-route-button{
+            min-height:42px;
+
+            padding:
+                10px 16px;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:9px;
+
+            background:#18392f;
+
+            color:#fff;
+
+            text-decoration:none;
+
+            font-size:11px;
+
+            font-weight:700;
+
+            transition:.25s;
+        }
+
+
+        .day-route-button:hover{
+            background:#9a8252;
+        }
+
+
+        /* =====================================================
+           SPOT CARD
+        ===================================================== */
+
+        .day-spot-card{
+            display:grid;
+
+            grid-template-columns:
+                1fr 1.25fr;
+
+            gap:0;
+
+            min-height:540px;
+
+            margin-bottom:28px;
+
+            overflow:hidden;
+
+            border-radius:20px;
+
+            background:#fff;
+
+            box-shadow:
+                0 15px 45px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .08
+                );
+        }
+
+
+        .day-spot-info{
+            position:relative;
+
+            padding:36px;
+
+            display:flex;
+
+            flex-direction:column;
+        }
+
+
+        .day-spot-number{
+            margin-bottom:12px;
+
+            color:#9a8252;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            letter-spacing:4px;
+        }
+
+
+        .day-spot-info h3{
+            margin:
+                0 0
+                8px;
+
+            padding-right:120px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:31px;
+
+            font-weight:400;
+
+            line-height:1.35;
+        }
+
+
+        .day-spot-area{
+            margin-bottom:18px;
+
+            color:#9a8252;
+
+            font-size:12px;
+        }
+
+
+        .day-spot-description{
+            margin:
+                0 0
+                20px;
+
+            color:#65716b;
+
+            font-size:13px;
+
+            line-height:1.95;
+        }
+
+
+        .day-spot-recommendation{
+            margin:
+                0 0
+                20px;
+
+            padding:
+                16px 18px;
+
+            border-left:
+                3px solid
+                #9a8252;
+
+            border-radius:9px;
+
+            background:#f7f5ef;
+        }
+
+
+        .day-spot-recommendation-label{
+            margin-bottom:8px;
+
+            color:#9a8252;
+
+            font-size:9px;
+
+            font-weight:700;
+
+            letter-spacing:1.8px;
+        }
+
+
+        .day-spot-recommendation p{
+            margin:0;
+
+            color:#53625b;
+
+            font-size:12px;
+
+            line-height:1.9;
+        }
+
+
+        .day-spot-details{
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:10px;
+
+            margin-bottom:20px;
+        }
+
+
+        .detail-item{
+            padding:
+                11px 13px;
+
+            border-radius:9px;
+
+            background:#f7f5ef;
+        }
+
+
+        .detail-item strong{
+            display:block;
+
+            margin-bottom:5px;
+
+            color:#9a8252;
+
+            font-size:9px;
+
+            letter-spacing:1.4px;
+        }
+
+
+        .detail-item span{
+            display:block;
+
+            color:#53625b;
+
+            font-size:11px;
+
+            line-height:1.65;
+
+            white-space:pre-line;
+        }
+
+
+        .day-spot-notes{
+            margin:
+                -4px 0
+                20px;
+
+            color:#6a746f;
+
+            font-size:11px;
+
+            line-height:1.8;
+        }
+
+
+        .day-spot-buttons{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:10px;
+
+            margin-top:auto;
+
+            padding-top:12px;
+        }
+
+
+        .day-spot-buttons a{
+            padding:
+                12px 16px;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:8px;
+
+            text-decoration:none;
+
+            font-size:12px;
+
+            font-weight:700;
+
+            transition:.25s;
+        }
+
+
+        .day-spot-site{
+            background:#18392f;
+
+            color:#fff;
+        }
+
+
+        .day-spot-site:hover{
+            background:#9a8252;
+        }
+
+
+        .day-spot-map-link{
+            border:
+                1px solid
+                #d8cfbb;
+
+            background:#fffdf8;
+
+            color:#18392f;
+        }
+
+
+        .day-spot-map-link:hover{
+            background:#18392f;
+
+            color:#fff;
+        }
+
+
+        .day-spot-map{
+            position:relative;
+
+            min-height:540px;
+
+            background:#ddd;
+        }
+
+
+        .day-spot-map iframe{
+            width:100%;
+
+            height:100%;
+
+            min-height:540px;
+
+            display:block;
+
+            border:0;
+        }
+
+
+        .map-empty{
+            min-height:540px;
+
+            padding:30px;
+
+            display:flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            background:#f7f5ef;
+
+            color:#68746e;
+
+            text-align:center;
+
+            font-size:12px;
+        }
+
+
+        /* =====================================================
+           FAVORITES
+        ===================================================== */
+
+        .favorite-button{
+            position:absolute;
+
+            top:24px;
+
+            right:24px;
+
+            z-index:5;
+
+            width:auto !important;
+
+            min-width:0 !important;
+
+            height:auto !important;
+
+            min-height:34px !important;
+
+            margin:0 !important;
+
+            padding:
+                8px 11px !important;
+
+            display:inline-flex !important;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:6px;
+
+            border:
+                1px solid
+                #d8cfbb;
+
+            border-radius:999px;
+
+            background:#fffdf8;
+
+            color:#6d5c36;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            line-height:1.2;
+
+            cursor:pointer;
+
+            appearance:none;
+
+            -webkit-appearance:none;
+
+            transition:.25s;
+        }
+
+
+        .favorite-button::before,
+        .favorite-button::after{
+            content:none !important;
+
+            display:none !important;
+        }
+
+
+        .favorite-button:hover{
+            background:#f5efe0;
+
+            border-color:#9a8252;
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        .favorite-button.is-favorite{
+            background:#9a8252;
+
+            border-color:#9a8252;
+
+            color:#fff;
+        }
+
+
+        /* =====================================================
+           GOURMET
+        ===================================================== */
+
+        .gourmet-section{
+            margin-top:84px;
+        }
+
+
+        .gourmet-intro{
+            margin:
+                -10px 0
+                28px;
+
+            color:#68746e;
+
+            font-size:13px;
+
+            line-height:1.9;
+        }
+
+
+        .gourmet-list{
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap:20px;
+        }
+
+
+        .gourmet-card{
+            position:relative;
+
+            padding:28px;
+
+            border-radius:16px;
+
+            background:#fff;
+
+            box-shadow:
+                0 10px 30px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .06
+                );
+
+            transition:.25s;
+        }
+
+
+        .gourmet-card:hover{
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 16px 38px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .10
+                );
+        }
+
+
+        .gourmet-number{
+            margin-bottom:9px;
+
+            color:#9a8252;
+
+            font-size:9px;
+
+            font-weight:700;
+
+            letter-spacing:3px;
+        }
+
+
+        .gourmet-card h3{
+            margin:
+                0 0
+                8px;
+
+            padding-right:120px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:24px;
+
+            font-weight:400;
+
+            line-height:1.4;
+        }
+
+
+        .gourmet-genre{
+            margin-bottom:16px;
+
+            color:#9a8252;
+
+            font-size:11px;
+        }
+
+
+        .gourmet-description{
+            margin:
+                0 0
+                18px;
+
+            color:#68746e;
+
+            font-size:12px;
+
+            line-height:1.9;
+        }
+
+
+        .gourmet-specialties{
+            margin-bottom:18px;
+
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:7px;
+        }
+
+
+        .gourmet-specialty{
+            padding:
+                6px 10px;
+
+            border-radius:999px;
+
+            background:#f5f2e9;
+
+            color:#6d5c36;
+
+            font-size:10px;
+        }
+
+
+        .gourmet-info{
+            margin-bottom:18px;
+
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:9px;
+        }
+
+
+        .gourmet-info-item{
+            padding:
+                10px 11px;
+
+            border-radius:8px;
+
+            background:#f7f5ef;
+        }
+
+
+        .gourmet-info-item strong{
+            display:block;
+
+            margin-bottom:4px;
+
+            color:#9a8252;
+
+            font-size:8px;
+
+            letter-spacing:1.5px;
+        }
+
+
+        .gourmet-info-item span{
+            display:block;
+
+            color:#59665f;
+
+            font-size:10px;
+
+            line-height:1.65;
+        }
+
+
+        .gourmet-buttons{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+        }
+
+
+        .gourmet-button{
+            padding:
+                10px 14px;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:8px;
+
+            text-decoration:none;
+
+            font-size:11px;
+
+            font-weight:700;
+
+            transition:.25s;
+        }
+
+
+        .gourmet-button.primary{
+            background:#18392f;
+
+            color:#fff;
+        }
+
+
+        .gourmet-button.primary:hover{
+            background:#9a8252;
+        }
+
+
+        .gourmet-button.secondary{
+            border:
+                1px solid
+                #d8cfbb;
+
+            background:#fffdf8;
+
+            color:#18392f;
+        }
+
+
+        .gourmet-button.secondary:hover{
+            background:#18392f;
+
+            color:#fff;
+        }
+
+
+        .gourmet-empty{
+            padding:25px;
+
+            border-radius:14px;
+
+            background:#fff;
+
+            color:#68746e;
+
+            font-size:12px;
+        }
+
+
+        /* =====================================================
+           HOTEL
+        ===================================================== */
+
+        .hotel-section{
+            margin-top:84px;
+        }
+
+
+        .hotel-layout{
+            display:grid;
+
+            grid-template-columns:
+                1fr 1.25fr;
+
+            gap:26px;
+
+            align-items:stretch;
+        }
+
+
+        .hotel-info{
+            position:relative;
+
+            padding:36px;
+
+            display:flex;
+
+            flex-direction:column;
+
+            border-radius:20px;
+
+            background:#fff;
+
+            box-shadow:
+                0 15px 45px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .09
+                );
+        }
+
+
+        .hotel-info h3{
+            margin:
+                0 0
+                14px;
+
+            padding-right:120px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:33px;
+
+            font-weight:400;
+
+            line-height:1.35;
+        }
+
+
+        .hotel-description{
+            margin:
+                0 0
+                20px;
+
+            color:#65716b;
+
+            font-size:13px;
+
+            line-height:1.95;
+        }
+
+
+        .hotel-long-reason{
+            margin:
+                0 0
+                18px;
+
+            padding:
+                16px 18px;
+
+            border-left:
+                3px solid
+                #9a8252;
+
+            border-radius:9px;
+
+            background:#f7f5ef;
+        }
+
+
+        .hotel-long-reason-label{
+            margin-bottom:8px;
+
+            color:#9a8252;
+
+            font-size:9px;
+
+            font-weight:700;
+
+            letter-spacing:1.8px;
+        }
+
+
+        .hotel-long-reason p{
+            margin:0;
+
+            color:#53625b;
+
+            font-size:12px;
+
+            line-height:1.9;
+        }
+
+
+        .hotel-detail-grid{
+            margin-bottom:18px;
+
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:10px;
+        }
+
+
+        .hotel-price{
+            margin:
+                0 0
+                10px;
+
+            padding:16px;
+
+            border-radius:9px;
+
+            background:#f7f5ef;
+        }
+
+
+        .hotel-price small{
+            display:block;
+
+            margin-bottom:6px;
+
+            color:#9a8252;
+
+            font-size:9px;
+
+            letter-spacing:2px;
+        }
+
+
+        .hotel-price strong{
+            display:block;
+
+            color:#18392f;
+
+            font-size:24px;
+
+            line-height:1.4;
+        }
+
+
+        .hotel-reference{
+            margin:
+                0 0
+                18px;
+
+            color:#78827d;
+
+            font-size:10px;
+
+            line-height:1.7;
+        }
+
+
+        .hotel-button{
+            width:100%;
+
+            margin-top:9px;
+
+            padding:
+                15px 18px;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:8px;
+
+            background:#18392f;
+
+            color:#fff;
+
+            text-decoration:none;
+
+            font-size:12px;
+
+            font-weight:700;
+
+            transition:.25s;
+        }
+
+
+        .hotel-button:hover{
+            background:#9a8252;
+        }
+
+
+        .hotel-button.map{
+            background:#64766e;
+        }
+
+
+        .hotel-button.map:hover{
+            background:#18392f;
+        }
+
+
+        .google-map{
+            min-height:540px;
+
+            overflow:hidden;
+
+            border-radius:20px;
+
+            background:#ddd;
+
+            box-shadow:
+                0 15px 45px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .12
+                );
+        }
+
+
+        .google-map iframe{
+            width:100%;
+
+            height:100%;
+
+            min-height:540px;
+
+            display:block;
+
+            border:0;
+        }
+
+
+        /* =====================================================
+           OTHER HOTELS
+        ===================================================== */
+
+        .other-hotels{
+            margin-top:38px;
+        }
+
+
+        .other-hotels h3{
+            margin:
+                0 0
+                20px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:28px;
+
+            font-weight:400;
+        }
+
+
+        .hotel-list{
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap:18px;
+        }
+
+
+        .hotel-card{
+            position:relative;
+
+            padding:24px;
+
+            border-radius:15px;
+
+            background:#fff;
+
+            box-shadow:
+                0 10px 30px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .06
+                );
+        }
+
+
+        .hotel-card h4{
+            margin:
+                0 0
+                10px;
+
+            padding-right:120px;
+
+            color:#18392f;
+
+            font-size:19px;
+        }
+
+
+        .hotel-card p{
+            margin:
+                0 0
+                14px;
+
+            color:#68746e;
+
+            font-size:12px;
+
+            line-height:1.8;
+        }
+
+
+        .hotel-card-price{
+            margin-bottom:11px;
+
+            color:#9a8252;
+
+            font-size:12px;
+
+            font-weight:700;
+        }
+
+
+        .hotel-card-meta{
+            margin-bottom:7px;
+
+            color:#68746e;
+
+            font-size:11px;
+
+            line-height:1.65;
+        }
+
+
+        .small-button{
+            padding:
+                10px 14px;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            border-radius:8px;
+
+            background:#18392f;
+
+            color:#fff;
+
+            text-decoration:none;
+
+            font-size:11px;
+
+            font-weight:700;
+        }
+
+
+        /* =====================================================
+           BUDGET
+        ===================================================== */
+
+        .budget-box{
+            padding:34px;
+
+            border-radius:18px;
+
+            background:#18392f;
+
+            color:#fff;
+        }
+
+
+        .budget-box .section-label{
+            color:#d9c58b;
+        }
+
+
+        .budget-box h3{
+            margin:
+                0 0
+                22px;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:30px;
+
+            font-weight:400;
+        }
+
+
+        .budget-grid{
+            display:grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap:14px;
+        }
+
+
+        .budget-item{
+            padding:18px;
+
+            border-radius:10px;
+
+            background:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .08
+                );
+        }
+
+
+        .budget-item small{
+            display:block;
+
+            margin-bottom:7px;
+
+            color:#d9c58b;
+
+            font-size:9px;
+
+            letter-spacing:2px;
+        }
+
+
+        .budget-item strong{
+            font-size:20px;
+        }
+
+
+        .budget-note{
+            margin:
+                20px 0
+                0;
+
+            color:
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .7
+                );
+
+            font-size:12px;
+
+            line-height:1.8;
+        }
+
+
+        /* =====================================================
+           SUMMARY
+        ===================================================== */
+
+        .summary-box{
+            padding:30px;
+
+            border-radius:18px;
+
+            background:#fff;
+
+            box-shadow:
+                0 10px 30px
+                rgba(
+                    25,
+                    45,
+                    35,
+                    .06
+                );
+        }
+
+
+        .summary-box p{
+            margin:0;
+
+            color:#65716b;
+
+            font-size:13px;
+
+            line-height:2;
+        }
+
+
+        /* =====================================================
+           ACTIONS
+        ===================================================== */
+
+        .back-area,
+        .save-history-area,
+        .save-image-area,
+        .trip-book-create-area{
+            text-align:center;
+        }
+
+
+        .back-area{
+            margin-top:50px;
+        }
+
+
+        .save-history-area{
+            margin-top:36px;
+        }
+
+
+        .save-image-area,
+        .trip-book-create-area{
+            margin-top:28px;
+        }
+
+
+        .back-button{
+            padding:
+                14px 26px;
+
+            display:inline-block;
+
+            border:
+                1px solid
+                #18392f;
+
+            border-radius:8px;
+
+            color:#18392f;
+
+            text-decoration:none;
+
+            font-size:12px;
+
+            transition:.25s;
+        }
+
+
+        .back-button:hover{
+            background:#18392f;
+
+            color:#fff;
+        }
+
+
+        .save-history-button,
+        .save-image-button,
+        .trip-book-create-button{
+            width:auto !important;
+
+            min-width:300px !important;
+
+            max-width:100%;
+
+            min-height:52px !important;
+
+            height:auto !important;
+
+            margin:0 !important;
+
+            padding:
+                14px 24px !important;
+
+            display:inline-flex !important;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:10px;
+
+            border-radius:
+                8px !important;
+
+            font-family:inherit;
+
+            font-size:13px;
+
+            font-weight:700;
+
+            cursor:pointer;
+
+            transition:.25s;
+        }
+
+
+        .save-history-button{
+            border:
+                1px solid
+                #18392f !important;
+
+            background:
+                #18392f !important;
+
+            color:#fff !important;
+        }
+
+
+        .save-history-button:hover,
+        .save-history-button.is-saved{
+            border-color:
+                #9a8252 !important;
+
+            background:
+                #9a8252 !important;
+        }
+
+
+        .save-image-button{
+            border:
+                1px solid
+                #9a8252 !important;
+
+            background:
+                #9a8252 !important;
+
+            color:#fff !important;
+        }
+
+
+        .save-image-button:hover{
+            border-color:
+                #18392f !important;
+
+            background:
+                #18392f !important;
+        }
+
+
+        .trip-book-create-button{
+            border:
+                1px solid
+                #18392f !important;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #21483c,
+                    #17372f
+                ) !important;
+
+            color:#fff !important;
+
+            box-shadow:
+                0 12px 28px
+                rgba(
+                    24,
+                    53,
+                    46,
+                    .18
+                );
+        }
+
+
+        .trip-book-create-button:hover{
+            border-color:
+                #9a8252 !important;
+
+            background:
+                #9a8252 !important;
+
+            transform:
+                translateY(-2px);
+        }
+
+
+        .save-history-button::before,
+        .save-history-button::after,
+        .save-image-button::before,
+        .save-image-button::after,
+        .trip-book-create-button::before,
+        .trip-book-create-button::after{
+            content:none !important;
+
+            display:none !important;
+        }
+
+
+        .save-history-status,
+        .save-image-status,
+        .trip-book-create-note{
+            margin:
+                10px 0
+                0;
+
+            color:#68746e;
+
+            font-size:11px;
+
+            line-height:1.7;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer{
+            padding:
+                60px 20px;
+
+            background:#0c211a;
+
+            color:#fff;
+
+            text-align:center;
+        }
+
+
+        footer strong{
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:28px;
+
+            letter-spacing:7px;
+        }
+
+
+        footer p{
+            margin:
+                12px 0
+                0;
+
+            color:#cdbd8c;
+
+            font-size:9px;
+
+            letter-spacing:4px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media(max-width:850px){
+
+            .condition-grid{
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+
+
+            .day-spot-card,
+            .hotel-layout{
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .day-spot-map,
+            .day-spot-map iframe,
+            .map-empty,
+            .google-map,
+            .google-map iframe{
+                min-height:380px;
+            }
+
+
+            .hotel-list,
+            .gourmet-list,
+            .budget-grid{
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+
+        @media(max-width:560px){
+
+            main,
+            .result-hero-inner{
+                width:94%;
+            }
+
+
+            .result-top-nav{
+                top:16px;
+
+                right:16px;
+
+                gap:6px;
+            }
+
+
+            .result-nav-item{
+                padding:
+                    9px 12px;
+
+                font-size:10px;
+            }
+
+
+            .condition-grid,
+            .day-spot-details,
+            .hotel-detail-grid,
+            .gourmet-info{
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .result-hero h1{
+                font-size:44px;
+            }
+
+
+            .day-spot-info,
+            .hotel-info{
+                padding:25px;
+            }
+
+
+            .day-spot-info h3,
+            .hotel-info h3{
+                padding-right:95px;
+
+                font-size:27px;
+            }
+
+
+            .gourmet-card h3,
+            .hotel-card h4{
+                padding-right:95px;
+            }
+
+
+            .favorite-button{
+                top:18px;
+
+                right:18px;
+
+                min-height:32px !important;
+
+                padding:
+                    7px 9px !important;
+
+                font-size:9px;
+            }
+
+
+            .save-history-button,
+            .save-image-button,
+            .trip-book-create-button{
+                width:100% !important;
+
+                min-width:0 !important;
+            }
+
+
+            .day-route-area{
+                align-items:stretch;
+            }
+
+
+            .day-route-button{
+                width:100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<header class="result-hero">
+
+
+    <div class="result-top-nav">
+
+
+        <a
+            href="{{ url_for('favorites') }}"
+            class="result-nav-item"
+            aria-label="お気に入りページを開く"
+        >
+
+            <span>
+                ♡ お気に入り
+            </span>
+
+            <span
+                id="resultFavoriteCount"
+                class="result-nav-count"
+            >
+                0
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ url_for('history') }}"
+            class="result-nav-item"
+            aria-label="旅行プラン履歴を開く"
+        >
+
+            <span>
+                ▣ 旅行プラン履歴
+            </span>
+
+            <span
+                id="resultHistoryCount"
+                class="result-nav-count"
+            >
+                0
+            </span>
+
+        </a>
+
+
+        <!--
+            trip_book だけは url_for を使用しない。
+            app.py側のendpoint名の違いで
+            result.html自体がBuildErrorになるのを防ぐ。
+        -->
+
+        <a
+            href="/trip-book"
+            class="result-nav-item"
+            aria-label="TRIP BOOKを開く"
+        >
+
+            <span>
+                ▤ TRIP BOOK
+            </span>
+
+        </a>
+
+
+    </div>
+
+
+    <div class="result-hero-inner">
+
+
+        <div class="result-label">
+            YOUR CHICHIBU JOURNEY
+        </div>
+
+
+        <h1>
+
+            あなたの
+
+            <br>
+
+            <span>
+                秩父旅行プラン。
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            入力していただいた条件をもとに、
+
+            <br>
+
+            秩父の観光スポットと宿泊施設を組み合わせた
+
+            <br>
+
+            おすすめプランを提案しました。
+
+        </p>
+
+
+    </div>
+
+
+</header>
+
+
+<main>
+
+
+    <!-- =================================================
+         CONDITIONS
+    ================================================= -->
+
+    <section class="section">
+
+
+        <div class="section-label">
+            YOUR CONDITIONS
+        </div>
+
+
+        <h2 class="section-title">
+            旅行条件
+        </h2>
+
+
+        <div class="condition-grid">
+
+
+            <div class="condition-card">
+
+                <small>
+                    AGE
+                </small>
+
+                <strong>
+                    {{ age }}代
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    PEOPLE
+                </small>
+
+                <strong>
+                    {{ people }}人
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    STYLE
+                </small>
+
+                <strong>
+                    {{ member }}
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    DAYS
+                </small>
+
+                <strong>
+                    {{ days }}
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    CAR
+                </small>
+
+                <strong>
+                    {{ car }}
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    BUDGET
+                </small>
+
+                <strong>
+                    {{ budget }}円 / 人
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    PURPOSE
+                </small>
+
+                <strong>
+
+                    {% if purpose %}
+
+                        {{ purpose | join('・') }}
+
+                    {% else %}
+
+                        未設定
+
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+
+            <div class="condition-card">
+
+                <small>
+                    TRAVEL STYLE
+                </small>
+
+                <strong>
+                    {{ trip_style }}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         FEATURES
+    ================================================= -->
+
+    <section class="section">
+
+
+        <div class="section-label">
+            TRIP FEATURES
+        </div>
+
+
+        <h2 class="section-title">
+            この旅の特徴
+        </h2>
+
+
+        <div class="feature-list">
+
+
+            {% for feature in feature_text %}
+
+                <div class="feature">
+                    {{ feature }}
+                </div>
+
+            {% endfor %}
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         DAY 01
+    ================================================= -->
+
+    <section class="section">
+
+
+        <div class="day-label">
+            DAY 01
+        </div>
+
+
+        <h2 class="day-title">
+            1日目
+        </h2>
+
+
+        <div
+            class="day-route-area"
+            data-html2canvas-ignore="true"
+        >
+
+
+            <div class="day-route-text">
+
+                <strong>
+                    🗺 1日目の観光ルート
+                </strong>
+
+                <span>
+                    おすすめされたスポットを表示順のままGoogle Mapsでまとめて開きます。
+                </span>
+
+            </div>
+
+
+            <a
+                href="#"
+                class="day-route-button"
+                data-route-day="1"
+            >
+                Google Mapsでルートを見る ↗
+            </a>
+
+
+        </div>
+
+
+        {% for spot in day1 %}
+
+
+        <article class="day-spot-card">
+
+
+            <div class="day-spot-info">
+
+
+                <div class="day-spot-number">
+                    SPOT {{ loop.index }}
+                </div>
+
+
+                <button
+                    type="button"
+                    class="favorite-button"
+
+                    data-favorite-type="観光地"
+
+                    data-favorite-name="{{ spot.name }}"
+
+                    data-favorite-address="{{ spot.address if spot.address else '' }}"
+
+                    data-favorite-url="{{ spot.url if spot.url else '' }}"
+
+                    data-html2canvas-ignore="true"
+
+                    aria-pressed="false"
+                >
+                    ♡ お気に入り
+                </button>
+
+
+                <h3>
+                    📍 {{ spot.name }}
+                </h3>
+
+
+                {% if spot.area %}
+
+                    <div class="day-spot-area">
+
+                        {{ spot.area }}
+
+                        {% if spot.time %}
+
+                            ／ 約{{ spot.time }}時間
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if spot.description %}
+
+                    <p class="day-spot-description">
+                        {{ spot.description }}
+                    </p>
+
+                {% endif %}
+
+
+                {% if spot.recommendation_reason %}
+
+                    <div class="day-spot-recommendation">
+
+                        <div class="day-spot-recommendation-label">
+                            おすすめ理由
+                        </div>
+
+                        <p>
+                            {{ spot.recommendation_reason }}
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="day-spot-details">
+
+
+                    {% if spot.type %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            TYPE
+                        </strong>
+
+                        <span>
+                            {{ spot.type }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.time %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            STAY TIME
+                        </strong>
+
+                        <span>
+                            約{{ spot.time }}時間
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.address %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            ADDRESS
+                        </strong>
+
+                        <span>
+                            {{ spot.address }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.phone %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            PHONE
+                        </strong>
+
+                        <span>
+                            {{ spot.phone }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.train %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            TRAIN
+                        </strong>
+
+                        <span>
+                            {{ spot.access.train }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.bus %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            BUS
+                        </strong>
+
+                        <span>
+                            {{ spot.access.bus }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.walk %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            WALK
+                        </strong>
+
+                        <span>
+                            {{ spot.access.walk }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.car %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            CAR
+                        </strong>
+
+                        <span>
+                            {{ spot.access.car }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.hours %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            HOURS
+                        </strong>
+
+                        <span>
+                            {{ spot.hours }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.price %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            PRICE
+                        </strong>
+
+                        <span>
+                            {{ spot.price }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.closed %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            CLOSED
+                        </strong>
+
+                        <span>
+                            {{ spot.closed }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.parking %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            PARKING
+                        </strong>
+
+                        <span>
+                            {{ spot.parking }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.season %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            SEASON
+                        </strong>
+
+                        <span>
+                            {{ spot.season }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.car_free %}
+
+                    <div class="detail-item">
+
+                        <strong>
+                            CAR FREE
+                        </strong>
+
+                        <span>
+                            {{ spot.car_free }}
+                        </span>
+
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+                {% if spot.notes %}
+
+                    <div class="day-spot-notes">
+                        {{ spot.notes }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="day-spot-buttons">
+
+
+                    {% if spot.url %}
+
+                    <a
+                        href="{{ spot.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="day-spot-site"
+                    >
+                        公式・案内サイト ↗
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if spot.map_url %}
+
+                    <a
+                        href="{{ spot.map_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="day-spot-map-link"
+                    >
+                        Googleマップ ↗
+                    </a>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+
+            <div class="day-spot-map">
+
+
+                {% if spot.map_embed_url %}
+
+                    <iframe
+                        src="{{ spot.map_embed_url }}"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                    ></iframe>
+
+                {% else %}
+
+                    <div class="map-empty">
+                        地図情報を取得できません
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </article>
+
+
+        {% endfor %}
+
+
+    </section>    <!-- =================================================
+         DAY 02
+    ================================================= -->
+
+    <section class="section">
+
+
+        <div class="day-label">
+            DAY 02
+        </div>
+
+
+        <h2 class="day-title">
+            2日目
+        </h2>
+
+
+        <div
+            class="day-route-area"
+            data-html2canvas-ignore="true"
+        >
+
+
+            <div class="day-route-text">
+
+                <strong>
+                    🗺 2日目の観光ルート
+                </strong>
+
+                <span>
+                    おすすめされたスポットを表示順のままGoogle Mapsでまとめて開きます。
+                </span>
+
+            </div>
+
+
+            <a
+                href="#"
+                class="day-route-button"
+                data-route-day="2"
+            >
+                Google Mapsでルートを見る ↗
+            </a>
+
+
+        </div>
+
+
+        {% for spot in day2 %}
+
+
+        <article class="day-spot-card">
+
+
+            <div class="day-spot-info">
+
+
+                <div class="day-spot-number">
+                    SPOT {{ loop.index }}
+                </div>
+
+
+                <button
+                    type="button"
+                    class="favorite-button"
+
+                    data-favorite-type="観光地"
+
+                    data-favorite-name="{{ spot.name }}"
+
+                    data-favorite-address="{{ spot.address if spot.address else '' }}"
+
+                    data-favorite-url="{{ spot.url if spot.url else '' }}"
+
+                    data-html2canvas-ignore="true"
+
+                    aria-pressed="false"
+                >
+                    ♡ お気に入り
+                </button>
+
+
+                <h3>
+                    📍 {{ spot.name }}
+                </h3>
+
+
+                {% if spot.area %}
+
+                    <div class="day-spot-area">
+
+                        {{ spot.area }}
+
+                        {% if spot.time %}
+
+                            ／ 約{{ spot.time }}時間
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if spot.description %}
+
+                    <p class="day-spot-description">
+                        {{ spot.description }}
+                    </p>
+
+                {% endif %}
+
+
+                {% if spot.recommendation_reason %}
+
+                    <div class="day-spot-recommendation">
+
+                        <div class="day-spot-recommendation-label">
+                            おすすめ理由
+                        </div>
+
+                        <p>
+                            {{ spot.recommendation_reason }}
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="day-spot-details">
+
+
+                    {% if spot.type %}
+
+                    <div class="detail-item">
+                        <strong>TYPE</strong>
+                        <span>{{ spot.type }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.time %}
+
+                    <div class="detail-item">
+                        <strong>STAY TIME</strong>
+                        <span>約{{ spot.time }}時間</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.address %}
+
+                    <div class="detail-item">
+                        <strong>ADDRESS</strong>
+                        <span>{{ spot.address }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.phone %}
+
+                    <div class="detail-item">
+                        <strong>PHONE</strong>
+                        <span>{{ spot.phone }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.train %}
+
+                    <div class="detail-item">
+                        <strong>TRAIN</strong>
+                        <span>{{ spot.access.train }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.bus %}
+
+                    <div class="detail-item">
+                        <strong>BUS</strong>
+                        <span>{{ spot.access.bus }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.walk %}
+
+                    <div class="detail-item">
+                        <strong>WALK</strong>
+                        <span>{{ spot.access.walk }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.access and spot.access.car %}
+
+                    <div class="detail-item">
+                        <strong>CAR</strong>
+                        <span>{{ spot.access.car }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.hours %}
+
+                    <div class="detail-item">
+                        <strong>HOURS</strong>
+                        <span>{{ spot.hours }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.price %}
+
+                    <div class="detail-item">
+                        <strong>PRICE</strong>
+                        <span>{{ spot.price }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.closed %}
+
+                    <div class="detail-item">
+                        <strong>CLOSED</strong>
+                        <span>{{ spot.closed }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.parking %}
+
+                    <div class="detail-item">
+                        <strong>PARKING</strong>
+                        <span>{{ spot.parking }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.season %}
+
+                    <div class="detail-item">
+                        <strong>SEASON</strong>
+                        <span>{{ spot.season }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.car_free %}
+
+                    <div class="detail-item">
+                        <strong>CAR FREE</strong>
+                        <span>{{ spot.car_free }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+                {% if spot.notes %}
+
+                    <div class="day-spot-notes">
+                        {{ spot.notes }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="day-spot-buttons">
+
+
+                    {% if spot.url %}
+
+                    <a
+                        href="{{ spot.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="day-spot-site"
+                    >
+                        公式・案内サイト ↗
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if spot.map_url %}
+
+                    <a
+                        href="{{ spot.map_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="day-spot-map-link"
+                    >
+                        Googleマップ ↗
+                    </a>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+
+            <div class="day-spot-map">
+
+
+                {% if spot.map_embed_url %}
+
+                    <iframe
+                        src="{{ spot.map_embed_url }}"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                    ></iframe>
+
+                {% else %}
+
+                    <div class="map-empty">
+                        地図情報を取得できません
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </article>
+
+
+        {% endfor %}
+
+
+    </section>
+
+
+    <!-- =================================================
+         DAY 03
+    ================================================= -->
+
+    {% if day3 %}
+
+    <section class="section">
+
+
+        <div class="day-label">
+            DAY 03
+        </div>
+
+
+        <h2 class="day-title">
+            3日目
+        </h2>
+
+
+        <div
+            class="day-route-area"
+            data-html2canvas-ignore="true"
+        >
+
+
+            <div class="day-route-text">
+
+                <strong>
+                    🗺 3日目の観光ルート
+                </strong>
+
+                <span>
+                    おすすめされたスポットを表示順のままGoogle Mapsでまとめて開きます。
+                </span>
+
+            </div>
+
+
+            <a
+                href="#"
+                class="day-route-button"
+                data-route-day="3"
+            >
+                Google Mapsでルートを見る ↗
+            </a>
+
+
+        </div>
+
+
+        {% for spot in day3 %}
+
+
+        <article class="day-spot-card">
+
+
+            <div class="day-spot-info">
+
+
+                <div class="day-spot-number">
+                    SPOT {{ loop.index }}
+                </div>
+
+
+                <button
+                    type="button"
+                    class="favorite-button"
+
+                    data-favorite-type="観光地"
+
+                    data-favorite-name="{{ spot.name }}"
+
+                    data-favorite-address="{{ spot.address if spot.address else '' }}"
+
+                    data-favorite-url="{{ spot.url if spot.url else '' }}"
+
+                    data-html2canvas-ignore="true"
+
+                    aria-pressed="false"
+                >
+                    ♡ お気に入り
+                </button>
+
+
+                <h3>
+                    📍 {{ spot.name }}
+                </h3>
+
+
+                {% if spot.area %}
+
+                    <div class="day-spot-area">
+
+                        {{ spot.area }}
+
+                        {% if spot.time %}
+
+                            ／ 約{{ spot.time }}時間
+
+                        {% endif %}
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if spot.description %}
+
+                    <p class="day-spot-description">
+                        {{ spot.description }}
+                    </p>
+
+                {% endif %}
+
+
+                {% if spot.recommendation_reason %}
+
+                    <div class="day-spot-recommendation">
+
+                        <div class="day-spot-recommendation-label">
+                            おすすめ理由
+                        </div>
+
+                        <p>
+                            {{ spot.recommendation_reason }}
+                        </p>
+
+                    </div>
+
+                {% endif %}
+
+
+                <div class="day-spot-details">
+
+
+                    {% if spot.type %}
+
+                    <div class="detail-item">
+                        <strong>TYPE</strong>
+                        <span>{{ spot.type }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.time %}
+
+                    <div class="detail-item">
+                        <strong>STAY TIME</strong>
+                        <span>約{{ spot.time }}時間</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.address %}
+
+                    <div class="detail-item">
+                        <strong>ADDRESS</strong>
+                        <span>{{ spot.address }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.phone %}
+
+                    <div class="detail-item">
+                        <strong>PHONE</strong>
+                        <span>{{ spot.phone }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.hours %}
+
+                    <div class="detail-item">
+                        <strong>HOURS</strong>
+                        <span>{{ spot.hours }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.price %}
+
+                    <div class="detail-item">
+                        <strong>PRICE</strong>
+                        <span>{{ spot.price }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.closed %}
+
+                    <div class="detail-item">
+                        <strong>CLOSED</strong>
+                        <span>{{ spot.closed }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.parking %}
+
+                    <div class="detail-item">
+                        <strong>PARKING</strong>
+                        <span>{{ spot.parking }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if spot.season %}
+
+                    <div class="detail-item">
+                        <strong>SEASON</strong>
+                        <span>{{ spot.season }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+                {% if spot.notes %}
+
+                    <div class="day-spot-notes">
+                        {{ spot.notes }}
+                    </div>
+
+                {% endif %}
+
+
+                <div class="day-spot-buttons">
+
+
+                    {% if spot.url %}
+
+                    <a
+                        href="{{ spot.url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="day-spot-site"
+                    >
+                        公式・案内サイト ↗
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if spot.map_url %}
+
+                    <a
+                        href="{{ spot.map_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="day-spot-map-link"
+                    >
+                        Googleマップ ↗
+                    </a>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </div>
+
+
+            <div class="day-spot-map">
+
+
+                {% if spot.map_embed_url %}
+
+                    <iframe
+                        src="{{ spot.map_embed_url }}"
+                        loading="lazy"
+                        allowfullscreen
+                        referrerpolicy="no-referrer-when-downgrade"
+                    ></iframe>
+
+                {% else %}
+
+                    <div class="map-empty">
+                        地図情報を取得できません
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </article>
+
+
+        {% endfor %}
+
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- =================================================
+         GOURMET
+    ================================================= -->
+
+    <section class="section gourmet-section">
+
+
+        <div class="section-label">
+            CHICHIBU GOURMET
+        </div>
+
+
+        <h2 class="section-title">
+            おすすめグルメ
+        </h2>
+
+
+        <p class="gourmet-intro">
+            旅行の条件をもとに、秩父旅行で立ち寄りやすい飲食店を選びました。
+        </p>
+
+
+        {% if recommended_restaurants %}
+
+
+        <div class="gourmet-list">
+
+
+            {% for restaurant in recommended_restaurants %}
+
+
+            <article class="gourmet-card">
+
+
+                <div class="gourmet-number">
+                    GOURMET {{ "%02d"|format(loop.index) }}
+                </div>
+
+
+                <button
+                    type="button"
+                    class="favorite-button"
+
+                    data-favorite-type="飲食店"
+
+                    data-favorite-name="{{ restaurant.name }}"
+
+                    data-favorite-address="{{ restaurant.address if restaurant.address else '' }}"
+
+                    data-favorite-url="{{ restaurant.url if restaurant.url else restaurant.official_url if restaurant.official_url else '' }}"
+
+                    data-html2canvas-ignore="true"
+
+                    aria-pressed="false"
+                >
+                    ♡ お気に入り
+                </button>
+
+
+                <h3>
+                    {{ restaurant.name }}
+                </h3>
+
+
+                {% if restaurant.genre %}
+
+                <div class="gourmet-genre">
+
+                    {% if restaurant.genre is string %}
+
+                        {{ restaurant.genre }}
+
+                    {% else %}
+
+                        {{ restaurant.genre | join('・') }}
+
+                    {% endif %}
+
+                </div>
+
+                {% endif %}
+
+
+                {% if restaurant.description %}
+
+                <p class="gourmet-description">
+                    {{ restaurant.description }}
+                </p>
+
+                {% endif %}
+
+
+                {% if restaurant.specialties %}
+
+                <div class="gourmet-specialties">
+
+                    {% for specialty in restaurant.specialties %}
+
+                    <span class="gourmet-specialty">
+                        {{ specialty }}
+                    </span>
+
+                    {% endfor %}
+
+                </div>
+
+                {% endif %}
+
+
+                <div class="gourmet-info">
+
+
+                    {% if restaurant.area %}
+
+                    <div class="gourmet-info-item">
+                        <strong>AREA</strong>
+                        <span>{{ restaurant.area }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if restaurant.hours %}
+
+                    <div class="gourmet-info-item">
+                        <strong>HOURS</strong>
+                        <span>{{ restaurant.hours }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if restaurant.closed %}
+
+                    <div class="gourmet-info-item">
+                        <strong>CLOSED</strong>
+                        <span>{{ restaurant.closed }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if restaurant.price_range %}
+
+                    <div class="gourmet-info-item">
+                        <strong>PRICE</strong>
+                        <span>{{ restaurant.price_range }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+                <div class="gourmet-buttons">
+
+
+                    {% if restaurant.url or restaurant.official_url %}
+
+                    <a
+                        href="{{ restaurant.url if restaurant.url else restaurant.official_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="gourmet-button primary"
+                    >
+                        公式・案内サイト ↗
+                    </a>
+
+                    {% endif %}
+
+
+                    {% if restaurant.map_url %}
+
+                    <a
+                        href="{{ restaurant.map_url }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="gourmet-button secondary"
+                    >
+                        Googleマップ ↗
+                    </a>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </article>
+
+
+            {% endfor %}
+
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="gourmet-empty">
+            条件に合うグルメ情報を表示できませんでした。
+        </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+    <!-- =================================================
+         HOTEL
+    ================================================= -->
+
+    <section class="section hotel-section">
+
+
+        <div class="section-label">
+            RECOMMENDED STAY
+        </div>
+
+
+        <h2 class="section-title">
+            おすすめ宿泊施設
+        </h2>
+
+
+        <div class="hotel-layout">
+
+
+            <div class="hotel-info">
+
+
+                <div class="hotel-info-label">
+                    SELECTED HOTEL
+                </div>
+
+
+                <button
+                    type="button"
+                    class="favorite-button"
+
+                    data-favorite-type="宿泊施設"
+
+                    data-favorite-name="{{ hotel.name }}"
+
+                    data-favorite-address="{{ hotel.address if hotel.address else '' }}"
+
+                    data-favorite-url="{{ hotel.url if hotel.url else hotel.official_url if hotel.official_url else '' }}"
+
+                    data-html2canvas-ignore="true"
+
+                    aria-pressed="false"
+                >
+                    ♡ お気に入り
+                </button>
+
+
+                <h3>
+                    🏨 {{ hotel.name }}
+                </h3>
+
+
+                {% if hotel.description %}
+
+                <p class="hotel-description">
+                    {{ hotel.description }}
+                </p>
+
+                {% endif %}
+
+
+                {% if hotel.recommendation_reason %}
+
+                <div class="hotel-long-reason">
+
+                    <div class="hotel-long-reason-label">
+                        おすすめ理由
+                    </div>
+
+                    <p>
+                        {{ hotel.recommendation_reason }}
+                    </p>
+
+                </div>
+
+                {% endif %}
+
+
+                <div class="hotel-detail-grid">
+
+
+                    {% if hotel.address %}
+
+                    <div class="detail-item">
+                        <strong>ADDRESS</strong>
+                        <span>{{ hotel.address }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if hotel.phone %}
+
+                    <div class="detail-item">
+                        <strong>PHONE</strong>
+                        <span>{{ hotel.phone }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if hotel.parking %}
+
+                    <div class="detail-item">
+                        <strong>PARKING</strong>
+                        <span>{{ hotel.parking }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if hotel.check_in %}
+
+                    <div class="detail-item">
+                        <strong>CHECK IN</strong>
+                        <span>{{ hotel.check_in }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                    {% if hotel.check_out %}
+
+                    <div class="detail-item">
+                        <strong>CHECK OUT</strong>
+                        <span>{{ hotel.check_out }}</span>
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+                {% if hotel.price %}
+
+                <div class="hotel-price">
+
+                    <small>
+                        PRICE
+                    </small>
+
+                    <strong>
+                        {{ hotel.price }}円 / 人〜
+                    </strong>
+
+                </div>
+
+                {% endif %}
+
+
+                <p class="hotel-reference">
+                    ※ 宿泊料金は旅行日・人数・プランによって変動します。
+                </p>
+
+
+                {% if hotel.url or hotel.official_url %}
+
+                <a
+                    href="{{ hotel.url if hotel.url else hotel.official_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hotel-button"
+                >
+                    公式・案内サイト ↗
+                </a>
+
+                {% endif %}
+
+
+                {% if hotel.map_url %}
+
+                <a
+                    href="{{ hotel.map_url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hotel-button map"
+                >
+                    Googleマップで見る ↗
+                </a>
+
+                {% endif %}
+
+
+            </div>
+
+
+            <div class="google-map">
+
+
+                {% if hotel.map_embed_url %}
+
+                <iframe
+                    src="{{ hotel.map_embed_url }}"
+                    loading="lazy"
+                    allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                ></iframe>
+
+                {% else %}
+
+                <div class="map-empty">
+                    地図情報を取得できません
+                </div>
+
+                {% endif %}
+
+
+            </div>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         BUDGET
+    ================================================= -->
+
+    <section class="section">
+
+
+        <div class="budget-box">
+
+
+            <div class="section-label">
+                BUDGET
+            </div>
+
+
+            <h3>
+                旅行予算の目安
+            </h3>
+
+
+            <div class="budget-grid">
+
+
+                <div class="budget-item">
+
+                    <small>
+                        YOUR BUDGET
+                    </small>
+
+                    <strong>
+                        {{ total_budget }}円
+                    </strong>
+
+                </div>
+
+
+                <div class="budget-item">
+
+                    <small>
+                        HOTEL
+                    </small>
+
+                    <strong>
+                        {{ total_price }}円
+                    </strong>
+
+                </div>
+
+
+                <div class="budget-item">
+
+                    <small>
+                        HOTEL RATIO
+                    </small>
+
+                    <strong>
+                        {{ budget_ratio }}%
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <p class="budget-note">
+                {{ budget_status }}
+            </p>
+
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         SUMMARY
+    ================================================= -->
+
+    <section class="section">
+
+
+        <div class="section-label">
+            TRIP SUMMARY
+        </div>
+
+
+        <h2 class="section-title">
+            あなたの秩父旅行
+        </h2>
+
+
+        <div class="summary-box">
+
+            <p>
+                {{ trip_summary }}
+            </p>
+
+        </div>
+
+
+    </section>
+
+
+    <!-- =================================================
+         ACTIONS
+    ================================================= -->
+
+    <div
+        class="back-area"
+        data-html2canvas-ignore="true"
+    >
+
+        <a
+            href="/"
+            class="back-button"
+        >
+            ← 条件を変更してもう一度作成
+        </a>
+
+    </div>
+
+
+    <div
+        class="save-history-area"
+        data-html2canvas-ignore="true"
+    >
+
+        <button
+            type="button"
+            id="savePlanHistoryButton"
+            class="save-history-button"
+        >
+            ▣ この旅行プランを保存
+        </button>
+
+
+        <p
+            id="savePlanHistoryStatus"
+            class="save-history-status"
+        >
+            完成したプランを履歴に保存できます。
+        </p>
+
+    </div>
+
+
+    <div
+        class="trip-book-create-area"
+        data-html2canvas-ignore="true"
+    >
+
+        <button
+            type="button"
+            id="createTripBookButton"
+            class="trip-book-create-button"
+        >
+            ▤ このプランからTRIP BOOKを作る
+        </button>
+
+
+        <p class="trip-book-create-note">
+            今の旅行プランを使って旅行しおりを作成できます。
+        </p>
+
+    </div>
+
+
+    <div
+        class="save-image-area"
+        data-html2canvas-ignore="true"
+    >
+
+        <button
+            type="button"
+            id="savePlanImageButton"
+            class="save-image-button"
+        >
+            この旅行プランを画像として保存
+        </button>
+
+
+        <p
+            id="savePlanImageStatus"
+            class="save-image-status"
+        >
+            旅行プランをPNG画像として保存できます。
+        </p>
+
+    </div>
+
+
+</main>
+
+
+<footer>
+
+    <strong>
+        CHICHIBU
+    </strong>
+
+    <p>
+        DISCOVER · EXPERIENCE · REMEMBER
+    </p>
+
+</footer>
+
+
+<!-- =====================================================
+     JSON DATA
+===================================================== -->
+
+<script
+    id="tripRouteData"
+    type="application/json"
+>
+{{ {"car": car, "day1": day1, "day2": day2, "day3": day3} | tojson }}
+</script>
+
+
+<script
+    id="tripHistorySnapshotData"
+    type="application/json"
+>
+{{ history_payload | tojson }}
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+
+<!-- =====================================================
+     DAY ROUTE
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const routeElement =
+            document.getElementById(
+                "tripRouteData"
+            );
+
+
+        if (
+            !routeElement
+        ) {
+
+            return;
+
+        }
+
+
+        let routeData = {};
+
+
+        try {
+
+            routeData =
+                JSON.parse(
+                    routeElement.textContent
+                    ||
+                    "{}"
+                );
+
+        }
+
+        catch (
+            error
+        ) {
+
+            console.error(
+                "ルートデータ読み込みエラー:",
+                error
+            );
+
+            return;
+
+        }
+
+
+        function getPoint(
+            item
+        ) {
+
+            if (
+                !item
+            ) {
+
+                return "";
+
+            }
+
+
+            const lat =
+
+                item.latitude ??
+
+                item.lat ??
+
+                item.master_latitude;
+
+
+            const lng =
+
+                item.longitude ??
+
+                item.lng ??
+
+                item.master_longitude;
+
+
+            if (
+                lat !== undefined
+                &&
+                lat !== null
+                &&
+                lng !== undefined
+                &&
+                lng !== null
+            ) {
+
+                return (
+                    String(
+                        lat
+                    )
+                    +
+                    ","
+                    +
+                    String(
+                        lng
+                    )
+                );
+
+            }
+
+
+            if (
+                item.address
+            ) {
+
+                return item.address;
+
+            }
+
+
+            if (
+                item.name
+            ) {
+
+                return (
+                    item.name
+                    +
+                    " 秩父 埼玉県 日本"
+                );
+
+            }
+
+
+            return "";
+
+        }
+
+
+        function buildRoute(
+            items
+        ) {
+
+            const points =
+
+                (items || [])
+
+                .map(
+                    getPoint
+                )
+
+                .filter(
+                    Boolean
+                );
+
+
+            if (
+                points.length === 0
+            ) {
+
+                return "";
+
+            }
+
+
+            if (
+                points.length === 1
+            ) {
+
+                return (
+                    "https://www.google.com/maps/search/?api=1&query="
+                    +
+                    encodeURIComponent(
+                        points[0]
+                    )
+                );
+
+            }
+
+
+            const origin =
+                points[0];
+
+
+            const destination =
+                points[
+                    points.length - 1
+                ];
+
+
+            const waypoints =
+                points.slice(
+                    1,
+                    -1
+                );
+
+
+            const travelMode =
+
+                String(
+                    routeData.car
+                    ||
+                    ""
+                )
+                .includes(
+                    "あり"
+                )
+
+                ?
+                "driving"
+
+                :
+                "transit";
+
+
+            let url =
+
+                "https://www.google.com/maps/dir/?api=1"
+
+                +
+
+                "&origin="
+
+                +
+
+                encodeURIComponent(
+                    origin
+                )
+
+                +
+
+                "&destination="
+
+                +
+
+                encodeURIComponent(
+                    destination
+                )
+
+                +
+
+                "&travelmode="
+
+                +
+
+                encodeURIComponent(
+                    travelMode
+                );
+
+
+            if (
+                waypoints.length
+            ) {
+
+                url +=
+
+                    "&waypoints="
+
+                    +
+
+                    encodeURIComponent(
+                        waypoints.join(
+                            "|"
+                        )
+                    );
+
+            }
+
+
+            return url;
+
+        }
+
+
+        document
+        .querySelectorAll(
+            "[data-route-day]"
+        )
+        .forEach(
+            function (
+                button
+            ) {
+
+                const day =
+                    button.dataset.routeDay;
+
+
+                const items =
+
+                    routeData[
+                        "day" + day
+                    ]
+
+                    ||
+
+                    [];
+
+
+                const url =
+                    buildRoute(
+                        items
+                    );
+
+
+                if (
+                    !url
+                ) {
+
+                    button.style.display =
+                        "none";
+
+                    return;
+
+                }
+
+
+                button.href =
+                    url;
+
+
+                button.target =
+                    "_blank";
+
+
+                button.rel =
+                    "noopener noreferrer";
+
+            }
+        );
+
+
+    }
+);
+
+</script>
+
+
+<!-- =====================================================
+     FAVORITES
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const FAVORITES_KEY =
+            "chichibuTravelFavoritesV1";
+
+
+        const countElement =
+            document.getElementById(
+                "resultFavoriteCount"
+            );
+
+
+        function readFavorites() {
+
+            try {
+
+                const raw =
+                    localStorage.getItem(
+                        FAVORITES_KEY
+                    );
+
+
+                const parsed =
+
+                    raw
+
+                    ?
+
+                    JSON.parse(
+                        raw
+                    )
+
+                    :
+
+                    [];
+
+
+                return Array.isArray(
+                    parsed
+                )
+
+                ?
+
+                parsed
+
+                :
+
+                [];
+
+            }
+
+            catch (
+                error
+            ) {
+
+                console.error(
+                    "お気に入り読み込みエラー:",
+                    error
+                );
+
+
+                return [];
+
+            }
+
+        }
+
+
+        function writeFavorites(
+            data
+        ) {
+
+            localStorage.setItem(
+                FAVORITES_KEY,
+                JSON.stringify(
+                    data
+                )
+            );
+
+        }
+
+
+        function itemKey(
+            item
+        ) {
+
+            return [
+
+                item.type || "",
+
+                item.name || "",
+
+                item.address || ""
+
+            ]
+            .join(
+                "|"
+            );
+
+        }
+
+
+        function update() {
+
+            const favorites =
+                readFavorites();
+
+
+            if (
+                countElement
+            ) {
+
+                countElement.textContent =
+                    favorites.length;
+
+            }
+
+
+            const keys =
+                new Set(
+                    favorites.map(
+                        itemKey
+                    )
+                );
+
+
+            document
+            .querySelectorAll(
+                ".favorite-button"
+            )
+            .forEach(
+                function (
+                    button
+                ) {
+
+                    const item = {
+
+                        type:
+                            button.dataset.favoriteType || "",
+
+                        name:
+                            button.dataset.favoriteName || "",
+
+                        address:
+                            button.dataset.favoriteAddress || ""
+
+                    };
+
+
+                    const active =
+                        keys.has(
+                            itemKey(
+                                item
+                            )
+                        );
+
+
+                    button.classList.toggle(
+                        "is-favorite",
+                        active
+                    );
+
+
+                    button.textContent =
+
+                        active
+
+                        ?
+
+                        "♥ お気に入り済み"
+
+                        :
+
+                        "♡ お気に入り";
+
+
+                    button.setAttribute(
+                        "aria-pressed",
+                        active
+                            ?
+                            "true"
+                            :
+                            "false"
+                    );
+
+                }
+            );
+
+        }
+
+
+        document
+        .querySelectorAll(
+            ".favorite-button"
+        )
+        .forEach(
+            function (
+                button
+            ) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const item = {
+
+                            type:
+                                button.dataset.favoriteType || "",
+
+                            name:
+                                button.dataset.favoriteName || "",
+
+                            address:
+                                button.dataset.favoriteAddress || "",
+
+                            url:
+                                button.dataset.favoriteUrl || ""
+
+                        };
+
+
+                        const key =
+                            itemKey(
+                                item
+                            );
+
+
+                        let favorites =
+                            readFavorites();
+
+
+                        const exists =
+                            favorites.some(
+                                function (
+                                    saved
+                                ) {
+
+                                    return (
+                                        itemKey(
+                                            saved
+                                        )
+                                        ===
+                                        key
+                                    );
+
+                                }
+                            );
+
+
+                        if (
+                            exists
+                        ) {
+
+                            favorites =
+                                favorites.filter(
+                                    function (
+                                        saved
+                                    ) {
+
+                                        return (
+                                            itemKey(
+                                                saved
+                                            )
+                                            !==
+                                            key
+                                        );
+
+                                    }
+                                );
+
+                        }
+
+                        else {
+
+                            favorites.unshift(
+                                item
+                            );
+
+                        }
+
+
+                        writeFavorites(
+                            favorites
+                        );
+
+
+                        update();
+
+                    }
+                );
+
+            }
+        );
+
+
+        update();
+
+
+    }
+);
+
+</script>
+
+
+<!-- =====================================================
+     HISTORY
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const HISTORY_KEY =
+            "chichibuTravelPlanHistoryV1";
+
+
+        const snapshotElement =
+            document.getElementById(
+                "tripHistorySnapshotData"
+            );
+
+
+        const saveButton =
+            document.getElementById(
+                "savePlanHistoryButton"
+            );
+
+
+        const status =
+            document.getElementById(
+                "savePlanHistoryStatus"
+            );
+
+
+        const countElement =
+            document.getElementById(
+                "resultHistoryCount"
+            );
+
+
+        if (
+            !snapshotElement
+            ||
+            !saveButton
+        ) {
+
+            return;
+
+        }
+
+
+        let snapshot = {};
+
+
+        try {
+
+            snapshot =
+                JSON.parse(
+                    snapshotElement.textContent
+                    ||
+                    "{}"
+                );
+
+        }
+
+        catch (
+            error
+        ) {
+
+            console.error(
+                "履歴保存用データ読み込みエラー:",
+                error
+            );
+
+            return;
+
+        }
+
+
+        function readHistory() {
+
+            try {
+
+                const raw =
+                    localStorage.getItem(
+                        HISTORY_KEY
+                    );
+
+
+                const parsed =
+
+                    raw
+
+                    ?
+
+                    JSON.parse(
+                        raw
+                    )
+
+                    :
+
+                    [];
+
+
+                return Array.isArray(
+                    parsed
+                )
+
+                ?
+
+                parsed
+
+                :
+
+                [];
+
+            }
+
+            catch (
+                error
+            ) {
+
+                return [];
+
+            }
+
+        }
+
+
+        function writeHistory(
+            data
+        ) {
+
+            localStorage.setItem(
+                HISTORY_KEY,
+                JSON.stringify(
+                    data
+                )
+            );
+
+        }
+
+
+        function makeFingerprint(
+            plan
+        ) {
+
+            return JSON.stringify({
+
+                travel_date:
+                    plan.travel_date || "",
+
+                days:
+                    plan.days || "",
+
+                people:
+                    plan.people || "",
+
+                member:
+                    plan.member || "",
+
+                car:
+                    plan.car || "",
+
+                purpose:
+                    plan.purpose || [],
+
+                day1:
+                    (plan.day1 || []).map(
+                        item => item.name
+                    ),
+
+                day2:
+                    (plan.day2 || []).map(
+                        item => item.name
+                    ),
+
+                day3:
+                    (plan.day3 || []).map(
+                        item => item.name
+                    ),
+
+                hotel:
+                    plan.hotel
+                        ?
+                        plan.hotel.name
+                        :
+                        ""
+
+            });
+
+        }
+
+
+        const fingerprint =
+            makeFingerprint(
+                snapshot
+            );
+
+
+        function updateHistoryCount() {
+
+            if (
+                countElement
+            ) {
+
+                countElement.textContent =
+                    readHistory().length;
+
+            }
+
+        }
+
+
+        function updateButton() {
+
+            const exists =
+                readHistory().some(
+                    function (
+                        item
+                    ) {
+
+                        return (
+                            item.fingerprint ===
+                            fingerprint
+                        );
+
+                    }
+                );
+
+
+            if (
+                exists
+            ) {
+
+                saveButton.classList.add(
+                    "is-saved"
+                );
+
+
+                saveButton.textContent =
+                    "✓ 保存済み";
+
+
+                if (
+                    status
+                ) {
+
+                    status.textContent =
+                        "この旅行プランは保存済みです。";
+
+                }
+
+            }
+
+        }
+
+
+        saveButton.addEventListener(
+            "click",
+            function () {
+
+                const history =
+                    readHistory();
+
+
+                const exists =
+                    history.some(
+                        function (
+                            item
+                        ) {
+
+                            return (
+                                item.fingerprint ===
+                                fingerprint
+                            );
+
+                        }
+                    );
+
+
+                if (
+                    exists
+                ) {
+
+                    updateButton();
+
+                    return;
+
+                }
+
+
+                const savedPlan =
+                    Object.assign(
+                        {},
+                        snapshot,
+                        {
+
+                            id:
+                                "trip-plan-"
+                                +
+                                Date.now(),
+
+                            savedAt:
+                                new Date()
+                                .toISOString(),
+
+                            fingerprint:
+                                fingerprint
+
+                        }
+                    );
+
+
+                history.unshift(
+                    savedPlan
+                );
+
+
+                writeHistory(
+                    history
+                );
+
+
+                saveButton.classList.add(
+                    "is-saved"
+                );
+
+
+                saveButton.textContent =
+                    "✓ 保存しました";
+
+
+                if (
+                    status
+                ) {
+
+                    status.textContent =
+                        "旅行プラン履歴に保存しました。";
+
+                }
+
+
+                updateHistoryCount();
+
+            }
+        );
+
+
+        updateHistoryCount();
+
+        updateButton();
+
+
+    }
+);
+
+</script>
+
+
+<!-- =====================================================
+     TRIP BOOK
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const button =
+            document.getElementById(
+                "createTripBookButton"
+            );
+
+
+        const snapshotElement =
+            document.getElementById(
+                "tripHistorySnapshotData"
+            );
+
+
+        if (
+            !button
+            ||
+            !snapshotElement
+        ) {
+
+            return;
+
+        }
+
+
+        button.addEventListener(
+            "click",
+            function () {
+
+                try {
+
+                    const snapshot =
+                        JSON.parse(
+                            snapshotElement.textContent
+                            ||
+                            "{}"
+                        );
+
+
+                    localStorage.setItem(
+                        "chichibuTripBookDraftV1",
+                        JSON.stringify({
+                            sourcePlan:
+                                snapshot,
+
+                            createdAt:
+                                new Date()
+                                .toISOString()
+                        })
+                    );
+
+
+                    /*
+                        ここは url_for('trip_book') を使わない。
+                        Flask側のendpoint名が違っても
+                        result.html自体がBuildErrorにならないようにする。
+                    */
+
+                    window.location.href =
+                        "/trip-book";
+
+                }
+
+                catch (
+                    error
+                ) {
+
+                    console.error(
+                        "TRIP BOOK作成エラー:",
+                        error
+                    );
+
+
+                    alert(
+                        "TRIP BOOKの作成準備に失敗しました。"
+                    );
+
+                }
+
+            }
+        );
+
+
+    }
+);
+
+</script>
+
+
+<!-- =====================================================
+     IMAGE SAVE
+===================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const button =
+            document.getElementById(
+                "savePlanImageButton"
+            );
+
+
+        const status =
+            document.getElementById(
+                "savePlanImageStatus"
+            );
+
+
+        if (
+            !button
+        ) {
+
+            return;
+
+        }
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+
+                if (
+                    typeof html2canvas ===
+                    "undefined"
+                ) {
+
+                    if (
+                        status
+                    ) {
+
+                        status.textContent =
+                            "画像保存機能を読み込めませんでした。";
+
+                    }
+
+
+                    return;
+
+                }
+
+
+                button.disabled =
+                    true;
+
+
+                const originalText =
+                    button.textContent;
+
+
+                button.textContent =
+                    "画像を作成中…";
+
+
+                try {
+
+
+                    const sections =
+
+                        Array.from(
+                            document.querySelectorAll(
+                                "main > .section"
+                            )
+                        );
+
+
+                    for (
+                        let i = 0;
+                        i < sections.length;
+                        i++
+                    ) {
+
+
+                        if (
+                            status
+                        ) {
+
+                            status.textContent =
+                                (
+                                    i + 1
+                                )
+                                +
+                                " / "
+                                +
+                                sections.length
+                                +
+                                " 枚目を保存しています…";
+
+                        }
+
+
+                        const canvas =
+                            await html2canvas(
+                                sections[i],
+                                {
+
+                                    scale:2,
+
+                                    useCORS:true,
+
+                                    backgroundColor:
+                                        "#f4f1e9",
+
+                                    logging:false
+
+                                }
+                            );
+
+
+                        const link =
+                            document.createElement(
+                                "a"
+                            );
+
+
+                        link.download =
+
+                            "chichibu-trip-plan-"
+
+                            +
+
+                            String(
+                                i + 1
+                            )
+                            .padStart(
+                                2,
+                                "0"
+                            )
+
+                            +
+
+                            ".png";
+
+
+                        link.href =
+                            canvas.toDataURL(
+                                "image/png"
+                            );
+
+
+                        document.body.appendChild(
+                            link
+                        );
+
+
+                        link.click();
+
+
+                        link.remove();
+
+
+                        await new Promise(
+                            function (
+                                resolve
+                            ) {
+
+                                setTimeout(
+                                    resolve,
+                                    150
+                                );
+
+                            }
+                        );
+
+
+                    }
+
+
+                    if (
+                        status
+                    ) {
+
+                        status.textContent =
+                            "旅行プランの画像保存が完了しました。";
+
+                    }
+
+
+                }
+
+                catch (
+                    error
+                ) {
+
+
+                    console.error(
+                        "画像保存エラー:",
+                        error
+                    );
+
+
+                    if (
+                        status
+                    ) {
+
+                        status.textContent =
+                            "画像保存に失敗しました。";
+
+                    }
+
+
+                }
+
+                finally {
+
+
+                    button.disabled =
+                        false;
+
+
+                    button.textContent =
+                        originalText;
+
+
+                }
+
+
+            }
+        );
+
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

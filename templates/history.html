@@ -1,0 +1,3336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行プラン履歴 | 秩父旅行プランナー</title>
+
+    <style>
+
+        *{
+            box-sizing:border-box;
+        }
+
+        body{
+            margin:0;
+            background:#f4f1e9;
+            color:#20352d;
+            font-family:
+                "Yu Gothic",
+                "Hiragino Kaku Gothic ProN",
+                Meiryo,
+                sans-serif;
+        }
+
+        a{
+            color:inherit;
+        }
+
+        /* =====================================================
+           HERO
+        ====================================================== */
+
+        .history-page-hero{
+            min-height:300px;
+            display:flex;
+            align-items:center;
+            position:relative;
+            color:#fff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #18392f 0%,
+                    #0c211a 100%
+                );
+        }
+
+        .history-page-hero-inner{
+            width:min(1100px,90%);
+            margin:0 auto;
+            padding:62px 0;
+        }
+
+        .history-page-label{
+            margin-bottom:14px;
+            color:#d9c58b;
+            font-size:10px;
+            letter-spacing:4px;
+            font-weight:700;
+        }
+
+        .history-page-hero h1{
+            margin:0 0 14px;
+            font-family:Georgia,serif;
+            font-size:clamp(42px,6vw,70px);
+            line-height:1.1;
+            font-weight:400;
+        }
+
+        .history-page-hero h1 span{
+            color:#dcc98e;
+        }
+
+        .history-page-hero p{
+            margin:0;
+            color:rgba(255,255,255,.82);
+            line-height:1.9;
+            font-size:13px;
+        }
+
+        /* =====================================================
+           NAV
+        ====================================================== */
+
+        .history-top-nav{
+            position:absolute;
+            top:24px;
+            right:28px;
+
+            display:flex;
+            flex-direction:column;
+            align-items:flex-end;
+            gap:8px;
+
+            z-index:20;
+        }
+
+        .history-nav-link{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+
+            padding:10px 16px;
+
+            border:
+                1px solid
+                rgba(255,255,255,.35);
+
+            border-radius:999px;
+
+            background:
+                rgba(8,35,28,.42);
+
+            color:#fff;
+
+            text-decoration:none;
+
+            font-size:11px;
+            font-weight:700;
+
+            backdrop-filter:
+                blur(8px);
+
+            transition:.25s;
+        }
+
+        .history-nav-link:hover{
+            background:#9a8252;
+            border-color:#9a8252;
+        }
+
+        .history-nav-link.active{
+            background:#9a8252;
+            border-color:#9a8252;
+        }
+
+        /* =====================================================
+           MAIN
+        ====================================================== */
+
+        main{
+            width:min(1100px,90%);
+            margin:0 auto;
+            padding:68px 0 100px;
+        }
+
+        /* =====================================================
+           EMPTY
+        ====================================================== */
+
+        .history-empty{
+            padding:40px;
+
+            border:
+                1px solid
+                #ded9cc;
+
+            border-radius:18px;
+
+            background:#fffdf8;
+
+            color:#68746e;
+
+            line-height:1.9;
+
+            font-size:13px;
+
+            box-shadow:
+                0 12px 35px
+                rgba(25,45,35,.06);
+        }
+
+        .history-empty strong{
+            display:block;
+
+            margin-bottom:8px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:25px;
+
+            font-weight:400;
+        }
+
+        /* =====================================================
+           HISTORY CARDS
+        ====================================================== */
+
+        .history-list{
+            display:grid;
+
+            grid-template-columns:
+                1fr
+                1fr;
+
+            gap:20px;
+        }
+
+        .history-card{
+            position:relative;
+
+            background:#fff;
+
+            border-radius:18px;
+
+            padding:26px;
+
+            box-shadow:
+                0 12px 35px
+                rgba(25,45,35,.07);
+        }
+
+        .history-card-date{
+            color:#9a8252;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            letter-spacing:1.5px;
+
+            margin-bottom:10px;
+        }
+
+        .history-card h2{
+            margin:0 0 12px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:25px;
+
+            font-weight:400;
+
+            line-height:1.35;
+        }
+
+        .history-card-meta{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:7px;
+
+            margin-bottom:16px;
+        }
+
+        .history-pill{
+            padding:7px 10px;
+
+            border-radius:999px;
+
+            background:#f5f2e9;
+
+            color:#6d5c36;
+
+            font-size:10px;
+        }
+
+        .history-card-purpose{
+            margin:0 0 18px;
+
+            color:#68746e;
+
+            font-size:12px;
+
+            line-height:1.8;
+        }
+
+        /* =====================================================
+           ACTION
+        ====================================================== */
+
+        .history-card-actions{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+        }
+
+        .history-action{
+            min-height:38px;
+
+            padding:9px 13px;
+
+            border:
+                1px solid
+                #d8cfbb;
+
+            border-radius:8px;
+
+            background:#fffdf8;
+
+            color:#18392f;
+
+            font-family:inherit;
+
+            font-size:10px;
+
+            font-weight:700;
+
+            cursor:pointer;
+
+            text-decoration:none;
+
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+        }
+
+        .history-action.primary{
+            background:#18392f;
+
+            color:#fff;
+
+            border-color:#18392f;
+        }
+
+        .history-action.primary:hover{
+            background:#9a8252;
+
+            border-color:#9a8252;
+        }
+
+        .history-action.remove:hover{
+            background:#f0e8d6;
+
+            border-color:#9a8252;
+
+            color:#6d5c36;
+        }
+
+        /* =====================================================
+           DETAIL MODAL
+        ====================================================== */
+
+        .detail-modal{
+            position:fixed;
+
+            inset:0;
+
+            display:none;
+
+            align-items:center;
+
+            justify-content:center;
+
+            padding:24px;
+
+            background:
+                rgba(8,25,20,.64);
+
+            z-index:1000;
+        }
+
+        .detail-modal.is-open{
+            display:flex;
+        }
+
+        .detail-panel{
+            width:min(940px,100%);
+
+            max-height:92vh;
+
+            overflow:auto;
+
+            padding:34px;
+
+            border-radius:20px;
+
+            background:#f8f6ef;
+
+            box-shadow:
+                0 30px 80px
+                rgba(0,0,0,.25);
+
+            position:relative;
+        }
+
+        .detail-close{
+            position:absolute;
+
+            top:18px;
+
+            right:18px;
+
+            width:38px;
+
+            height:38px;
+
+            padding:0;
+
+            border:
+                1px solid
+                #d8cfbb;
+
+            border-radius:50%;
+
+            background:#fffdf8;
+
+            color:#18392f;
+
+            font-family:inherit;
+
+            font-size:18px;
+
+            cursor:pointer;
+        }
+
+        .detail-label{
+            color:#9a8252;
+
+            font-size:9px;
+
+            font-weight:700;
+
+            letter-spacing:3px;
+
+            margin-bottom:8px;
+        }
+
+        .detail-title{
+            margin:
+                0
+                50px
+                6px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:38px;
+
+            font-weight:400;
+        }
+
+        .detail-saved{
+            margin:0 0 24px;
+
+            color:#7a817d;
+
+            font-size:10px;
+        }
+
+        .detail-section{
+            margin-bottom:30px;
+        }
+
+        .detail-section h3{
+            margin:0 0 14px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:26px;
+
+            font-weight:400;
+        }
+
+        .condition-grid{
+            display:grid;
+
+            grid-template-columns:
+                repeat(4,1fr);
+
+            gap:10px;
+        }
+
+        .condition-card{
+            padding:14px;
+
+            background:#fff;
+
+            border-radius:10px;
+
+            box-shadow:
+                0 8px 24px
+                rgba(25,45,35,.05);
+        }
+
+        .condition-card small{
+            display:block;
+
+            margin-bottom:5px;
+
+            color:#9a8252;
+
+            font-size:8px;
+
+            letter-spacing:1.5px;
+        }
+
+        .condition-card strong{
+            font-size:12px;
+
+            line-height:1.6;
+        }
+
+        .feature-list{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+        }
+
+        .feature{
+            padding:9px 13px;
+
+            border-radius:999px;
+
+            background:#18392f;
+
+            color:#fff;
+
+            font-size:10px;
+        }
+
+        .day-block,
+        .restaurant-block,
+        .hotel-block,
+        .other-hotel-block{
+            margin-bottom:14px;
+
+            padding:20px;
+
+            border-radius:14px;
+
+            background:#fff;
+
+            box-shadow:
+                0 8px 24px
+                rgba(25,45,35,.05);
+        }
+
+        .item-title{
+            margin:0 0 7px;
+
+            color:#18392f;
+
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:21px;
+
+            font-weight:400;
+        }
+
+        .item-area{
+            margin-bottom:12px;
+
+            color:#9a8252;
+
+            font-size:10px;
+        }
+
+        .item-description{
+            margin:0 0 14px;
+
+            color:#68746e;
+
+            font-size:12px;
+
+            line-height:1.8;
+        }
+
+        .item-reason{
+            margin:0 0 14px;
+
+            padding:12px;
+
+            background:#f7f5ef;
+
+            border-radius:9px;
+
+            color:#59665f;
+
+            font-size:11px;
+
+            line-height:1.8;
+        }
+
+        .detail-grid{
+            display:grid;
+
+            grid-template-columns:
+                1fr
+                1fr;
+
+            gap:8px;
+
+            margin-bottom:14px;
+        }
+
+        .detail-box{
+            padding:10px 12px;
+
+            background:#f7f5ef;
+
+            border-radius:8px;
+        }
+
+        .detail-box strong{
+            display:block;
+
+            margin-bottom:4px;
+
+            color:#9a8252;
+
+            font-size:8px;
+
+            letter-spacing:1.2px;
+        }
+
+        .detail-box span{
+            display:block;
+
+            color:#59665f;
+
+            font-size:10px;
+
+            line-height:1.65;
+
+            white-space:pre-line;
+        }
+
+        .item-actions{
+            display:flex;
+
+            flex-wrap:wrap;
+
+            gap:8px;
+        }
+
+        .item-actions a{
+            padding:9px 12px;
+
+            border-radius:8px;
+
+            background:#18392f;
+
+            color:#fff;
+
+            text-decoration:none;
+
+            font-size:10px;
+
+            font-weight:700;
+        }
+
+        .item-actions a.secondary{
+            background:#fffdf8;
+
+            color:#18392f;
+
+            border:
+                1px solid
+                #d8cfbb;
+        }
+
+        .budget-box{
+            padding:22px;
+
+            border-radius:14px;
+
+            background:#18392f;
+
+            color:#fff;
+        }
+
+        .budget-grid{
+            display:grid;
+
+            grid-template-columns:
+                repeat(3,1fr);
+
+            gap:10px;
+        }
+
+        .budget-item{
+            padding:14px;
+
+            background:
+                rgba(255,255,255,.08);
+
+            border-radius:9px;
+        }
+
+        .budget-item small{
+            display:block;
+
+            margin-bottom:5px;
+
+            color:#d9c58b;
+
+            font-size:8px;
+
+            letter-spacing:1.5px;
+        }
+
+        .budget-item strong{
+            font-size:16px;
+        }
+
+        .summary-box{
+            padding:20px;
+
+            border-radius:14px;
+
+            background:#fff;
+
+            color:#65716b;
+
+            font-size:12px;
+
+            line-height:2;
+        }
+
+        /* =====================================================
+           FOOTER
+        ====================================================== */
+
+        footer{
+            background:#0c211a;
+
+            color:#fff;
+
+            text-align:center;
+
+            padding:60px 20px;
+        }
+
+        footer strong{
+            font-family:
+                Georgia,
+                serif;
+
+            font-size:28px;
+
+            letter-spacing:7px;
+        }
+
+        footer p{
+            margin:12px 0 0;
+
+            color:#cdbd8c;
+
+            font-size:9px;
+
+            letter-spacing:4px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media(max-width:800px){
+
+            .history-list{
+                grid-template-columns:
+                    1fr;
+            }
+
+            .condition-grid{
+                grid-template-columns:
+                    repeat(2,1fr);
+            }
+
+            .budget-grid{
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+        @media(max-width:560px){
+
+            .history-top-nav{
+                top:16px;
+
+                right:16px;
+
+                gap:6px;
+            }
+
+            .history-nav-link{
+                padding:9px 12px;
+
+                font-size:10px;
+            }
+
+            .detail-panel{
+                padding:26px 20px;
+            }
+
+            .detail-title{
+                font-size:30px;
+            }
+
+            .condition-grid,
+            .detail-grid{
+                grid-template-columns:
+                    1fr;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<header class="history-page-hero">
+
+
+    <div class="history-top-nav">
+
+        <a
+            href="/favorites"
+            class="history-nav-link"
+        >
+            ♡ お気に入り
+        </a>
+
+        <a
+            href="/history"
+            class="history-nav-link active"
+        >
+            ▣ 旅行プラン履歴
+        </a>
+
+        <a
+            href="/"
+            class="history-nav-link"
+        >
+            ← 旅行プランに戻る
+        </a>
+
+    </div>
+
+
+    <div class="history-page-hero-inner">
+
+        <div class="history-page-label">
+            YOUR TRIP HISTORY
+        </div>
+
+        <h1>
+            ▣
+            <span>
+                旅行プラン履歴
+            </span>
+        </h1>
+
+        <p>
+            保存した完成済みの旅行プランを、新しい順に確認できます。
+            <br>
+            「プランを見る」から、保存した時点の内容をそのまま見返せます。
+        </p>
+
+    </div>
+
+
+</header>
+
+
+
+<main>
+
+
+    <div
+        id="historyList"
+        class="history-list"
+    ></div>
+
+
+    <div
+        id="historyEmpty"
+        class="history-empty"
+        hidden
+    >
+
+        <strong>
+            保存した旅行プランはまだありません。
+        </strong>
+
+        旅行プランを作成して「この旅行プランを保存」を押すと、
+        ここからいつでも見返せるようになります。
+
+    </div>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     自動作成プラン詳細モーダル
+====================================================== -->
+
+<div
+    class="detail-modal"
+    id="detailModal"
+    aria-hidden="true"
+>
+
+
+    <div
+        class="detail-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detailTitle"
+    >
+
+
+        <button
+            type="button"
+            class="detail-close"
+            id="detailCloseButton"
+            aria-label="閉じる"
+        >
+            ×
+        </button>
+
+
+        <div id="detailContent">
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<footer>
+
+    <strong>
+        CHICHIBU
+    </strong>
+
+    <p>
+        DISCOVER · EXPERIENCE · REMEMBER
+    </p>
+
+</footer>
+
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* =====================================================
+           STORAGE
+        ====================================================== */
+
+        const STORAGE_KEY =
+            "chichibuTravelPlanHistoryV1";
+
+
+        const list =
+            document.getElementById(
+                "historyList"
+            );
+
+
+        const empty =
+            document.getElementById(
+                "historyEmpty"
+            );
+
+
+        const modal =
+            document.getElementById(
+                "detailModal"
+            );
+
+
+        const closeButton =
+            document.getElementById(
+                "detailCloseButton"
+            );
+
+
+        const detailContent =
+            document.getElementById(
+                "detailContent"
+            );
+
+
+
+        /* =====================================================
+           HISTORY
+        ====================================================== */
+
+        function readHistory() {
+
+            try {
+
+                const raw =
+                    localStorage.getItem(
+                        STORAGE_KEY
+                    );
+
+
+                const parsed =
+                    raw
+                    ?
+                    JSON.parse(
+                        raw
+                    )
+                    :
+                    [];
+
+
+                if (
+                    !Array.isArray(
+                        parsed
+                    )
+                ) {
+
+                    return [];
+
+                }
+
+
+                return parsed
+
+                    .filter(
+                        function (item) {
+
+                            return (
+                                item
+                                &&
+                                item.id
+                            );
+
+                        }
+                    )
+
+                    .sort(
+                        function (
+                            a,
+                            b
+                        ) {
+
+                            return (
+
+                                new Date(
+                                    b.updatedAt
+                                    ||
+                                    b.savedAt
+                                    ||
+                                    0
+                                )
+
+                                -
+
+                                new Date(
+                                    a.updatedAt
+                                    ||
+                                    a.savedAt
+                                    ||
+                                    0
+                                )
+
+                            );
+
+                        }
+                    );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "旅行プラン履歴の読み込みエラー:",
+                    error
+                );
+
+
+                return [];
+
+            }
+
+        }
+
+
+
+        function writeHistory(
+            history
+        ) {
+
+            try {
+
+                localStorage.setItem(
+
+                    STORAGE_KEY,
+
+                    JSON.stringify(
+                        history
+                    )
+
+                );
+
+
+                return true;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "旅行プラン履歴の保存エラー:",
+                    error
+                );
+
+
+                return false;
+
+            }
+
+        }
+
+
+
+        /* =====================================================
+           DATE
+        ====================================================== */
+
+        function formatSavedAt(
+            value
+        ) {
+
+            if (
+                !value
+            ) {
+
+                return "保存日時不明";
+
+            }
+
+
+            const date =
+                new Date(
+                    value
+                );
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return "保存日時不明";
+
+            }
+
+
+            return date.toLocaleString(
+                "ja-JP",
+                {
+
+                    year:
+                        "numeric",
+
+                    month:
+                        "2-digit",
+
+                    day:
+                        "2-digit",
+
+                    hour:
+                        "2-digit",
+
+                    minute:
+                        "2-digit"
+
+                }
+            );
+
+        }
+
+
+
+        function planDate(
+            plan
+        ) {
+
+            if (
+                plan.travel_date
+            ) {
+
+                return plan.travel_date
+                    .replace(
+                        /-/g,
+                        "/"
+                    );
+
+            }
+
+
+            return "旅行日未設定";
+
+        }
+
+
+
+        /* =====================================================
+           ESCAPE
+        ====================================================== */
+
+        function esc(
+            value
+        ) {
+
+            if (
+                value === null
+                ||
+                value === undefined
+            ) {
+
+                return "";
+
+            }
+
+
+            return String(
+                value
+            )
+            .replace(
+                /[&<>"']/g,
+                function (char) {
+
+                    return {
+
+                        "&":
+                            "&amp;",
+
+                        "<":
+                            "&lt;",
+
+                        ">":
+                            "&gt;",
+
+                        '"':
+                            "&quot;",
+
+                        "'":
+                            "&#39;"
+
+                    }[
+                        char
+                    ];
+
+                }
+            );
+
+        }
+
+
+
+        /* =====================================================
+           DETAIL BOX
+        ====================================================== */
+
+        function detailBox(
+            label,
+            value
+        ) {
+
+            if (
+                value === null
+                ||
+                value === undefined
+                ||
+                value === ""
+            ) {
+
+                return "";
+
+            }
+
+
+            return `
+                <div class="detail-box">
+
+                    <strong>
+                        ${esc(label)}
+                    </strong>
+
+                    <span>
+                        ${esc(value)}
+                    </span>
+
+                </div>
+            `;
+
+        }
+
+
+
+        /* =====================================================
+           ITEM ACTIONS
+        ====================================================== */
+
+        function itemActions(
+            item
+        ) {
+
+            const buttons =
+                [];
+
+
+            if (
+                item
+                &&
+                item.url
+            ) {
+
+                buttons.push(
+                    `
+                    <a
+                        href="${esc(item.url)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        公式サイト ↗
+                    </a>
+                    `
+                );
+
+            }
+
+
+            if (
+                item
+                &&
+                item.official_url
+                &&
+                item.official_url
+                !==
+                "公式情報を今回確認できず"
+            ) {
+
+                buttons.push(
+                    `
+                    <a
+                        href="${esc(item.official_url)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        公式サイト ↗
+                    </a>
+                    `
+                );
+
+            }
+
+
+            if (
+                item
+                &&
+                item.map_url
+            ) {
+
+                buttons.push(
+                    `
+                    <a
+                        class="secondary"
+                        href="${esc(item.map_url)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Google Maps ↗
+                    </a>
+                    `
+                );
+
+            }
+
+
+            return buttons.join(
+                ""
+            );
+
+        }
+
+
+
+        /* =====================================================
+           AUTO PLAN SPOT
+        ====================================================== */
+
+        function renderSpot(
+            item,
+            index
+        ) {
+
+            const access =
+                item
+                &&
+                item.access
+                ?
+                item.access
+                :
+                {};
+
+
+            return `
+                <article class="day-block">
+
+                    <h4 class="item-title">
+                        📍 ${esc(item.name)}
+                    </h4>
+
+                    <div class="item-area">
+                        SPOT ${index}
+                    </div>
+
+                    <p class="item-description">
+                        ${esc(item.description)}
+                    </p>
+
+                    ${
+                        item.recommendation_reason
+
+                        ?
+
+                        `
+                        <p class="item-reason">
+
+                            <strong>
+                                おすすめ理由
+                            </strong>
+
+                            <br>
+
+                            ${esc(item.recommendation_reason)}
+
+                        </p>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    <div class="detail-grid">
+
+                        ${detailBox(
+                            "TYPE",
+                            item.type
+                        )}
+
+                        ${detailBox(
+                            "STAY TIME",
+                            item.time
+                                ?
+                                "約"
+                                +
+                                item.time
+                                +
+                                "時間"
+                                :
+                                ""
+                        )}
+
+                        ${detailBox(
+                            "ADDRESS",
+                            item.address
+                        )}
+
+                        ${detailBox(
+                            "PHONE",
+                            item.phone
+                        )}
+
+                        ${detailBox(
+                            "TRAIN",
+                            access.train
+                        )}
+
+                        ${detailBox(
+                            "BUS",
+                            access.bus
+                        )}
+
+                        ${detailBox(
+                            "WALK",
+                            access.walk
+                        )}
+
+                        ${detailBox(
+                            "CAR",
+                            access.car
+                        )}
+
+                        ${detailBox(
+                            "HOURS",
+                            item.hours
+                        )}
+
+                        ${detailBox(
+                            "PRICE",
+                            item.price
+                        )}
+
+                        ${detailBox(
+                            "CLOSED",
+                            item.closed
+                        )}
+
+                        ${detailBox(
+                            "PARKING",
+                            item.parking
+                        )}
+
+                        ${detailBox(
+                            "SEASON",
+                            item.season
+                        )}
+
+                        ${detailBox(
+                            "CAR FREE",
+                            item.car_free
+                        )}
+
+                    </div>
+
+                    ${
+                        item.notes
+
+                        ?
+
+                        `
+                        <div class="item-description">
+                            ${esc(item.notes)}
+                        </div>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    <div class="item-actions">
+                        ${itemActions(item)}
+                    </div>
+
+                </article>
+            `;
+
+        }
+
+
+
+        /* =====================================================
+           AUTO PLAN RESTAURANT
+        ====================================================== */
+
+        function renderRestaurant(
+            item,
+            index
+        ) {
+
+            const access =
+                item
+                &&
+                item.access
+                ?
+                item.access
+                :
+                {};
+
+
+            return `
+                <article class="restaurant-block">
+
+                    <div class="item-area">
+                        GOURMET ${String(index).padStart(2,"0")}
+                    </div>
+
+                    <h4 class="item-title">
+                        ${esc(item.name)}
+                    </h4>
+
+                    ${
+                        item.genre
+                        &&
+                        item.genre.length
+
+                        ?
+
+                        `
+                        <div class="item-area">
+                            ${item.genre.map(esc).join(" ・ ")}
+                        </div>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    <p class="item-description">
+                        ${esc(item.description)}
+                    </p>
+
+                    ${
+                        item.specialties
+                        &&
+                        item.specialties.length
+
+                        ?
+
+                        `
+                        <div class="item-area">
+                            ${
+                                item.specialties
+                                    .slice(0,4)
+                                    .map(esc)
+                                    .join(" ・ ")
+                            }
+                        </div>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    <div class="detail-grid">
+
+                        ${detailBox(
+                            "ADDRESS",
+                            item.address
+                        )}
+
+                        ${detailBox(
+                            "HOURS",
+                            item.hours
+                        )}
+
+                        ${detailBox(
+                            "CLOSED",
+                            item.closed
+                        )}
+
+                        ${detailBox(
+                            "PRICE",
+                            item.price
+                        )}
+
+                        ${detailBox(
+                            "TRAIN",
+                            access.train
+                        )}
+
+                        ${detailBox(
+                            "CAR",
+                            access.car
+                        )}
+
+                    </div>
+
+                    <div class="item-actions">
+                        ${itemActions(item)}
+                    </div>
+
+                </article>
+            `;
+
+        }
+
+
+
+        /* =====================================================
+           AUTO PLAN HOTEL
+        ====================================================== */
+
+        function renderHotel(
+            item
+        ) {
+
+            const access =
+                item
+                &&
+                item.access
+                ?
+                item.access
+                :
+                {};
+
+
+            return `
+                <article class="hotel-block">
+
+                    <h4 class="item-title">
+                        🏨 ${esc(item.name)}
+                    </h4>
+
+                    <p class="item-description">
+                        ${esc(item.description)}
+                    </p>
+
+                    <div class="detail-grid">
+
+                        ${detailBox(
+                            "ADDRESS",
+                            item.address
+                        )}
+
+                        ${detailBox(
+                            "PHONE",
+                            item.phone
+                        )}
+
+                        ${detailBox(
+                            "TRAIN",
+                            access.train
+                        )}
+
+                        ${detailBox(
+                            "BUS",
+                            access.bus
+                        )}
+
+                        ${detailBox(
+                            "WALK",
+                            access.walk
+                        )}
+
+                        ${detailBox(
+                            "CAR",
+                            access.car
+                        )}
+
+                        ${detailBox(
+                            "HOURS",
+                            item.hours
+                        )}
+
+                        ${detailBox(
+                            "CLOSED",
+                            item.closed
+                        )}
+
+                        ${detailBox(
+                            "PARKING",
+                            item.parking
+                        )}
+
+                        ${detailBox(
+                            "SEASON",
+                            item.season
+                        )}
+
+                        ${detailBox(
+                            "CAR FREE",
+                            item.car_free
+                        )}
+
+                        ${detailBox(
+                            "REFERENCE BUDGET",
+                            item.price
+                                ?
+                                item.price
+                                +
+                                "円 / 人"
+                                :
+                                ""
+                        )}
+
+                    </div>
+
+                    ${
+                        item.recommendation_reason
+
+                        ?
+
+                        `
+                        <p class="item-reason">
+
+                            <strong>
+                                おすすめ理由
+                            </strong>
+
+                            <br>
+
+                            ${esc(item.recommendation_reason)}
+
+                        </p>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    ${
+                        item.reasons
+                        &&
+                        item.reasons.length
+
+                        ?
+
+                        `
+                        <p class="item-description">
+
+                            ${
+                                item.reasons
+                                    .map(
+                                        function (reason) {
+
+                                            return (
+                                                "✓ "
+                                                +
+                                                esc(reason)
+                                            );
+
+                                        }
+                                    )
+                                    .join("<br>")
+                            }
+
+                        </p>
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                    <div class="item-actions">
+                        ${itemActions(item)}
+                    </div>
+
+                </article>
+            `;
+
+        }
+
+
+
+        function renderOtherHotel(
+            item
+        ) {
+
+            return `
+                <article class="other-hotel-block">
+
+                    <h4 class="item-title">
+                        ${esc(item.name)}
+                    </h4>
+
+                    <p class="item-description">
+                        ${esc(item.description)}
+                    </p>
+
+                    <div class="detail-grid">
+
+                        ${detailBox(
+                            "REFERENCE BUDGET",
+                            item.price
+                                ?
+                                item.price
+                                +
+                                "円 / 人"
+                                :
+                                ""
+                        )}
+
+                        ${detailBox(
+                            "ADDRESS",
+                            item.address
+                        )}
+
+                        ${detailBox(
+                            "CAR FREE",
+                            item.car_free
+                        )}
+
+                    </div>
+
+                    <div class="item-actions">
+                        ${itemActions(item)}
+                    </div>
+
+                </article>
+            `;
+
+        }
+
+
+
+        /* =====================================================
+           MANUAL PLAN
+        ====================================================== */
+
+        function isManualPlan(
+            plan
+        ) {
+
+            return (
+                plan
+                &&
+                plan.planType
+                ===
+                "manual"
+            );
+
+        }
+
+
+
+        function manualPlanTitle(
+            plan
+        ) {
+
+            if (
+                plan
+                &&
+                plan.title
+            ) {
+
+                return plan.title;
+
+            }
+
+
+            return (
+                plan
+                &&
+                plan.travel_date
+
+                ?
+
+                planDate(plan)
+                +
+                " の秩父旅行"
+
+                :
+
+                "自分で作った秩父旅行"
+            );
+
+        }
+
+
+
+        function manualPlanPurpose(
+            plan
+        ) {
+
+            const parts =
+                [
+                    "自分で作成したプラン"
+                ];
+
+
+            if (
+                plan
+                &&
+                plan.tripMemo
+            ) {
+
+                parts.push(
+                    plan.tripMemo
+                );
+
+            }
+
+
+            return parts.join(
+                " ／ "
+            );
+
+        }
+
+
+
+        /* =====================================================
+           MANUAL → TRIP BOOK
+        ====================================================== */
+
+        function convertManualPlanToTripBook(
+            plan
+        ) {
+
+            const sourcePlan = {
+
+                schemaVersion:
+                    1,
+
+                people:
+                    plan.people,
+
+                member:
+                    plan.member,
+
+                car:
+                    plan.car,
+
+                days:
+                    plan.days,
+
+                travel_date:
+                    plan.travel_date,
+
+                purpose:
+                    [],
+
+                trip_style:
+                    plan.title
+                    ||
+                    "MY PLAN",
+
+                trip_summary:
+                    plan.tripMemo
+                    ||
+                    "",
+
+                day1:
+                    [],
+
+                day2:
+                    [],
+
+                day3:
+                    [],
+
+                recommended_restaurants:
+                    [],
+
+                hotel:
+                    null,
+
+                other_hotels:
+                    []
+
+            };
+
+
+            const dayCount =
+
+                plan.days
+                ===
+                "2泊3日"
+
+                ?
+
+                3
+
+                :
+
+                2;
+
+
+            for (
+                let day = 1;
+                day <= dayCount;
+                day++
+            ) {
+
+                const key =
+                    "day"
+                    +
+                    day;
+
+
+                const items =
+
+                    Array.isArray(
+                        plan[
+                            key
+                        ]
+                    )
+
+                    ?
+
+                    plan[
+                        key
+                    ]
+
+                    :
+
+                    [];
+
+
+                items.forEach(
+                    function (item) {
+
+                        const copy =
+                            JSON.parse(
+                                JSON.stringify(
+                                    item
+                                )
+                            );
+
+
+                        if (
+                            copy.category
+                            ===
+                            "飲食店"
+                        ) {
+
+                            sourcePlan
+                                .recommended_restaurants
+                                .push(
+                                    copy
+                                );
+
+                        }
+
+                        else if (
+                            copy.category
+                            ===
+                            "宿泊施設"
+                        ) {
+
+                            if (
+                                !sourcePlan.hotel
+                            ) {
+
+                                sourcePlan.hotel =
+                                    copy;
+
+                            }
+
+                            else {
+
+                                sourcePlan
+                                    .other_hotels
+                                    .push(
+                                        copy
+                                    );
+
+                            }
+
+                        }
+
+                        else {
+
+                            sourcePlan[
+                                key
+                            ]
+                            .push(
+                                copy
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            return sourcePlan;
+
+        }
+
+
+
+        function openTripBookFromManualPlan(
+            plan
+        ) {
+
+            const TRIP_BOOK_DRAFT_KEY =
+                "chichibuTripBookDraftV1";
+
+
+            try {
+
+                localStorage.setItem(
+
+                    TRIP_BOOK_DRAFT_KEY,
+
+                    JSON.stringify(
+                        {
+
+                            sourcePlan:
+                                convertManualPlanToTripBook(
+                                    plan
+                                ),
+
+                            createdAt:
+                                new Date()
+                                    .toISOString()
+
+                        }
+                    )
+
+                );
+
+
+                window.location.href =
+                    "/trip-book";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "TRIP BOOKデータ保存エラー:",
+                    error
+                );
+
+
+                window.alert(
+                    "TRIP BOOKの作成準備に失敗しました。"
+                );
+
+            }
+
+        }
+
+
+
+        /* =====================================================
+           AUTO PLAN DETAIL
+        ====================================================== */
+
+        function openPlan(
+            plan
+        ) {
+
+            const daySections =
+                [];
+
+
+            [
+
+                [
+                    "DAY 01",
+                    "1日目",
+                    plan.day1
+                    ||
+                    []
+                ],
+
+                [
+                    "DAY 02",
+                    "2日目",
+                    plan.day2
+                    ||
+                    []
+                ],
+
+                [
+                    "DAY 03",
+                    "3日目",
+                    plan.day3
+                    ||
+                    []
+                ]
+
+            ]
+            .forEach(
+                function (day) {
+
+                    if (
+                        !day[
+                            2
+                        ]
+                        .length
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    daySections.push(
+                        `
+                        <section class="detail-section">
+
+                            <div class="detail-label">
+                                ${day[0]}
+                            </div>
+
+                            <h3>
+                                ${day[1]}
+                            </h3>
+
+                            ${
+                                day[
+                                    2
+                                ]
+                                .map(
+                                    function (
+                                        item,
+                                        index
+                                    ) {
+
+                                        return renderSpot(
+                                            item,
+                                            index + 1
+                                        );
+
+                                    }
+                                )
+                                .join("")
+                            }
+
+                        </section>
+                        `
+                    );
+
+                }
+            );
+
+
+            const restaurants =
+                plan.recommended_restaurants
+                ||
+                [];
+
+
+            const otherHotels =
+                plan.other_hotels
+                ||
+                [];
+
+
+            detailContent.innerHTML =
+                `
+
+                <div class="detail-label">
+                    SAVED TRIP PLAN
+                </div>
+
+                <h2 class="detail-title">
+                    あなたの秩父旅行
+                </h2>
+
+                <p class="detail-saved">
+                    保存日時：
+                    ${esc(
+                        formatSavedAt(
+                            plan.savedAt
+                        )
+                    )}
+                </p>
+
+
+                <section class="detail-section">
+
+                    <div class="detail-label">
+                        YOUR CONDITIONS
+                    </div>
+
+                    <h3>
+                        旅行条件
+                    </h3>
+
+                    <div class="condition-grid">
+
+                        ${detailBox(
+                            "AGE",
+                            plan.age
+                                ?
+                                plan.age
+                                +
+                                "代"
+                                :
+                                ""
+                        )}
+
+                        ${detailBox(
+                            "GENDER",
+                            plan.gender
+                        )}
+
+                        ${detailBox(
+                            "PEOPLE",
+                            plan.people
+                                ?
+                                plan.people
+                                +
+                                "人"
+                                :
+                                ""
+                        )}
+
+                        ${detailBox(
+                            "STYLE",
+                            plan.member
+                        )}
+
+                        ${detailBox(
+                            "DAYS",
+                            plan.days
+                        )}
+
+                        ${detailBox(
+                            "CAR",
+                            plan.car
+                        )}
+
+                        ${detailBox(
+                            "BUDGET",
+                            plan.budget
+                                ?
+                                plan.budget
+                                +
+                                "円 / 人"
+                                :
+                                ""
+                        )}
+
+                        ${detailBox(
+                            "TRAVEL DATE",
+                            planDate(
+                                plan
+                            )
+                        )}
+
+                        ${detailBox(
+                            "PURPOSE",
+                            Array.isArray(
+                                plan.purpose
+                            )
+                                ?
+                                plan.purpose.join(
+                                    "・"
+                                )
+                                :
+                                ""
+                        )}
+
+                        ${detailBox(
+                            "TRAVEL STYLE",
+                            plan.trip_style
+                        )}
+
+                        ${detailBox(
+                            "SEASON",
+                            plan.season
+                        )}
+
+                    </div>
+
+                </section>
+
+
+                <section class="detail-section">
+
+                    <div class="detail-label">
+                        TRIP FEATURES
+                    </div>
+
+                    <h3>
+                        この旅の特徴
+                    </h3>
+
+                    <div class="feature-list">
+
+                        ${
+                            (
+                                plan.feature_text
+                                ||
+                                []
+                            )
+                            .map(
+                                function (feature) {
+
+                                    return `
+                                        <div class="feature">
+                                            ${esc(feature)}
+                                        </div>
+                                    `;
+
+                                }
+                            )
+                            .join("")
+                        }
+
+                    </div>
+
+                </section>
+
+
+                ${daySections.join("")}
+
+
+                <section class="detail-section">
+
+                    <div class="detail-label">
+                        LOCAL GOURMET
+                    </div>
+
+                    <h3>
+                        おすすめグルメ
+                    </h3>
+
+                    ${
+                        restaurants.length
+
+                        ?
+
+                        restaurants
+                            .map(
+                                renderRestaurant
+                            )
+                            .join("")
+
+                        :
+
+                        `
+                        <div class="summary-box">
+                            保存時点でグルメ情報はありませんでした。
+                        </div>
+                        `
+                    }
+
+                </section>
+
+
+                <section class="detail-section">
+
+                    <div class="detail-label">
+                        RECOMMENDED STAY
+                    </div>
+
+                    <h3>
+                        おすすめ宿泊施設
+                    </h3>
+
+                    ${
+                        plan.hotel
+
+                        ?
+
+                        renderHotel(
+                            plan.hotel
+                        )
+
+                        :
+
+                        `
+                        <div class="summary-box">
+                            保存時点で宿泊施設情報はありませんでした。
+                        </div>
+                        `
+                    }
+
+
+                    ${
+                        otherHotels.length
+
+                        ?
+
+                        `
+                        <h3>
+                            その他のおすすめ宿泊施設
+                        </h3>
+
+                        ${
+                            otherHotels
+                                .map(
+                                    renderOtherHotel
+                                )
+                                .join("")
+                        }
+                        `
+
+                        :
+
+                        ""
+                    }
+
+                </section>
+
+
+                <section class="detail-section">
+
+                    <div class="detail-label">
+                        BUDGET
+                    </div>
+
+                    <h3>
+                        旅行予算の目安
+                    </h3>
+
+                    <div class="budget-box">
+
+                        <div class="budget-grid">
+
+                            ${detailBox(
+                                "YOUR BUDGET",
+                                plan.total_budget
+                                    ?
+                                    plan.total_budget
+                                    +
+                                    "円"
+                                    :
+                                    ""
+                            )}
+
+                            ${detailBox(
+                                "HOTEL",
+                                plan.total_price
+                                    ?
+                                    plan.total_price
+                                    +
+                                    "円"
+                                    :
+                                    ""
+                            )}
+
+                            ${detailBox(
+                                "HOTEL RATIO",
+                                plan.budget_ratio
+                                !==
+                                undefined
+                                    ?
+                                    plan.budget_ratio
+                                    +
+                                    "%"
+                                    :
+                                    ""
+                            )}
+
+                        </div>
+
+                        <p
+                            style="
+                                margin:14px 0 0;
+                                color:rgba(255,255,255,.75);
+                                font-size:11px;
+                                line-height:1.8;
+                            "
+                        >
+                            ${esc(
+                                plan.budget_status
+                            )}
+                        </p>
+
+                    </div>
+
+                </section>
+
+
+                <section class="detail-section">
+
+                    <div class="detail-label">
+                        TRIP SUMMARY
+                    </div>
+
+                    <h3>
+                        あなたの秩父旅行
+                    </h3>
+
+                    <div class="summary-box">
+                        ${esc(
+                            plan.trip_summary
+                        )}
+                    </div>
+
+                </section>
+
+                `;
+
+
+            modal.classList.add(
+                "is-open"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        }
+
+
+
+        /* =====================================================
+           MODAL CLOSE
+        ====================================================== */
+
+        function closeModal() {
+
+            modal.classList.remove(
+                "is-open"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+
+
+        /* =====================================================
+           HISTORY RENDER
+        ====================================================== */
+
+        function render() {
+
+            const history =
+                readHistory();
+
+
+            list.innerHTML =
+                "";
+
+
+            empty.hidden =
+                history.length !== 0;
+
+
+            history.forEach(
+                function (plan) {
+
+
+                    const manual =
+                        isManualPlan(
+                            plan
+                        );
+
+
+                    /* =========================
+                       CARD
+                    ========================== */
+
+                    const card =
+                        document.createElement(
+                            "article"
+                        );
+
+
+                    card.className =
+                        "history-card";
+
+
+
+                    /* =========================
+                       SAVE DATE
+                    ========================== */
+
+                    const date =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    date.className =
+                        "history-card-date";
+
+
+                    date.textContent =
+                        formatSavedAt(
+
+                            plan.updatedAt
+
+                            ||
+
+                            plan.savedAt
+
+                        );
+
+
+
+                    /* =========================
+                       TITLE
+                    ========================== */
+
+                    const title =
+                        document.createElement(
+                            "h2"
+                        );
+
+
+                    title.textContent =
+
+                        manual
+
+                        ?
+
+                        manualPlanTitle(
+                            plan
+                        )
+
+                        :
+
+                        (
+                            plan.travel_date
+
+                            ?
+
+                            planDate(
+                                plan
+                            )
+                            +
+                            " の秩父旅行"
+
+                            :
+
+                            "秩父旅行プラン"
+                        );
+
+
+
+                    /* =========================
+                       META
+                    ========================== */
+
+                    const meta =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    meta.className =
+                        "history-card-meta";
+
+
+                    [
+
+                        manual
+                            ?
+                            "自分で作成"
+                            :
+                            "おすすめから作成",
+
+                        plan.days,
+
+                        plan.people
+                            ?
+                            plan.people
+                            +
+                            "人"
+                            :
+                            "",
+
+                        plan.member,
+
+                        "車"
+                        +
+                        (
+                            plan.car
+                            ||
+                            "未設定"
+                        ),
+
+                        !manual
+                        &&
+                        plan.budget
+
+                            ?
+
+                            plan.budget
+                                .toLocaleString(
+                                    "ja-JP"
+                                )
+                            +
+                            "円/人"
+
+                            :
+
+                            ""
+
+                    ]
+                    .filter(
+                        Boolean
+                    )
+                    .forEach(
+                        function (
+                            value
+                        ) {
+
+                            const pill =
+                                document.createElement(
+                                    "span"
+                                );
+
+
+                            pill.className =
+                                "history-pill";
+
+
+                            pill.textContent =
+                                value;
+
+
+                            meta.appendChild(
+                                pill
+                            );
+
+                        }
+                    );
+
+
+
+                    /* =========================
+                       PURPOSE / MEMO
+                    ========================== */
+
+                    const purpose =
+                        document.createElement(
+                            "p"
+                        );
+
+
+                    purpose.className =
+                        "history-card-purpose";
+
+
+                    purpose.textContent =
+
+                        manual
+
+                        ?
+
+                        manualPlanPurpose(
+                            plan
+                        )
+
+                        :
+
+                        [
+
+                            Array.isArray(
+                                plan.purpose
+                            )
+                                ?
+                                plan.purpose.join(
+                                    "・"
+                                )
+                                :
+                                "",
+
+                            plan.season
+                                ?
+                                "季節："
+                                +
+                                plan.season
+                                :
+                                ""
+
+                        ]
+                        .filter(
+                            Boolean
+                        )
+                        .join(
+                            " ／ "
+                        );
+
+
+
+                    /* =========================
+                       ACTIONS
+                    ========================== */
+
+                    const actions =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    actions.className =
+                        "history-card-actions";
+
+
+
+                    /* =========================
+                       VIEW
+                    ========================== */
+
+                    const viewButton =
+                        document.createElement(
+                            manual
+                                ?
+                                "a"
+                                :
+                                "button"
+                        );
+
+
+                    viewButton.className =
+                        "history-action primary";
+
+
+                    viewButton.textContent =
+                        "プランを見る";
+
+
+                    if (
+                        manual
+                    ) {
+
+                        viewButton.href =
+
+                            "/manual-plan/view?id="
+
+                            +
+
+                            encodeURIComponent(
+                                plan.id
+                            );
+
+                    }
+
+                    else {
+
+                        viewButton.type =
+                            "button";
+
+
+                        viewButton.addEventListener(
+                            "click",
+                            function () {
+
+                                openPlan(
+                                    plan
+                                );
+
+                            }
+                        );
+
+                    }
+
+
+                    actions.appendChild(
+                        viewButton
+                    );
+
+
+
+                    /* =========================
+                       MANUAL PLAN ONLY
+                    ========================== */
+
+                    if (
+                        manual
+                    ) {
+
+
+                        /* 編集 */
+
+                        const editButton =
+                            document.createElement(
+                                "a"
+                            );
+
+
+                        editButton.className =
+                            "history-action";
+
+
+                        editButton.textContent =
+                            "編集";
+
+
+                        editButton.href =
+
+                            "/manual-plan?edit="
+
+                            +
+
+                            encodeURIComponent(
+                                plan.id
+                            );
+
+
+                        actions.appendChild(
+                            editButton
+                        );
+
+
+
+                        /* TRIP BOOK */
+
+                        const tripBookButton =
+                            document.createElement(
+                                "button"
+                            );
+
+
+                        tripBookButton.type =
+                            "button";
+
+
+                        tripBookButton.className =
+                            "history-action";
+
+
+                        tripBookButton.textContent =
+                            "▤ しおりを作る";
+
+
+                        tripBookButton.addEventListener(
+                            "click",
+                            function () {
+
+                                openTripBookFromManualPlan(
+                                    plan
+                                );
+
+                            }
+                        );
+
+
+                        actions.appendChild(
+                            tripBookButton
+                        );
+
+                    }
+
+
+
+                    /* =========================
+                       DELETE
+                    ========================== */
+
+                    const deleteButton =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    deleteButton.type =
+                        "button";
+
+
+                    deleteButton.className =
+                        "history-action remove";
+
+
+                    deleteButton.textContent =
+                        "削除";
+
+
+                    deleteButton.addEventListener(
+                        "click",
+                        function () {
+
+
+                            if (
+                                !window.confirm(
+                                    "この旅行プランを削除しますか？"
+                                )
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            const updated =
+                                readHistory()
+                                    .filter(
+                                        function (
+                                            item
+                                        ) {
+
+                                            return (
+                                                item.id
+                                                !==
+                                                plan.id
+                                            );
+
+                                        }
+                                    );
+
+
+                            if (
+                                writeHistory(
+                                    updated
+                                )
+                            ) {
+
+                                render();
+
+                            }
+
+                        }
+                    );
+
+
+                    actions.appendChild(
+                        deleteButton
+                    );
+
+
+
+                    /* =========================
+                       CARD APPEND
+                    ========================== */
+
+                    card.appendChild(
+                        date
+                    );
+
+
+                    card.appendChild(
+                        title
+                    );
+
+
+                    card.appendChild(
+                        meta
+                    );
+
+
+                    card.appendChild(
+                        purpose
+                    );
+
+
+                    card.appendChild(
+                        actions
+                    );
+
+
+                    list.appendChild(
+                        card
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* =====================================================
+           EVENTS
+        ====================================================== */
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target
+                    ===
+                    modal
+                ) {
+
+                    closeModal();
+
+                }
+
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key
+                    ===
+                    "Escape"
+                ) {
+
+                    closeModal();
+
+                }
+
+            }
+        );
+
+
+        window.addEventListener(
+            "storage",
+            function (event) {
+
+                if (
+                    event.key
+                    ===
+                    STORAGE_KEY
+                ) {
+
+                    render();
+
+                }
+
+            }
+        );
+
+
+
+        /* =====================================================
+           START
+        ====================================================== */
+
+        render();
+
+    }
+);
+
+</script>
+
+
+</body>
+</html>

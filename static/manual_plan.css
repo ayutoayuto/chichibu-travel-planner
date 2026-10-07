@@ -1,0 +1,1967 @@
+*{
+    box-sizing:border-box;
+}
+
+
+:root{
+
+    --green:#18392f;
+
+    --green2:#21483c;
+
+    --gold:#9a8252;
+
+    --paper:#fffdf8;
+
+    --bg:#f4f1e9;
+
+    --ink:#20352d;
+
+    --muted:#6f7a74;
+
+    --line:#e4ddcf;
+}
+
+
+html{
+    scroll-behavior:smooth;
+}
+
+
+body{
+
+    margin:0;
+
+    background:
+        var(--bg);
+
+    color:
+        var(--ink);
+
+    font-family:
+        "Yu Gothic",
+        "Hiragino Kaku Gothic ProN",
+        Meiryo,
+        sans-serif;
+}
+
+
+button,
+input,
+select,
+textarea{
+
+    font:inherit;
+}
+
+
+button{
+    cursor:pointer;
+}
+
+
+a{
+
+    color:inherit;
+
+    text-decoration:none;
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.manual-hero{
+
+    position:relative;
+
+    min-height:390px;
+
+    display:flex;
+
+    align-items:center;
+
+    color:#fff;
+
+
+    background:
+
+        linear-gradient(
+            90deg,
+            rgba(8,35,28,.96),
+            rgba(8,35,28,.68),
+            rgba(8,35,28,.2)
+        ),
+
+        url(
+            "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=85"
+        );
+
+
+    background-size:
+        cover;
+
+
+    background-position:
+        center;
+}
+
+
+.manual-top-nav{
+
+    position:absolute;
+
+    top:24px;
+
+    right:28px;
+
+
+    display:flex;
+
+    gap:8px;
+
+    flex-wrap:wrap;
+
+    justify-content:flex-end;
+}
+
+
+.manual-top-nav a{
+
+    padding:
+        10px
+        14px;
+
+
+    border:
+        1px solid
+        rgba(255,255,255,.34);
+
+
+    border-radius:
+        999px;
+
+
+    background:
+        rgba(8,35,28,.42);
+
+
+    color:#fff;
+
+
+    font-size:10px;
+
+    font-weight:700;
+
+
+    backdrop-filter:
+        blur(8px);
+}
+
+
+.manual-top-nav a:hover{
+
+    background:
+        var(--gold);
+
+    border-color:
+        var(--gold);
+}
+
+
+.manual-top-nav span{
+
+    min-width:18px;
+
+    height:18px;
+
+
+    margin-left:3px;
+
+
+    display:inline-grid;
+
+    place-items:center;
+
+
+    border-radius:999px;
+
+
+    background:#dcc98e;
+
+    color:
+        var(--green);
+
+
+    font-size:8px;
+}
+
+
+.manual-hero-inner{
+
+    width:
+        min(
+            1180px,
+            90%
+        );
+
+
+    margin:auto;
+
+
+    padding:
+        75px
+        0
+        55px;
+}
+
+
+.eyebrow,
+.section-kicker{
+
+    color:#d9c58b;
+
+
+    font-size:9px;
+
+    font-weight:800;
+
+
+    letter-spacing:3px;
+}
+
+
+.manual-hero h1{
+
+    margin:
+        15px
+        0
+        18px;
+
+
+    font-family:
+        Georgia,
+        serif;
+
+
+    font-size:
+        clamp(
+            44px,
+            6vw,
+            72px
+        );
+
+
+    font-weight:400;
+
+
+    line-height:1.08;
+}
+
+
+.manual-hero h1 span{
+
+    color:#dcc98e;
+}
+
+
+.manual-hero p{
+
+    max-width:750px;
+
+
+    margin:0;
+
+
+    color:
+        rgba(255,255,255,.8);
+
+
+    font-size:13px;
+
+
+    line-height:2;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.manual-main{
+
+    width:
+        min(
+            1280px,
+            94%
+        );
+
+
+    margin:auto;
+
+
+    padding:
+        56px
+        0
+        100px;
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.setup-card,
+.facility-panel,
+.plan-panel{
+
+    background:#fff;
+
+
+    border-radius:22px;
+
+
+    box-shadow:
+        0 15px 45px
+        rgba(25,45,35,.07);
+}
+
+
+.setup-card{
+
+    padding:34px;
+
+    margin-bottom:24px;
+}
+
+
+.section-kicker{
+
+    color:
+        var(--gold);
+}
+
+
+.section-head-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:20px;
+
+    align-items:flex-start;
+}
+
+
+.section-head-row h2,
+.facility-panel h2,
+.plan-panel h2{
+
+    margin:
+        8px
+        0
+        6px;
+
+
+    font-family:
+        Georgia,
+        "Yu Mincho",
+        serif;
+
+
+    font-weight:400;
+
+
+    font-size:30px;
+}
+
+
+.section-head-row p,
+.panel-lead{
+
+    margin:0;
+
+
+    color:
+        var(--muted);
+
+
+    font-size:11px;
+
+
+    line-height:1.8;
+}
+
+
+.autosave-badge{
+
+    padding:
+        8px
+        12px;
+
+
+    border-radius:999px;
+
+
+    background:#f3efe5;
+
+
+    color:
+        var(--gold);
+
+
+    font-size:9px;
+
+    font-weight:700;
+}
+
+
+/* =====================================================
+   BASIC FORM
+===================================================== */
+
+.setup-grid{
+
+    margin-top:25px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        repeat(
+            4,
+            1fr
+        );
+
+
+    gap:14px;
+}
+
+
+.field{
+
+    display:grid;
+
+    gap:7px;
+}
+
+
+.field.wide{
+
+    grid-column:
+        span 2;
+}
+
+
+.field span{
+
+    color:
+        var(--gold);
+
+
+    font-size:8px;
+
+    font-weight:800;
+
+
+    letter-spacing:1.5px;
+}
+
+
+.field input,
+.field select,
+.field textarea{
+
+    width:100%;
+
+
+    padding:
+        12px
+        13px;
+
+
+    border:
+        1px solid
+        #dcd4c6;
+
+
+    border-radius:10px;
+
+
+    background:#fff;
+
+
+    color:
+        var(--ink);
+
+
+    outline:none;
+}
+
+
+.field textarea{
+
+    resize:vertical;
+
+
+    line-height:1.7;
+}
+
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+
+    border-color:
+        var(--gold);
+
+
+    box-shadow:
+        0 0 0 3px
+        rgba(154,130,82,.09);
+}
+
+
+/* =====================================================
+   WORKSPACE
+===================================================== */
+
+.workspace{
+
+    display:grid;
+
+
+    grid-template-columns:
+        minmax(
+            0,
+            1.05fr
+        )
+
+        minmax(
+            440px,
+            .95fr
+        );
+
+
+    gap:24px;
+
+
+    align-items:start;
+}
+
+
+/* =====================================================
+   LEFT
+===================================================== */
+
+.facility-panel{
+
+    min-width:0;
+
+
+    overflow:hidden;
+}
+
+
+.panel-sticky{
+
+    padding:
+        30px
+        30px
+        18px;
+
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+
+    background:#fff;
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.search-box{
+
+    margin-top:20px;
+
+
+    padding:
+        0
+        14px;
+
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+
+    border:
+        1px solid
+        #dcd4c6;
+
+
+    border-radius:12px;
+}
+
+
+.search-box span{
+
+    color:
+        var(--gold);
+
+
+    font-size:20px;
+}
+
+
+.search-box input{
+
+    width:100%;
+
+
+    padding:
+        13px
+        0;
+
+
+    border:0;
+
+
+    outline:0;
+
+
+    background:
+        transparent;
+}
+
+
+/* =====================================================
+   FILTER
+===================================================== */
+
+.filter-tabs{
+
+    margin-top:13px;
+
+
+    display:flex;
+
+    gap:7px;
+
+    flex-wrap:wrap;
+}
+
+
+.filter-tabs button,
+.ghost-button{
+
+    width:auto;
+
+
+    padding:
+        8px
+        11px;
+
+
+    border:
+        1px solid
+        #d9d0c0;
+
+
+    border-radius:
+        999px;
+
+
+    background:#fff;
+
+
+    color:#53615a;
+
+
+    font-size:9px;
+
+    font-weight:700;
+}
+
+
+.filter-tabs button.active,
+.filter-tabs button:hover{
+
+    background:
+        var(--green);
+
+
+    color:#fff;
+
+
+    border-color:
+        var(--green);
+}
+
+
+/* =====================================================
+   BROWSER TOOL
+===================================================== */
+
+.browser-tools{
+
+    margin-top:18px;
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+
+    gap:12px;
+
+
+    color:#7a817d;
+
+
+    font-size:9px;
+}
+
+
+.browser-tools label{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+}
+
+
+.browser-tools select{
+
+    padding:
+        7px
+        9px;
+
+
+    border:
+        1px solid
+        #ddd5c6;
+
+
+    border-radius:8px;
+
+
+    background:#fff;
+
+
+    color:
+        var(--green);
+}
+
+
+/* =====================================================
+   FACILITY GRID
+===================================================== */
+
+.facility-grid{
+
+    padding:
+        20px
+        24px
+        30px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+
+    gap:13px;
+
+
+    max-height:950px;
+
+
+    overflow:auto;
+}
+
+
+.facility-card{
+
+    position:relative;
+
+
+    padding:18px;
+
+
+    border:
+        1px solid
+        #e5ded1;
+
+
+    border-radius:16px;
+
+
+    background:#fff;
+
+
+    transition:.2s;
+}
+
+
+.facility-card:hover{
+
+    transform:
+        translateY(-2px);
+
+
+    border-color:
+        #d1c5ae;
+
+
+    box-shadow:
+        0 12px 28px
+        rgba(28,47,39,.08);
+}
+
+
+.facility-card .type{
+
+    color:
+        var(--gold);
+
+
+    font-size:8px;
+
+    font-weight:800;
+
+
+    letter-spacing:1.4px;
+}
+
+
+.facility-card h3{
+
+    margin:
+        8px
+        0
+        6px;
+
+
+    font-family:
+        Georgia,
+        "Yu Mincho",
+        serif;
+
+
+    font-size:19px;
+
+
+    font-weight:400;
+
+
+    line-height:1.4;
+}
+
+
+.facility-area{
+
+    color:#9b8761;
+
+
+    font-size:9px;
+}
+
+
+.facility-desc{
+
+    min-height:57px;
+
+
+    margin:
+        11px
+        0;
+
+
+    color:#6b756f;
+
+
+    font-size:10px;
+
+
+    line-height:1.8;
+
+
+    display:
+        -webkit-box;
+
+
+    -webkit-line-clamp:3;
+
+
+    -webkit-box-orient:
+        vertical;
+
+
+    overflow:hidden;
+}
+
+
+.favorite-mark{
+
+    position:absolute;
+
+
+    right:14px;
+
+    top:14px;
+
+
+    color:#b58e65;
+
+
+    font-size:10px;
+
+    font-weight:700;
+}
+
+
+.card-actions{
+
+    margin-top:13px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+
+    gap:7px;
+}
+
+
+.card-actions button{
+
+    padding:
+        9px
+        8px;
+
+
+    border-radius:10px;
+
+
+    font-size:9px;
+
+    font-weight:800;
+}
+
+
+.detail-btn{
+
+    border:
+        1px solid
+        #d9d0c0;
+
+
+    background:#fff;
+
+
+    color:#526059;
+}
+
+
+.add-btn{
+
+    border:
+        1px solid
+        var(--green);
+
+
+    background:
+        var(--green);
+
+
+    color:#fff;
+}
+
+
+.add-btn:hover{
+
+    background:
+        var(--gold);
+
+
+    border-color:
+        var(--gold);
+}
+
+
+.empty-result{
+
+    grid-column:
+        1 / -1;
+
+
+    padding:
+        45px
+        20px;
+
+
+    text-align:center;
+
+
+    color:#78817d;
+
+
+    font-size:11px;
+}
+
+
+/* =====================================================
+   RIGHT PLAN PANEL
+===================================================== */
+
+.plan-panel{
+
+    position:sticky;
+
+
+    top:18px;
+
+
+    overflow:hidden;
+}
+
+
+.plan-panel-head{
+
+    padding:
+        28px
+        28px
+        20px;
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    gap:15px;
+
+
+    align-items:flex-start;
+
+
+    border-bottom:
+        1px solid
+        var(--line);
+}
+
+
+.plan-panel-head
+.section-kicker{
+
+    margin-bottom:5px;
+}
+
+
+.ghost-button{
+
+    margin-top:3px;
+}
+
+
+/* =====================================================
+   DAY
+===================================================== */
+
+.day-block{
+
+    padding:
+        23px
+        25px;
+
+
+    border-bottom:
+        1px solid
+        var(--line);
+}
+
+
+.day-title-row{
+
+    margin-bottom:14px;
+
+
+    display:flex;
+
+
+    justify-content:space-between;
+
+
+    align-items:end;
+
+
+    gap:15px;
+}
+
+
+.day-label{
+
+    color:
+        var(--gold);
+
+
+    font-size:9px;
+
+    font-weight:800;
+
+
+    letter-spacing:2px;
+}
+
+
+.day-title-row h3{
+
+    margin:
+        3px
+        0
+        0;
+
+
+    font-family:
+        Georgia,
+        serif;
+
+
+    font-size:25px;
+
+
+    font-weight:400;
+}
+
+
+.day-date{
+
+    color:#8a928e;
+
+
+    font-size:10px;
+}
+
+
+.empty-day{
+
+    padding:20px;
+
+
+    border:
+        1px dashed
+        #d9d0c0;
+
+
+    border-radius:12px;
+
+
+    text-align:center;
+
+
+    color:#858c88;
+
+
+    font-size:10px;
+}
+
+
+/* =====================================================
+   SCHEDULE ITEM
+===================================================== */
+
+.schedule-item{
+
+    padding:15px;
+
+
+    margin-top:10px;
+
+
+    border:
+        1px solid
+        #e3dccf;
+
+
+    border-radius:14px;
+
+
+    background:#fff;
+}
+
+
+.schedule-top{
+
+    display:grid;
+
+
+    grid-template-columns:
+        62px
+        1fr
+        auto;
+
+
+    gap:10px;
+
+
+    align-items:start;
+}
+
+
+.time-input{
+
+    width:62px;
+
+
+    padding:
+        8px
+        5px;
+
+
+    border:
+        1px solid
+        #ddd4c4;
+
+
+    border-radius:8px;
+
+
+    color:
+        var(--green);
+
+
+    font-size:10px;
+}
+
+
+.schedule-type{
+
+    color:
+        var(--gold);
+
+
+    font-size:8px;
+
+    font-weight:800;
+
+
+    letter-spacing:1px;
+}
+
+
+.schedule-name{
+
+    margin:
+        4px
+        0
+        0;
+
+
+    font-family:
+        Georgia,
+        "Yu Mincho",
+        serif;
+
+
+    font-size:17px;
+
+
+    font-weight:400;
+
+
+    line-height:1.35;
+}
+
+
+.schedule-actions{
+
+    display:flex;
+
+
+    gap:4px;
+}
+
+
+.schedule-actions button{
+
+    width:29px;
+
+    height:29px;
+
+
+    border:
+        1px solid
+        #ddd5c7;
+
+
+    border-radius:8px;
+
+
+    background:#fff;
+
+
+    color:#536159;
+
+
+    font-size:11px;
+}
+
+
+.schedule-actions button:hover{
+
+    background:#f1ede4;
+}
+
+
+.schedule-edit-row{
+
+    margin-top:12px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        110px
+        1fr;
+
+
+    gap:8px;
+}
+
+
+.schedule-edit-row select,
+.schedule-edit-row input,
+.move-select{
+
+    width:100%;
+
+
+    padding:
+        8px
+        9px;
+
+
+    border:
+        1px solid
+        #ddd5c7;
+
+
+    border-radius:8px;
+
+
+    background:#fff;
+
+
+    color:#536159;
+
+
+    font-size:9px;
+}
+
+
+.schedule-bottom{
+
+    margin-top:8px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        1fr
+        105px;
+
+
+    gap:8px;
+}
+
+
+.move-select{
+
+    height:34px;
+}
+
+
+.remove-btn{
+
+    border:0;
+
+
+    border-radius:8px;
+
+
+    background:#f6ece9;
+
+
+    color:#97524d;
+
+
+    font-size:9px;
+
+    font-weight:700;
+}
+
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+.save-area{
+
+    padding:
+        24px
+        26px
+        28px;
+
+
+    background:#faf8f3;
+}
+
+
+.save-area p{
+
+    min-height:18px;
+
+
+    margin:
+        0
+        0
+        9px;
+
+
+    color:#728078;
+
+
+    font-size:9px;
+}
+
+
+.save-buttons{
+
+    display:grid;
+
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+
+    gap:9px;
+}
+
+
+.primary-action,
+.secondary-action{
+
+    min-height:46px;
+
+
+    padding:12px;
+
+
+    border-radius:12px;
+
+
+    font-size:11px;
+
+    font-weight:800;
+}
+
+
+.primary-action{
+
+    border:0;
+
+
+    background:
+        var(--green);
+
+
+    color:#fff;
+}
+
+
+.primary-action:hover{
+
+    background:
+        var(--gold);
+}
+
+
+.secondary-action{
+
+    border:
+        1px solid
+        #d7cebd;
+
+
+    background:#fff;
+
+
+    color:#42524a;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal{
+
+    position:fixed;
+
+
+    inset:0;
+
+
+    z-index:1000;
+
+
+    display:none;
+
+
+    align-items:center;
+
+    justify-content:center;
+
+
+    padding:22px;
+
+
+    background:
+        rgba(8,25,20,.67);
+}
+
+
+.modal.is-open{
+
+    display:flex;
+}
+
+
+.modal-panel{
+
+    position:relative;
+
+
+    width:
+        min(
+            760px,
+            100%
+        );
+
+
+    max-height:90vh;
+
+
+    overflow:auto;
+
+
+    padding:32px;
+
+
+    border-radius:20px;
+
+
+    background:#fff;
+
+
+    box-shadow:
+        0 30px 90px
+        rgba(0,0,0,.28);
+}
+
+
+.modal-panel.small{
+
+    width:
+        min(
+            520px,
+            100%
+        );
+}
+
+
+.modal-close{
+
+    position:absolute;
+
+
+    right:17px;
+
+    top:17px;
+
+
+    width:38px;
+
+    height:38px;
+
+
+    border:
+        1px solid
+        #ddd4c4;
+
+
+    border-radius:50%;
+
+
+    background:#fff;
+
+
+    color:
+        var(--green);
+
+
+    font-size:18px;
+}
+
+
+.modal-panel h2{
+
+    margin:
+        8px
+        45px
+        10px
+        0;
+
+
+    font-family:
+        Georgia,
+        "Yu Mincho",
+        serif;
+
+
+    font-size:31px;
+
+
+    font-weight:400;
+}
+
+
+.modal-panel p{
+
+    color:#6e7973;
+
+
+    font-size:11px;
+
+
+    line-height:1.9;
+}
+
+
+/* =====================================================
+   DETAIL
+===================================================== */
+
+.detail-grid{
+
+    margin-top:20px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+
+    gap:9px;
+}
+
+
+.detail-box{
+
+    padding:
+        12px
+        13px;
+
+
+    border-radius:10px;
+
+
+    background:#f7f5ef;
+}
+
+
+.detail-box strong{
+
+    display:block;
+
+
+    margin-bottom:5px;
+
+
+    color:
+        var(--gold);
+
+
+    font-size:8px;
+
+
+    letter-spacing:1.3px;
+}
+
+
+.detail-box span{
+
+    color:#59655f;
+
+
+    font-size:10px;
+
+
+    line-height:1.7;
+
+
+    white-space:
+        pre-line;
+}
+
+
+.modal-actions{
+
+    margin-top:22px;
+
+
+    display:grid;
+
+
+    grid-template-columns:
+        1fr
+        1fr;
+
+
+    gap:9px;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media(
+    max-width:1050px
+){
+
+    .workspace{
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .plan-panel{
+
+        position:relative;
+
+        top:auto;
+    }
+
+
+    .facility-grid{
+
+        max-height:none;
+    }
+
+
+    .setup-grid{
+
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+
+}
+
+
+/* =====================================================
+   SMARTPHONE
+===================================================== */
+
+@media(
+    max-width:680px
+){
+
+    .manual-top-nav{
+
+        position:relative;
+
+
+        top:auto;
+
+        right:auto;
+
+
+        padding:
+            12px
+            14px;
+
+
+        background:
+            var(--green);
+    }
+
+
+    .manual-hero{
+
+        min-height:310px;
+    }
+
+
+    .manual-hero-inner{
+
+        padding:
+            45px
+            0;
+    }
+
+
+    .manual-main{
+
+        width:94%;
+
+
+        padding-top:30px;
+    }
+
+
+    .setup-card{
+
+        padding:
+            24px
+            18px;
+    }
+
+
+    .setup-grid{
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .field.wide{
+
+        grid-column:
+            span 1;
+    }
+
+
+    .facility-grid{
+
+        grid-template-columns:
+            1fr;
+
+
+        padding:15px;
+    }
+
+
+    .panel-sticky{
+
+        padding:
+            23px
+            18px;
+    }
+
+
+    .plan-panel-head{
+
+        padding:
+            22px
+            18px;
+    }
+
+
+    .day-block{
+
+        padding:
+            20px
+            16px;
+    }
+
+
+    .schedule-top{
+
+        grid-template-columns:
+            58px
+            1fr;
+    }
+
+
+    .schedule-actions{
+
+        grid-column:2;
+
+
+        justify-content:flex-end;
+    }
+
+
+    .schedule-edit-row,
+    .schedule-bottom{
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .save-buttons,
+    .modal-actions{
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .detail-grid{
+
+        grid-template-columns:
+            1fr;
+    }
+
+
+    .section-head-row{
+
+        flex-direction:column;
+    }
+
+
+    .facility-card
+    .favorite-mark{
+
+        position:static;
+
+
+        display:block;
+
+
+        margin-top:6px;
+    }
+
+}

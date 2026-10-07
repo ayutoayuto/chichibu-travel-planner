@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        マイプラン作成 | 秩父旅行プランナー
+    </title>
+
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='manual_plan.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="manual-hero">
+
+
+    <nav class="manual-top-nav">
+
+        <a href="/">
+            ← 作り方を選ぶ
+        </a>
+
+        <a href="/favorites">
+
+            ♡ お気に入り
+
+            <span id="favoriteCount">
+                0
+            </span>
+
+        </a>
+
+        <a href="/history">
+            ▣ 旅行プラン履歴
+        </a>
+
+    </nav>
+
+
+    <div class="manual-hero-inner">
+
+
+        <div class="eyebrow">
+
+            BUILD YOUR OWN JOURNEY
+
+        </div>
+
+
+        <h1>
+
+            自分だけの、<br>
+
+            <span>
+                秩父旅行をつくる。
+            </span>
+
+        </h1>
+
+
+        <p>
+
+            行きたい場所を探してDAYへ追加。
+
+            時刻・順番・役割・メモまで、
+            自分の旅行に合わせて自由に編集できます。
+
+        </p>
+
+
+    </div>
+
+
+</header>
+
+
+
+<main class="manual-main">
+
+
+    <!-- =====================================================
+         01 基本情報
+    ====================================================== -->
+
+    <section
+        class="setup-card"
+        id="setupSection"
+    >
+
+
+        <div class="section-kicker">
+
+            01 · TRIP INFORMATION
+
+        </div>
+
+
+        <div class="section-head-row">
+
+
+            <div>
+
+                <h2>
+                    旅行の基本情報
+                </h2>
+
+                <p>
+                    日程を決めると、DAYが自動で作られます。
+                </p>
+
+            </div>
+
+
+            <span
+                class="autosave-badge"
+                id="draftStatus"
+            >
+                下書き自動保存
+            </span>
+
+
+        </div>
+
+
+
+        <div class="setup-grid">
+
+
+            <!-- タイトル -->
+
+            <label class="field wide">
+
+                <span>
+                    PLAN TITLE
+                </span>
+
+                <input
+                    id="planTitle"
+                    type="text"
+                    maxlength="60"
+                    placeholder="例：友達3人で秩父グルメ旅"
+                >
+
+            </label>
+
+
+            <!-- 旅行日 -->
+
+            <label class="field">
+
+                <span>
+                    TRAVEL DATE
+                </span>
+
+                <input
+                    id="travelDate"
+                    type="date"
+                    min="{{ today_jst }}"
+                >
+
+            </label>
+
+
+            <!-- 日数 -->
+
+            <label class="field">
+
+                <span>
+                    DAYS
+                </span>
+
+                <select id="travelDays">
+
+                    <option value="1泊2日">
+                        1泊2日
+                    </option>
+
+                    <option value="2泊3日">
+                        2泊3日
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <!-- 人数 -->
+
+            <label class="field">
+
+                <span>
+                    PEOPLE
+                </span>
+
+                <select id="people">
+
+                    <option value="1">
+                        1人
+                    </option>
+
+                    <option
+                        value="2"
+                        selected
+                    >
+                        2人
+                    </option>
+
+                    <option value="3">
+                        3人
+                    </option>
+
+                    <option value="4">
+                        4人
+                    </option>
+
+                    <option value="5">
+                        5人
+                    </option>
+
+                    <option value="6">
+                        6人以上
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <!-- 同行者 -->
+
+            <label class="field">
+
+                <span>
+                    MEMBER
+                </span>
+
+                <select id="member">
+
+                    <option value="友人">
+                        友人
+                    </option>
+
+                    <option value="恋人">
+                        恋人
+                    </option>
+
+                    <option value="家族">
+                        家族
+                    </option>
+
+                    <option value="ひとり">
+                        ひとり
+                    </option>
+
+                    <option value="その他">
+                        その他
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <!-- 車 -->
+
+            <label class="field">
+
+                <span>
+                    CAR
+                </span>
+
+                <select id="car">
+
+                    <option value="なし">
+                        なし
+                    </option>
+
+                    <option value="あり">
+                        あり
+                    </option>
+
+                </select>
+
+            </label>
+
+
+            <!-- 全体メモ -->
+
+            <label class="field wide">
+
+                <span>
+                    TRIP MEMO
+                </span>
+
+                <textarea
+                    id="tripMemo"
+                    rows="3"
+                    placeholder="集合場所、帰りの電車、やりたいことなど"
+                ></textarea>
+
+            </label>
+
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         02・03 メインワークスペース
+    ====================================================== -->
+
+    <section class="workspace">
+
+
+        <!-- =================================================
+             左：施設選択
+        ================================================== -->
+
+        <div class="facility-panel">
+
+
+            <div class="panel-sticky">
+
+
+                <div class="section-kicker">
+
+                    02 · FIND PLACES
+
+                </div>
+
+
+                <h2>
+                    施設を選ぶ
+                </h2>
+
+
+                <p class="panel-lead">
+
+                    お気に入りからでも、
+                    登録済みの全施設からでも追加できます。
+
+                </p>
+
+
+
+                <!-- 検索 -->
+
+                <div class="search-box">
+
+                    <span>
+                        ⌕
+                    </span>
+
+                    <input
+                        id="facilitySearch"
+                        type="search"
+                        placeholder="施設名・エリア・ジャンルを検索"
+                    >
+
+                </div>
+
+
+
+                <!-- フィルター -->
+
+                <div
+                    class="filter-tabs"
+                    id="filterTabs"
+                >
+
+
+                    <button
+                        type="button"
+                        data-filter="all"
+                        class="active"
+                    >
+                        すべて
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-filter="favorite"
+                    >
+                        ♡ お気に入り
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-filter="観光地"
+                    >
+                        🏞 観光地
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-filter="飲食店"
+                    >
+                        🍴 飲食店
+                    </button>
+
+
+                    <button
+                        type="button"
+                        data-filter="宿泊施設"
+                    >
+                        🏨 宿泊施設
+                    </button>
+
+
+                </div>
+
+
+
+                <!-- 件数・追加先 -->
+
+                <div class="browser-tools">
+
+
+                    <span id="facilityResultCount">
+
+                        0件
+
+                    </span>
+
+
+                    <label>
+
+                        追加先
+
+                        <select id="addDaySelect">
+                        </select>
+
+                    </label>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- 施設カードがJSで入る -->
+
+            <div
+                id="facilityGrid"
+                class="facility-grid"
+            ></div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             右：作成中の旅行プラン
+        ================================================== -->
+
+        <aside class="plan-panel">
+
+
+            <div class="plan-panel-head">
+
+
+                <div>
+
+                    <div class="section-kicker">
+
+                        03 · YOUR ITINERARY
+
+                    </div>
+
+                    <h2>
+                        あなたの旅行プラン
+                    </h2>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    class="ghost-button"
+                    id="clearPlanButton"
+                >
+                    予定をクリア
+                </button>
+
+
+            </div>
+
+
+
+            <!-- DAY1 / DAY2 / DAY3 がJSで入る -->
+
+            <div id="daysContainer">
+            </div>
+
+
+
+            <!-- 保存 -->
+
+            <div class="save-area">
+
+
+                <p
+                    id="saveMessage"
+                    aria-live="polite"
+                ></p>
+
+
+                <div class="save-buttons">
+
+
+                    <button
+                        type="button"
+                        class="secondary-action"
+                        id="previewButton"
+                    >
+                        しおりを確認
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="primary-action"
+                        id="savePlanButton"
+                    >
+                        このプランを保存
+                    </button>
+
+
+                </div>
+
+
+            </div>
+
+
+        </aside>
+
+
+    </section>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     施設詳細モーダル
+====================================================== -->
+
+<div
+    class="modal"
+    id="detailModal"
+    aria-hidden="true"
+>
+
+
+    <div
+        class="modal-panel"
+        role="dialog"
+        aria-modal="true"
+    >
+
+
+        <button
+            type="button"
+            class="modal-close"
+            id="detailClose"
+            aria-label="閉じる"
+        >
+            ×
+        </button>
+
+
+        <div id="detailContent">
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     下書き復元モーダル
+====================================================== -->
+
+<div
+    class="modal"
+    id="draftModal"
+    aria-hidden="true"
+>
+
+
+    <div class="modal-panel small">
+
+
+        <div class="section-kicker">
+
+            DRAFT FOUND
+
+        </div>
+
+
+        <h2>
+
+            作成途中の旅行プランがあります。
+
+        </h2>
+
+
+        <p>
+
+            前回の続きから編集するか、
+            新しいプランを作るか選んでください。
+
+        </p>
+
+
+        <div class="modal-actions">
+
+
+            <button
+                type="button"
+                class="primary-action"
+                id="continueDraftButton"
+            >
+                続きから編集
+            </button>
+
+
+            <button
+                type="button"
+                class="secondary-action"
+                id="newDraftButton"
+            >
+                新しく作る
+            </button>
+
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =====================================================
+     Flaskから施設データを受け取る
+====================================================== -->
+
+<script
+    id="manualCatalogData"
+    type="application/json"
+>
+    {{ manual_catalog | tojson }}
+</script>
+
+
+
+<!-- =====================================================
+     手動プラン用JavaScript
+====================================================== -->
+
+<script
+    src="{{ url_for('static', filename='manual_plan.js') }}"
+></script>
+
+
+</body>
+
+</html>
