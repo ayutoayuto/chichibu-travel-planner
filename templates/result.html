@@ -2264,21 +2264,29 @@
 
     </style>
 </head>
-
-
 <body>
-
 
 <header class="result-hero">
 
     <div class="result-top-nav">
+
+        <!-- 追加：ホームに戻る -->
+        <a
+            href="/"
+            class="result-history-tab"
+            aria-label="← プラン作成方法を選ぶ"
+        >
+            <span>
+                ⌂ ホームに戻る
+            </span>
+        </a>
+
 
         <a
             href="{{ url_for('favorites') }}"
             class="result-favorite-tab"
             aria-label="お気に入りページを開く"
         >
-
             <span>
                 ♡ お気に入り
             </span>
@@ -2289,7 +2297,6 @@
             >
                 0
             </span>
-
         </a>
 
 
@@ -2298,7 +2305,6 @@
             class="result-history-tab"
             aria-label="旅行プラン履歴を開く"
         >
-
             <span>
                 ▣ 旅行プラン履歴
             </span>
@@ -2309,7 +2315,6 @@
             >
                 0
             </span>
-
         </a>
 
 
@@ -2318,11 +2323,9 @@
             class="result-history-tab"
             aria-label="TRIP BOOKを開く"
         >
-
             <span>
                 ▤ TRIP BOOK
             </span>
-
         </a>
 
     </div>
@@ -2334,32 +2337,20 @@
             YOUR CHICHIBU JOURNEY
         </div>
 
-
         <h1>
-
             あなたの
-
             <br>
-
             <span>
                 秩父旅行プラン。
             </span>
-
         </h1>
 
-
         <p>
-
             入力していただいた条件をもとに、
-
             <br>
-
             秩父の観光スポットと宿泊施設を組み合わせた
-
             <br>
-
             おすすめプランを提案しました。
-
         </p>
 
     </div>
@@ -2368,7 +2359,6 @@
 
 
 <main>
-
 
     <!-- ===========================
          YOUR CONDITIONS
@@ -2380,115 +2370,50 @@
             YOUR CONDITIONS
         </div>
 
-
         <h2 class="section-title">
             旅行条件
         </h2>
 
-
         <div class="condition-grid">
 
             <div class="condition-card">
-
-                <small>
-                    AGE
-                </small>
-
-                <strong>
-                    {{ age }}代
-                </strong>
-
+                <small>AGE</small>
+                <strong>{{ age }}代</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    PEOPLE
-                </small>
-
-                <strong>
-                    {{ people }}人
-                </strong>
-
+                <small>PEOPLE</small>
+                <strong>{{ people }}人</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    STYLE
-                </small>
-
-                <strong>
-                    {{ member }}
-                </strong>
-
+                <small>STYLE</small>
+                <strong>{{ member }}</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    DAYS
-                </small>
-
-                <strong>
-                    {{ days }}
-                </strong>
-
+                <small>DAYS</small>
+                <strong>{{ days }}</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    CAR
-                </small>
-
-                <strong>
-                    {{ car }}
-                </strong>
-
+                <small>CAR</small>
+                <strong>{{ car }}</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    BUDGET
-                </small>
-
-                <strong>
-                    {{ budget }}円 / 人
-                </strong>
-
+                <small>BUDGET</small>
+                <strong>{{ budget }}円 / 人</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    PURPOSE
-                </small>
-
-                <strong>
-                    {{ purpose | join('・') }}
-                </strong>
-
+                <small>PURPOSE</small>
+                <strong>{{ purpose | join('・') }}</strong>
             </div>
 
-
             <div class="condition-card">
-
-                <small>
-                    TRAVEL STYLE
-                </small>
-
-                <strong>
-                    {{ trip_style }}
-                </strong>
-
+                <small>TRAVEL STYLE</small>
+                <strong>{{ trip_style }}</strong>
             </div>
 
         </div>
@@ -2506,11 +2431,9 @@
             TRIP FEATURES
         </div>
 
-
         <h2 class="section-title">
             この旅の特徴
         </h2>
-
 
         <div class="feature-list">
 
@@ -2537,11 +2460,9 @@
             DAY 01
         </div>
 
-
         <h2 class="day-title">
             1日目
         </h2>
-
 
         <div
             class="day-route-area"
@@ -2559,7 +2480,6 @@
                 </span>
 
             </div>
-
 
             <a
                 href="#"
@@ -2582,44 +2502,31 @@
                     SPOT {{ loop.index }}
                 </div>
 
-
                 <button
                     type="button"
                     class="favorite-button"
-
                     data-favorite-type="観光地"
-
                     data-favorite-name="{{ spot.name }}"
-
                     data-favorite-address="{{ spot.address if spot.address else '' }}"
-
                     data-favorite-url="{{ spot.url if spot.url else '' }}"
-
                     data-html2canvas-ignore="true"
-
                     aria-pressed="false"
                 >
                     ♡ お気に入り
                 </button>
 
-
                 <h3>
                     📍 {{ spot.name }}
                 </h3>
 
-
                 {% if spot.area %}
 
                 <div class="day-spot-area">
-
                     {{ spot.area }}
 
                     {% if spot.time %}
-
                     ／ 約{{ spot.time }}時間
-
                     {% endif %}
-
                 </div>
 
                 {% endif %}
@@ -2634,12 +2541,12 @@
                 {% endif %}
 
 
-
                 {% if spot.score is defined and spot.score_breakdown is defined and spot.score_breakdown %}
 
                 <div class="recommend-score-box">
 
                     <div class="recommend-score-head">
+
                         <div class="recommend-score-label">
                             <small>RECOMMENDATION SCORE</small>
                             <strong>おすすめ度の内訳</strong>
@@ -2648,6 +2555,7 @@
                         <div class="recommend-score-total">
                             {{ spot.score }}<span>点</span>
                         </div>
+
                     </div>
 
                     <div class="recommend-score-list">
@@ -2687,6 +2595,7 @@
 
                 {% endif %}
 
+
                 {% if spot.recommendation_reason %}
 
                 <div class="day-spot-recommendation">
@@ -2706,242 +2615,115 @@
 
                 <div class="day-spot-details">
 
-
                     {% if spot.type %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            TYPE
-                        </strong>
-
-                        <span>
-                            {{ spot.type }}
-                        </span>
-
+                        <strong>TYPE</strong>
+                        <span>{{ spot.type }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.time %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            STAY TIME
-                        </strong>
-
-                        <span>
-                            約{{ spot.time }}時間
-                        </span>
-
+                        <strong>STAY TIME</strong>
+                        <span>約{{ spot.time }}時間</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.address %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            ADDRESS
-                        </strong>
-
-                        <span>
-                            {{ spot.address }}
-                        </span>
-
+                        <strong>ADDRESS</strong>
+                        <span>{{ spot.address }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.phone %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            PHONE
-                        </strong>
-
-                        <span>
-                            {{ spot.phone }}
-                        </span>
-
+                        <strong>PHONE</strong>
+                        <span>{{ spot.phone }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.access and spot.access.train %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            TRAIN
-                        </strong>
-
-                        <span>
-                            {{ spot.access.train }}
-                        </span>
-
+                        <strong>TRAIN</strong>
+                        <span>{{ spot.access.train }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.access and spot.access.bus %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            BUS
-                        </strong>
-
-                        <span>
-                            {{ spot.access.bus }}
-                        </span>
-
+                        <strong>BUS</strong>
+                        <span>{{ spot.access.bus }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.access and spot.access.walk %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            WALK
-                        </strong>
-
-                        <span>
-                            {{ spot.access.walk }}
-                        </span>
-
+                        <strong>WALK</strong>
+                        <span>{{ spot.access.walk }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.access and spot.access.car %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            CAR
-                        </strong>
-
-                        <span>
-                            {{ spot.access.car }}
-                        </span>
-
+                        <strong>CAR</strong>
+                        <span>{{ spot.access.car }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.hours %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            HOURS
-                        </strong>
-
-                        <span>
-                            {{ spot.hours }}
-                        </span>
-
+                        <strong>HOURS</strong>
+                        <span>{{ spot.hours }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.price %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            PRICE
-                        </strong>
-
-                        <span>
-                            {{ spot.price }}
-                        </span>
-
+                        <strong>PRICE</strong>
+                        <span>{{ spot.price }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.closed %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            CLOSED
-                        </strong>
-
-                        <span>
-                            {{ spot.closed }}
-                        </span>
-
+                        <strong>CLOSED</strong>
+                        <span>{{ spot.closed }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.parking %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            PARKING
-                        </strong>
-
-                        <span>
-                            {{ spot.parking }}
-                        </span>
-
+                        <strong>PARKING</strong>
+                        <span>{{ spot.parking }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.season %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            SEASON
-                        </strong>
-
-                        <span>
-                            {{ spot.season }}
-                        </span>
-
+                        <strong>SEASON</strong>
+                        <span>{{ spot.season }}</span>
                     </div>
-
                     {% endif %}
 
 
                     {% if spot.car_free %}
-
                     <div class="detail-item">
-
-                        <strong>
-                            CAR FREE
-                        </strong>
-
-                        <span>
-                            {{ spot.car_free }}
-                        </span>
-
+                        <strong>CAR FREE</strong>
+                        <span>{{ spot.car_free }}</span>
                     </div>
-
                     {% endif %}
 
                 </div>
@@ -3040,11 +2822,9 @@
             DAY 02
         </div>
 
-
         <h2 class="day-title">
             2日目
         </h2>
-
 
         <div
             class="day-route-area"
@@ -3062,7 +2842,6 @@
                 </span>
 
             </div>
-
 
             <a
                 href="#"
@@ -3085,26 +2864,18 @@
                     SPOT {{ loop.index }}
                 </div>
 
-
                 <button
                     type="button"
                     class="favorite-button"
-
                     data-favorite-type="観光地"
-
                     data-favorite-name="{{ spot.name }}"
-
                     data-favorite-address="{{ spot.address if spot.address else '' }}"
-
                     data-favorite-url="{{ spot.url if spot.url else '' }}"
-
                     data-html2canvas-ignore="true"
-
                     aria-pressed="false"
                 >
                     ♡ お気に入り
                 </button>
-
 
                 <h3>
                     📍 {{ spot.name }}
@@ -3114,15 +2885,11 @@
                 {% if spot.area %}
 
                 <div class="day-spot-area">
-
                     {{ spot.area }}
 
                     {% if spot.time %}
-
                     ／ 約{{ spot.time }}時間
-
                     {% endif %}
-
                 </div>
 
                 {% endif %}
@@ -3137,12 +2904,12 @@
                 {% endif %}
 
 
-
                 {% if spot.score is defined and spot.score_breakdown is defined and spot.score_breakdown %}
 
                 <div class="recommend-score-box">
 
                     <div class="recommend-score-head">
+
                         <div class="recommend-score-label">
                             <small>RECOMMENDATION SCORE</small>
                             <strong>おすすめ度の内訳</strong>
@@ -3151,6 +2918,7 @@
                         <div class="recommend-score-total">
                             {{ spot.score }}<span>点</span>
                         </div>
+
                     </div>
 
                     <div class="recommend-score-list">
@@ -3190,6 +2958,7 @@
 
                 {% endif %}
 
+
                 {% if spot.recommendation_reason %}
 
                 <div class="day-spot-recommendation">
@@ -3210,142 +2979,101 @@
                 <div class="day-spot-details">
 
                     {% if spot.type %}
-
                     <div class="detail-item">
                         <strong>TYPE</strong>
                         <span>{{ spot.type }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.time %}
-
                     <div class="detail-item">
                         <strong>STAY TIME</strong>
                         <span>約{{ spot.time }}時間</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.address %}
-
                     <div class="detail-item">
                         <strong>ADDRESS</strong>
                         <span>{{ spot.address }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.phone %}
-
                     <div class="detail-item">
                         <strong>PHONE</strong>
                         <span>{{ spot.phone }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.train %}
-
                     <div class="detail-item">
                         <strong>TRAIN</strong>
                         <span>{{ spot.access.train }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.bus %}
-
                     <div class="detail-item">
                         <strong>BUS</strong>
                         <span>{{ spot.access.bus }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.walk %}
-
                     <div class="detail-item">
                         <strong>WALK</strong>
                         <span>{{ spot.access.walk }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.car %}
-
                     <div class="detail-item">
                         <strong>CAR</strong>
                         <span>{{ spot.access.car }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.hours %}
-
                     <div class="detail-item">
                         <strong>HOURS</strong>
                         <span>{{ spot.hours }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.price %}
-
                     <div class="detail-item">
                         <strong>PRICE</strong>
                         <span>{{ spot.price }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.closed %}
-
                     <div class="detail-item">
                         <strong>CLOSED</strong>
                         <span>{{ spot.closed }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.parking %}
-
                     <div class="detail-item">
                         <strong>PARKING</strong>
                         <span>{{ spot.parking }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.season %}
-
                     <div class="detail-item">
                         <strong>SEASON</strong>
                         <span>{{ spot.season }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.car_free %}
-
                     <div class="detail-item">
                         <strong>CAR FREE</strong>
                         <span>{{ spot.car_free }}</span>
                     </div>
-
                     {% endif %}
 
                 </div>
@@ -3431,7 +3159,8 @@
 
         {% endfor %}
 
-    </section>    <!-- ===========================
+    </section>
+        <!-- ===========================
          DAY 03
     ============================ -->
 
@@ -3446,7 +3175,6 @@
         <h2 class="day-title">
             3日目
         </h2>
-
 
         <div
             class="day-route-area"
@@ -3464,7 +3192,6 @@
                 </span>
 
             </div>
-
 
             <a
                 href="#"
@@ -3487,7 +3214,6 @@
                     SPOT {{ loop.index }}
                 </div>
 
-
                 <button
                     type="button"
                     class="favorite-button"
@@ -3501,22 +3227,18 @@
                     ♡ お気に入り
                 </button>
 
-
                 <h3>
                     📍 {{ spot.name }}
                 </h3>
 
-
                 {% if spot.area %}
 
                 <div class="day-spot-area">
-
                     {{ spot.area }}
 
                     {% if spot.time %}
                     ／ 約{{ spot.time }}時間
                     {% endif %}
-
                 </div>
 
                 {% endif %}
@@ -3531,12 +3253,12 @@
                 {% endif %}
 
 
-
                 {% if spot.score is defined and spot.score_breakdown is defined and spot.score_breakdown %}
 
                 <div class="recommend-score-box">
 
                     <div class="recommend-score-head">
+
                         <div class="recommend-score-label">
                             <small>RECOMMENDATION SCORE</small>
                             <strong>おすすめ度の内訳</strong>
@@ -3545,6 +3267,7 @@
                         <div class="recommend-score-total">
                             {{ spot.score }}<span>点</span>
                         </div>
+
                     </div>
 
                     <div class="recommend-score-list">
@@ -3584,6 +3307,7 @@
 
                 {% endif %}
 
+
                 {% if spot.recommendation_reason %}
 
                 <div class="day-spot-recommendation">
@@ -3604,142 +3328,101 @@
                 <div class="day-spot-details">
 
                     {% if spot.type %}
-
                     <div class="detail-item">
                         <strong>TYPE</strong>
                         <span>{{ spot.type }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.time %}
-
                     <div class="detail-item">
                         <strong>STAY TIME</strong>
                         <span>約{{ spot.time }}時間</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.address %}
-
                     <div class="detail-item">
                         <strong>ADDRESS</strong>
                         <span>{{ spot.address }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.phone %}
-
                     <div class="detail-item">
                         <strong>PHONE</strong>
                         <span>{{ spot.phone }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.train %}
-
                     <div class="detail-item">
                         <strong>TRAIN</strong>
                         <span>{{ spot.access.train }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.bus %}
-
                     <div class="detail-item">
                         <strong>BUS</strong>
                         <span>{{ spot.access.bus }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.walk %}
-
                     <div class="detail-item">
                         <strong>WALK</strong>
                         <span>{{ spot.access.walk }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.access and spot.access.car %}
-
                     <div class="detail-item">
                         <strong>CAR</strong>
                         <span>{{ spot.access.car }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.hours %}
-
                     <div class="detail-item">
                         <strong>HOURS</strong>
                         <span>{{ spot.hours }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.price %}
-
                     <div class="detail-item">
                         <strong>PRICE</strong>
                         <span>{{ spot.price }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.closed %}
-
                     <div class="detail-item">
                         <strong>CLOSED</strong>
                         <span>{{ spot.closed }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.parking %}
-
                     <div class="detail-item">
                         <strong>PARKING</strong>
                         <span>{{ spot.parking }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.season %}
-
                     <div class="detail-item">
                         <strong>SEASON</strong>
                         <span>{{ spot.season }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if spot.car_free %}
-
                     <div class="detail-item">
                         <strong>CAR FREE</strong>
                         <span>{{ spot.car_free }}</span>
                     </div>
-
                     {% endif %}
 
                 </div>
@@ -3862,7 +3545,6 @@
                     GOURMET {{ "%02d"|format(loop.index) }}
                 </div>
 
-
                 <button
                     type="button"
                     class="favorite-button"
@@ -3876,11 +3558,9 @@
                     ♡ お気に入り
                 </button>
 
-
                 <h3>
                     {{ restaurant.name }}
                 </h3>
-
 
                 {% if restaurant.genre %}
 
@@ -3906,12 +3586,12 @@
                 {% endif %}
 
 
-
                 {% if restaurant.score is defined and restaurant.score_breakdown is defined and restaurant.score_breakdown %}
 
                 <div class="recommend-score-box">
 
                     <div class="recommend-score-head">
+
                         <div class="recommend-score-label">
                             <small>RECOMMENDATION SCORE</small>
                             <strong>飲食店のおすすめ度</strong>
@@ -3920,6 +3600,7 @@
                         <div class="recommend-score-total">
                             {{ restaurant.score }}<span>点</span>
                         </div>
+
                     </div>
 
                     <div class="recommend-score-list">
@@ -3959,6 +3640,7 @@
 
                 {% endif %}
 
+
                 {% if restaurant.specialties %}
 
                 <div class="gourmet-specialties">
@@ -3979,47 +3661,34 @@
                 <div class="gourmet-info">
 
                     {% if restaurant.area %}
-
                     <div class="gourmet-info-item">
                         <strong>AREA</strong>
                         <span>{{ restaurant.area }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if restaurant.hours %}
-
                     <div class="gourmet-info-item">
                         <strong>HOURS</strong>
                         <span>{{ restaurant.hours }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if restaurant.closed %}
-
                     <div class="gourmet-info-item">
                         <strong>CLOSED</strong>
                         <span>{{ restaurant.closed }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if restaurant.price_range %}
-
                     <div class="gourmet-info-item">
                         <strong>PRICE</strong>
                         <span>{{ restaurant.price_range }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if restaurant.access %}
-
                     <div class="gourmet-info-item">
                         <strong>ACCESS</strong>
                         <span>
@@ -4032,17 +3701,13 @@
                             {% endif %}
                         </span>
                     </div>
-
                     {% endif %}
 
-
                     {% if restaurant.parking %}
-
                     <div class="gourmet-info-item">
                         <strong>PARKING</strong>
                         <span>{{ restaurant.parking }}</span>
                     </div>
-
                     {% endif %}
 
                 </div>
@@ -4119,7 +3784,6 @@
                     SELECTED HOTEL
                 </div>
 
-
                 <button
                     type="button"
                     class="favorite-button"
@@ -4133,11 +3797,9 @@
                     ♡ お気に入り
                 </button>
 
-
                 <h3>
                     🏨 {{ hotel.name }}
                 </h3>
-
 
                 {% if hotel.description %}
 
@@ -4165,12 +3827,12 @@
                 {% endif %}
 
 
-
                 {% if hotel.score is defined and hotel.score_breakdown is defined and hotel.score_breakdown %}
 
                 <div class="recommend-score-box">
 
                     <div class="recommend-score-head">
+
                         <div class="recommend-score-label">
                             <small>RECOMMENDATION SCORE</small>
                             <strong>宿泊施設のおすすめ度</strong>
@@ -4179,6 +3841,7 @@
                         <div class="recommend-score-total">
                             {{ hotel.score }}<span>点</span>
                         </div>
+
                     </div>
 
                     <div class="recommend-score-list">
@@ -4218,85 +3881,63 @@
 
                 {% endif %}
 
+
                 <div class="hotel-detail-grid">
 
                     {% if hotel.address %}
-
                     <div class="detail-item">
                         <strong>ADDRESS</strong>
                         <span>{{ hotel.address }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.phone %}
-
                     <div class="detail-item">
                         <strong>PHONE</strong>
                         <span>{{ hotel.phone }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.access and hotel.access.train %}
-
                     <div class="detail-item">
                         <strong>TRAIN</strong>
                         <span>{{ hotel.access.train }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.access and hotel.access.bus %}
-
                     <div class="detail-item">
                         <strong>BUS</strong>
                         <span>{{ hotel.access.bus }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.access and hotel.access.car %}
-
                     <div class="detail-item">
                         <strong>CAR</strong>
                         <span>{{ hotel.access.car }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.parking %}
-
                     <div class="detail-item">
                         <strong>PARKING</strong>
                         <span>{{ hotel.parking }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.check_in %}
-
                     <div class="detail-item">
                         <strong>CHECK IN</strong>
                         <span>{{ hotel.check_in }}</span>
                     </div>
-
                     {% endif %}
 
-
                     {% if hotel.check_out %}
-
                     <div class="detail-item">
                         <strong>CHECK OUT</strong>
                         <span>{{ hotel.check_out }}</span>
                     </div>
-
                     {% endif %}
 
                 </div>
@@ -4416,7 +4057,6 @@
                 その他の宿泊候補
             </h3>
 
-
             <div class="hotel-list">
 
                 {% for other in other_hotels %}
@@ -4436,11 +4076,9 @@
                         ♡ お気に入り
                     </button>
 
-
                     <h4>
                         {{ other.name }}
                     </h4>
-
 
                     {% if other.description %}
 
@@ -4451,12 +4089,12 @@
                     {% endif %}
 
 
-
                     {% if other.score is defined and other.score_breakdown is defined and other.score_breakdown %}
 
                     <div class="recommend-score-box">
 
                         <div class="recommend-score-head">
+
                             <div class="recommend-score-label">
                                 <small>RECOMMENDATION SCORE</small>
                                 <strong>条件との相性</strong>
@@ -4465,6 +4103,7 @@
                             <div class="recommend-score-total">
                                 {{ other.score }}<span>点</span>
                             </div>
+
                         </div>
 
                         <div class="recommend-score-list">
@@ -4503,6 +4142,8 @@
                     </div>
 
                     {% endif %}
+
+
                     {% if other.price %}
 
                     <div class="hotel-card-price">
@@ -4559,54 +4200,28 @@
                 BUDGET
             </div>
 
-
             <h3>
                 旅行予算の目安
             </h3>
 
-
             <div class="budget-grid">
 
                 <div class="budget-item">
-
-                    <small>
-                        YOUR BUDGET
-                    </small>
-
-                    <strong>
-                        {{ total_budget }}円
-                    </strong>
-
+                    <small>YOUR BUDGET</small>
+                    <strong>{{ total_budget }}円</strong>
                 </div>
 
-
                 <div class="budget-item">
-
-                    <small>
-                        HOTEL
-                    </small>
-
-                    <strong>
-                        {{ total_price }}円
-                    </strong>
-
+                    <small>HOTEL</small>
+                    <strong>{{ total_price }}円</strong>
                 </div>
 
-
                 <div class="budget-item">
-
-                    <small>
-                        HOTEL RATIO
-                    </small>
-
-                    <strong>
-                        {{ budget_ratio }}%
-                    </strong>
-
+                    <small>HOTEL RATIO</small>
+                    <strong>{{ budget_ratio }}%</strong>
                 </div>
 
             </div>
-
 
             <p class="budget-note">
                 {{ budget_status }}
@@ -4627,18 +4242,14 @@
             TRIP SUMMARY
         </div>
 
-
         <h2 class="section-title">
             あなたの秩父旅行
         </h2>
 
-
         <div class="summary-box">
-
             <p>
                 {{ trip_summary }}
             </p>
-
         </div>
 
     </section>
@@ -4680,7 +4291,6 @@
             ▣ この旅行プランを保存
         </button>
 
-
         <p
             id="savePlanHistoryStatus"
             class="save-history-status"
@@ -4709,7 +4319,6 @@
             ▤ このプランからTRIP BOOKを作る
         </button>
 
-
         <p class="trip-book-create-note">
             今の旅行プランを使って、おしゃれな旅行しおりを作成できます。
         </p>
@@ -4733,7 +4342,6 @@
         >
             この旅行プランを画像として保存
         </button>
-
 
         <p
             id="savePlanImageStatus"
@@ -4791,16 +4399,11 @@ document.addEventListener(
                 "tripRouteData"
             );
 
-
-        if (
-            !routeDataElement
-        ) {
+        if (!routeDataElement) {
             return;
         }
 
-
         let routeData = {};
-
 
         try {
 
@@ -4811,11 +4414,7 @@ document.addEventListener(
                     "{}"
                 );
 
-        }
-
-        catch (
-            error
-        ) {
+        } catch (error) {
 
             console.error(
                 "ルートデータの読み込みエラー:",
@@ -4823,172 +4422,98 @@ document.addEventListener(
             );
 
             return;
-
         }
 
 
-        function destinationText(
-            item
-        ) {
+        function destinationText(item) {
 
-            if (
-                !item
-            ) {
-
+            if (!item) {
                 return "";
-
             }
 
-
             const lat =
-
                 item.latitude ??
-
                 item.lat ??
-
                 item.master_latitude;
 
-
             const lng =
-
                 item.longitude ??
-
                 item.lng ??
-
                 item.master_longitude;
 
-
             if (
-                lat !== undefined
-                &&
-                lat !== null
-                &&
-                lng !== undefined
-                &&
+                lat !== undefined &&
+                lat !== null &&
+                lng !== undefined &&
                 lng !== null
             ) {
 
                 return (
-                    String(
-                        lat
-                    )
+                    String(lat)
                     +
                     ","
                     +
-                    String(
-                        lng
-                    )
+                    String(lng)
                 );
-
             }
 
-
-            if (
-                item.address
-            ) {
+            if (item.address) {
 
                 return (
                     item.name
                         ?
-                        item.name
-                        +
-                        " "
-                        +
-                        item.address
+                        item.name + " " + item.address
                         :
                         item.address
                 );
-
             }
 
-
             return [
-
                 item.name,
-
                 item.area,
-
                 "秩父 埼玉県 日本"
-
             ]
-            .filter(
-                Boolean
-            )
-            .join(
-                " "
-            );
-
+            .filter(Boolean)
+            .join(" ");
         }
 
 
-        function buildRouteUrl(
-            items
-        ) {
+        function buildRouteUrl(items) {
 
             const points =
-
                 (items || [])
+                .map(destinationText)
+                .filter(Boolean);
 
-                .map(
-                    destinationText
-                )
-
-                .filter(
-                    Boolean
-                );
-
-
-            if (
-                !points.length
-            ) {
-
+            if (!points.length) {
                 return null;
-
             }
 
-
-            if (
-                points.length === 1
-            ) {
+            if (points.length === 1) {
 
                 return (
                     "https://www.google.com/maps/search/?api=1&query="
                     +
-                    encodeURIComponent(
-                        points[0]
-                    )
+                    encodeURIComponent(points[0])
                 );
-
             }
 
-
             const travelMode =
-
                 String(
-                    routeData.car
-                    ||
-                    ""
+                    routeData.car || ""
                 )
-                .includes(
-                    "あり"
-                )
-
+                .includes("あり")
                 ?
                 "driving"
-
                 :
                 "transit";
 
-
-            const origin =
-                points[0];
-
+            const origin = points[0];
 
             const destination =
                 points[
                     points.length - 1
                 ];
-
 
             const waypoints =
                 points.slice(
@@ -4996,61 +4521,32 @@ document.addEventListener(
                     -1
                 );
 
-
             let url =
-
                 "https://www.google.com/maps/dir/?api=1"
-
                 +
-
                 "&origin="
-
                 +
-
-                encodeURIComponent(
-                    origin
-                )
-
+                encodeURIComponent(origin)
                 +
-
                 "&destination="
-
                 +
-
-                encodeURIComponent(
-                    destination
-                )
-
+                encodeURIComponent(destination)
                 +
-
                 "&travelmode="
-
                 +
-
                 travelMode;
 
-
-            if (
-                waypoints.length
-            ) {
+            if (waypoints.length) {
 
                 url +=
-
                     "&waypoints="
-
                     +
-
                     encodeURIComponent(
-                        waypoints.join(
-                            "|"
-                        )
+                        waypoints.join("|")
                     );
-
             }
 
-
             return url;
-
         }
 
 
@@ -5059,57 +4555,35 @@ document.addEventListener(
             "[data-route-day]"
         )
         .forEach(
-            function (
-                button
-            ) {
+            function (button) {
 
                 const day =
                     button.dataset.routeDay;
 
-
                 const items =
-
                     routeData[
                         "day" + day
                     ]
-
                     ||
-
                     [];
 
-
                 const url =
-                    buildRouteUrl(
-                        items
-                    );
+                    buildRouteUrl(items);
 
-
-                if (
-                    !url
-                ) {
+                if (!url) {
 
                     button.style.display =
                         "none";
 
                     return;
-
                 }
 
-
-                button.href =
-                    url;
-
-
-                button.target =
-                    "_blank";
-
-
+                button.href = url;
+                button.target = "_blank";
                 button.rel =
                     "noopener noreferrer";
-
             }
         );
-
     }
 );
 </script>
@@ -5130,45 +4604,34 @@ document.addEventListener(
         const HISTORY_STORAGE_KEY =
             "chichibuTravelPlanHistoryV1";
 
-
         const snapshotElement =
             document.getElementById(
                 "tripHistorySnapshotData"
             );
-
 
         const saveButton =
             document.getElementById(
                 "savePlanHistoryButton"
             );
 
-
         const status =
             document.getElementById(
                 "savePlanHistoryStatus"
             );
-
 
         const historyCount =
             document.getElementById(
                 "resultHistoryCount"
             );
 
-
         if (
-            !snapshotElement
-            ||
+            !snapshotElement ||
             !saveButton
         ) {
-
             return;
-
         }
 
-
-        let snapshot =
-            null;
-
+        let snapshot = null;
 
         try {
 
@@ -5179,30 +4642,19 @@ document.addEventListener(
                     "{}"
                 );
 
-        }
-
-        catch (
-            error
-        ) {
+        } catch (error) {
 
             console.error(
                 "旅行プラン履歴データの読み込みエラー:",
                 error
             );
 
-
-            if (
-                status
-            ) {
-
+            if (status) {
                 status.textContent =
                     "履歴保存データを読み込めませんでした。";
-
             }
 
-
             return;
-
         }
 
 
@@ -5215,130 +4667,79 @@ document.addEventListener(
                         HISTORY_STORAGE_KEY
                     );
 
-
                 const parsed =
-
                     raw
                         ?
-                        JSON.parse(
-                            raw
-                        )
+                        JSON.parse(raw)
                         :
                         [];
 
-
-                return Array.isArray(
+                return Array.isArray(parsed)
+                    ?
                     parsed
-                )
+                    :
+                    [];
 
-                ?
-                parsed
-
-                :
-                [];
-
-            }
-
-            catch (
-                error
-            ) {
+            } catch (error) {
 
                 console.error(
                     "旅行プラン履歴の読み込みエラー:",
                     error
                 );
 
-
                 return [];
-
             }
-
         }
 
 
-        function writeHistory(
-            history
-        ) {
+        function writeHistory(history) {
 
             try {
 
                 localStorage.setItem(
                     HISTORY_STORAGE_KEY,
-                    JSON.stringify(
-                        history
-                    )
+                    JSON.stringify(history)
                 );
-
 
                 return true;
 
-            }
-
-            catch (
-                error
-            ) {
+            } catch (error) {
 
                 console.error(
                     "旅行プラン履歴の保存エラー:",
                     error
                 );
 
-
                 return false;
-
             }
-
         }
 
 
-        function itemFingerprint(
-            item
-        ) {
+        function itemFingerprint(item) {
 
-            if (
-                !item
-            ) {
-
+            if (!item) {
                 return null;
-
             }
-
 
             return {
-
-                name:
-                    item.name || "",
-
-                area:
-                    item.area || "",
-
-                type:
-                    item.type || "",
-
+                name: item.name || "",
+                area: item.area || "",
+                type: item.type || "",
                 description:
                     item.description || "",
-
                 recommendation_reason:
                     item.recommendation_reason || "",
-
                 map_url:
                     item.map_url || "",
-
                 url:
-                    item.url
-                    ||
-                    item.official_url
-                    ||
+                    item.url ||
+                    item.official_url ||
                     ""
-
             };
-
         }
 
 
-        function historyFingerprint(
-            plan
-        ) {
+        function historyFingerprint(plan) {
 
             return JSON.stringify({
 
@@ -5380,21 +4781,15 @@ document.addEventListener(
 
                 day1:
                     (plan.day1 || [])
-                    .map(
-                        itemFingerprint
-                    ),
+                    .map(itemFingerprint),
 
                 day2:
                     (plan.day2 || [])
-                    .map(
-                        itemFingerprint
-                    ),
+                    .map(itemFingerprint),
 
                 day3:
                     (plan.day3 || [])
-                    .map(
-                        itemFingerprint
-                    ),
+                    .map(itemFingerprint),
 
                 restaurants:
                     (
@@ -5402,17 +4797,13 @@ document.addEventListener(
                         ||
                         []
                     )
-                    .map(
-                        itemFingerprint
-                    ),
+                    .map(itemFingerprint),
 
                 hotel:
                     itemFingerprint(
                         plan.hotel
                     )
-
             });
-
         }
 
 
@@ -5421,18 +4812,13 @@ document.addEventListener(
             const history =
                 readHistory();
 
-
-            if (
-                historyCount
-            ) {
+            if (historyCount) {
 
                 historyCount.textContent =
                     String(
                         history.length
                     );
-
             }
-
         }
 
 
@@ -5447,71 +4833,50 @@ document.addEventListener(
             const exists =
                 readHistory()
                 .some(
-                    function (
-                        item
-                    ) {
+                    function (item) {
 
                         return (
-                            item
-                            &&
+                            item &&
                             item.fingerprint ===
                             fingerprint
                         );
-
                     }
                 );
 
-
-            if (
-                exists
-            ) {
+            if (exists) {
 
                 saveButton
-                .classList
-                .add(
-                    "is-saved"
-                );
-
+                    .classList
+                    .add(
+                        "is-saved"
+                    );
 
                 saveButton.textContent =
                     "✓ 保存済み";
 
-
-                if (
-                    status
-                ) {
+                if (status) {
 
                     status.textContent =
                         "この旅行プランはすでに履歴に保存されています。";
-
                 }
 
-            }
-
-            else {
+            } else {
 
                 saveButton
-                .classList
-                .remove(
-                    "is-saved"
-                );
-
+                    .classList
+                    .remove(
+                        "is-saved"
+                    );
 
                 saveButton.textContent =
                     "▣ この旅行プランを保存";
 
-
-                if (
-                    status
-                ) {
+                if (status) {
 
                     status.textContent =
                         "完成したプランを履歴に保存すると、あとでそのまま見返せます。";
-
                 }
-
             }
-
         }
 
 
@@ -5523,83 +4888,57 @@ document.addEventListener(
                 const history =
                     readHistory();
 
-
                 const existing =
                     history.find(
-                        function (
-                            item
-                        ) {
+                        function (item) {
 
                             return (
-                                item
-                                &&
+                                item &&
                                 item.fingerprint ===
                                 fingerprint
                             );
-
                         }
                     );
 
-
-                if (
-                    existing
-                ) {
+                if (existing) {
 
                     updateHistoryCount();
-
                     updateSaveButtonState();
 
                     return;
-
                 }
 
 
                 const now =
                     new Date();
 
-
                 const savedPlan =
                     Object.assign(
                         {},
                         snapshot,
                         {
-
                             id:
                                 "trip-plan-"
-
                                 +
-
                                 now.getTime()
-
                                 +
-
                                 "-"
-
                                 +
-
                                 Math.random()
-                                .toString(
-                                    36
-                                )
-                                .slice(
-                                    2,
-                                    8
-                                ),
+                                .toString(36)
+                                .slice(2, 8),
 
                             savedAt:
                                 now.toISOString(),
 
                             fingerprint:
                                 fingerprint
-
                         }
                     );
-
 
                 history.unshift(
                     savedPlan
                 );
-
 
                 if (
                     !writeHistory(
@@ -5607,59 +4946,43 @@ document.addEventListener(
                     )
                 ) {
 
-                    if (
-                        status
-                    ) {
+                    if (status) {
 
                         status.textContent =
                             "履歴の保存に失敗しました。ブラウザの保存容量を確認してください。";
-
                     }
 
-
                     return;
-
                 }
 
-
                 saveButton
-                .classList
-                .add(
-                    "is-saved"
-                );
-
+                    .classList
+                    .add(
+                        "is-saved"
+                    );
 
                 saveButton.textContent =
                     "✓ 保存しました";
 
-
-                if (
-                    status
-                ) {
+                if (status) {
 
                     status.textContent =
                         "この完成プランを旅行プラン履歴に保存しました。";
-
                 }
 
-
                 updateHistoryCount();
-
             }
         );
 
 
         updateHistoryCount();
-
         updateSaveButtonState();
 
 
         window
         .addEventListener(
             "storage",
-            function (
-                event
-            ) {
+            function (event) {
 
                 if (
                     event.key ===
@@ -5667,14 +4990,10 @@ document.addEventListener(
                 ) {
 
                     updateHistoryCount();
-
                     updateSaveButtonState();
-
                 }
-
             }
         );
-
     }
 );
 </script>
@@ -5694,23 +5013,17 @@ document.addEventListener(
                 "createTripBookButton"
             );
 
-
         const snapshotElement =
             document.getElementById(
                 "tripHistorySnapshotData"
             );
 
-
         if (
-            !button
-            ||
+            !button ||
             !snapshotElement
         ) {
-
             return;
-
         }
-
 
         button
         .addEventListener(
@@ -5726,47 +5039,35 @@ document.addEventListener(
                             "{}"
                         );
 
-
                     localStorage.setItem(
                         "chichibuTripBookDraftV1",
 
                         JSON.stringify({
-
                             sourcePlan:
                                 snapshot,
 
                             createdAt:
                                 new Date()
                                 .toISOString()
-
                         })
                     );
-
 
                     window.location.href =
                         "/trip-book";
 
-                }
-
-                catch (
-                    error
-                ) {
+                } catch (error) {
 
                     console.error(
                         "TRIP BOOK作成データの準備エラー:",
                         error
                     );
 
-
                     alert(
                         "TRIP BOOKの作成準備に失敗しました。"
                     );
-
                 }
-
             }
         );
-
     }
 );
 </script>
@@ -5784,7 +5085,6 @@ document.addEventListener(
         const FAVORITES_STORAGE_KEY =
             "chichibuTravelFavoritesV1";
 
-
         const resultFavoriteCount =
             document.getElementById(
                 "resultFavoriteCount"
@@ -5800,65 +5100,41 @@ document.addEventListener(
                         FAVORITES_STORAGE_KEY
                     );
 
-
                 const parsed =
-
                     raw
-
                     ?
-
-                    JSON.parse(
-                        raw
-                    )
-
+                    JSON.parse(raw)
                     :
-
                     [];
-
 
                 if (
                     !Array.isArray(
                         parsed
                     )
                 ) {
-
                     return [];
-
                 }
 
-
                 return parsed.filter(
-                    function (
-                        item
-                    ) {
+                    function (item) {
 
                         return (
-                            item
-                            &&
-                            item.type
-                            &&
+                            item &&
+                            item.type &&
                             item.name
                         );
-
                     }
                 );
 
-            }
-
-            catch (
-                error
-            ) {
+            } catch (error) {
 
                 console.error(
                     "お気に入り読み込みエラー:",
                     error
                 );
 
-
                 return [];
-
             }
-
         }
 
 
@@ -5875,39 +5151,24 @@ document.addEventListener(
                     )
                 );
 
-            }
-
-            catch (
-                error
-            ) {
+            } catch (error) {
 
                 console.error(
                     "お気に入り保存エラー:",
                     error
                 );
-
             }
-
         }
 
 
-        function favoriteKey(
-            item
-        ) {
+        function favoriteKey(item) {
 
             return [
-
                 item.type || "",
-
                 item.name || "",
-
                 item.address || ""
-
             ]
-            .join(
-                "|"
-            );
-
+            .join("|");
         }
 
 
@@ -5916,18 +5177,14 @@ document.addEventListener(
             if (
                 !resultFavoriteCount
             ) {
-
                 return;
-
             }
-
 
             resultFavoriteCount.textContent =
                 String(
                     readFavorites()
                     .length
                 );
-
         }
 
 
@@ -5936,7 +5193,6 @@ document.addEventListener(
             const favorites =
                 readFavorites();
 
-
             const favoriteKeys =
                 new Set(
                     favorites.map(
@@ -5944,18 +5200,14 @@ document.addEventListener(
                     )
                 );
 
-
             document
             .querySelectorAll(
                 "[data-favorite-type][data-favorite-name]"
             )
             .forEach(
-                function (
-                    buttonElement
-                ) {
+                function (buttonElement) {
 
                     const item = {
-
                         type:
                             buttonElement.dataset.favoriteType || "",
 
@@ -5964,9 +5216,7 @@ document.addEventListener(
 
                         address:
                             buttonElement.dataset.favoriteAddress || ""
-
                     };
-
 
                     const isFavorite =
                         favoriteKeys.has(
@@ -5975,45 +5225,33 @@ document.addEventListener(
                             )
                         );
 
-
                     buttonElement
-                    .classList
-                    .toggle(
-                        "is-favorite",
-                        isFavorite
-                    );
-
+                        .classList
+                        .toggle(
+                            "is-favorite",
+                            isFavorite
+                        );
 
                     buttonElement.textContent =
-
                         isFavorite
-
                         ?
-
                         "♥ お気に入り済み"
-
                         :
-
                         "♡ お気に入り";
 
-
                     buttonElement
-                    .setAttribute(
-                        "aria-pressed",
-
-                        isFavorite
-                            ?
-                            "true"
-                            :
-                            "false"
-                    );
-
+                        .setAttribute(
+                            "aria-pressed",
+                            isFavorite
+                                ?
+                                "true"
+                                :
+                                "false"
+                        );
                 }
             );
 
-
             updateFavoriteCount();
-
         }
 
 
@@ -6022,9 +5260,7 @@ document.addEventListener(
             "[data-favorite-type][data-favorite-name]"
         )
         .forEach(
-            function (
-                buttonElement
-            ) {
+            function (buttonElement) {
 
                 buttonElement
                 .addEventListener(
@@ -6032,7 +5268,6 @@ document.addEventListener(
                     function () {
 
                         const item = {
-
                             type:
                                 buttonElement.dataset.favoriteType || "",
 
@@ -6044,25 +5279,19 @@ document.addEventListener(
 
                             url:
                                 buttonElement.dataset.favoriteUrl || ""
-
                         };
-
 
                         const key =
                             favoriteKey(
                                 item
                             );
 
-
                         let favorites =
                             readFavorites();
 
-
                         const exists =
                             favorites.some(
-                                function (
-                                    favorite
-                                ) {
+                                function (favorite) {
 
                                     return (
                                         favoriteKey(
@@ -6071,20 +5300,14 @@ document.addEventListener(
                                         ===
                                         key
                                     );
-
                                 }
                             );
 
-
-                        if (
-                            exists
-                        ) {
+                        if (exists) {
 
                             favorites =
                                 favorites.filter(
-                                    function (
-                                        favorite
-                                    ) {
+                                    function (favorite) {
 
                                         return (
                                             favoriteKey(
@@ -6093,31 +5316,23 @@ document.addEventListener(
                                             !==
                                             key
                                         );
-
                                     }
                                 );
 
-                        }
-
-                        else {
+                        } else {
 
                             favorites.unshift(
                                 item
                             );
-
                         }
-
 
                         writeFavorites(
                             favorites
                         );
 
-
                         updateFavoriteButtons();
-
                     }
                 );
-
             }
         );
 
@@ -6128,9 +5343,7 @@ document.addEventListener(
         window
         .addEventListener(
             "storage",
-            function (
-                event
-            ) {
+            function (event) {
 
                 if (
                     event.key ===
@@ -6138,12 +5351,9 @@ document.addEventListener(
                 ) {
 
                     updateFavoriteButtons();
-
                 }
-
             }
         );
-
     }
 );
 </script>
@@ -6163,25 +5373,17 @@ document.addEventListener(
                 "savePlanImageButton"
             );
 
-
         const status =
             document.getElementById(
                 "savePlanImageStatus"
             );
 
-
-        if (
-            !button
-        ) {
-
+        if (!button) {
             return;
-
         }
 
 
-        function safeFileName(
-            value
-        ) {
+        function safeFileName(value) {
 
             return String(
                 value || "trip"
@@ -6198,7 +5400,6 @@ document.addEventListener(
                 0,
                 60
             );
-
         }
 
 
@@ -6211,9 +5412,7 @@ document.addEventListener(
                 await html2canvas(
                     element,
                     {
-
                         scale:2,
-
                         useCORS:true,
 
                         backgroundColor:
@@ -6222,55 +5421,42 @@ document.addEventListener(
                         logging:false,
 
                         ignoreElements:
-                            function (
-                                node
-                            ) {
+                            function (node) {
 
                                 return (
-                                    node
-                                    &&
-                                    node.getAttribute
-                                    &&
+                                    node &&
+                                    node.getAttribute &&
                                     node.getAttribute(
                                         "data-html2canvas-ignore"
                                     )
                                     ===
                                     "true"
                                 );
-
                             }
-
                     }
                 );
-
 
             const link =
                 document.createElement(
                     "a"
                 );
 
-
             link.download =
                 filename;
-
 
             link.href =
                 canvas.toDataURL(
                     "image/png"
                 );
 
-
             document.body
-            .appendChild(
-                link
-            );
-
+                .appendChild(
+                    link
+                );
 
             link.click();
 
-
             link.remove();
-
         }
 
 
@@ -6284,54 +5470,39 @@ document.addEventListener(
                     "undefined"
                 ) {
 
-                    if (
-                        status
-                    ) {
+                    if (status) {
 
                         status.textContent =
                             "画像保存ライブラリを読み込めませんでした。";
-
                     }
 
-
                     return;
-
                 }
-
 
                 button.disabled =
                     true;
 
-
                 const originalText =
                     button.textContent;
-
 
                 button.textContent =
                     "画像を作成中…";
 
-
-                if (
-                    status
-                ) {
+                if (status) {
 
                     status.textContent =
                         "旅行プランを画像に変換しています。";
-
                 }
-
 
                 try {
 
                     const targets =
-
                         Array.from(
                             document
                             .querySelectorAll(
                                 "main > .section"
                             )
                         );
-
 
                     if (
                         !targets.length
@@ -6340,7 +5511,6 @@ document.addEventListener(
                         throw new Error(
                             "保存対象がありません"
                         );
-
                     }
 
 
@@ -6353,143 +5523,93 @@ document.addEventListener(
                         const section =
                             targets[i];
 
-
                         const label =
-
                             section
                             .querySelector(
                                 ".section-label, .day-label"
                             );
 
-
                         const name =
-
                             label
                                 ?
                                 label.textContent.trim()
                                 :
-                                "page-"
-                                +
-                                (
-                                    i + 1
-                                );
-
+                                "page-" + (i + 1);
 
                         const filename =
-
-                            String(
-                                i + 1
-                            )
+                            String(i + 1)
                             .padStart(
                                 2,
                                 "0"
                             )
-
                             +
-
                             "-"
-
                             +
-
-                            safeFileName(
-                                name
-                            )
-
+                            safeFileName(name)
                             +
-
                             ".png";
 
-
-                        if (
-                            status
-                        ) {
+                        if (status) {
 
                             status.textContent =
-                                (
-                                    i + 1
-                                )
+                                (i + 1)
                                 +
                                 " / "
                                 +
                                 targets.length
                                 +
                                 " 枚目を保存しています…";
-
                         }
-
 
                         await saveElement(
                             section,
                             filename
                         );
 
-
                         await new Promise(
-                            function (
-                                resolve
-                            ) {
+                            function (resolve) {
 
                                 setTimeout(
                                     resolve,
                                     160
                                 );
-
                             }
                         );
-
                     }
 
 
-                    if (
-                        status
-                    ) {
+                    if (status) {
 
                         status.textContent =
                             "旅行プランの画像保存が完了しました。";
-
                     }
 
-                }
-
-                catch (
-                    error
-                ) {
+                } catch (error) {
 
                     console.error(
                         "旅行プラン画像保存エラー:",
                         error
                     );
 
-
-                    if (
-                        status
-                    ) {
+                    if (status) {
 
                         status.textContent =
                             "画像保存に失敗しました。ページを再読み込みしてもう一度お試しください。";
-
                     }
 
-                }
-
-                finally {
+                } finally {
 
                     button.disabled =
                         false;
 
-
                     button.textContent =
                         originalText;
-
                 }
-
             }
         );
-
     }
 );
 </script>
-
 
 </body>
 </html>

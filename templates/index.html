@@ -46,37 +46,41 @@
            HERO
         ============================== */
 
+    
+
         .hero {
 
-            min-height: 600px;
+    min-height: 600px;
 
-            position: relative;
+    position: relative;
 
-            display: flex;
+    display: flex;
 
-            align-items: center;
+    align-items: center;
 
-            overflow: hidden;
+    overflow: hidden;
 
-            color: white;
+    color: white;
 
-            background:
+    background:
 
-                linear-gradient(
-                    90deg,
-                    rgba(8, 35, 28, 0.95),
-                    rgba(8, 35, 28, 0.68),
-                    rgba(8, 35, 28, 0.2)
-                ),
+        linear-gradient(
+            90deg,
+            rgba(8, 35, 28, 0.92),
+            rgba(8, 35, 28, 0.68),
+            rgba(8, 35, 28, 0.28)
+        ),
 
-                url(
-                    "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2000&q=85"
-                );
+        url(
+            "{{ url_for('static', filename='images/home_bg_5.png.png') }}"
+        );
 
-            background-size: cover;
+    background-size: cover;
 
-            background-position: center;
-        }
+    background-position: center;
+}
+
+
 
 
         /* ==============================
