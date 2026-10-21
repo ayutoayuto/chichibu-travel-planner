@@ -1,0 +1,1658 @@
+{
+  "meta": {
+    "database_version": "chichibu_restaurants_master_2026-09-04",
+    "base_date": "2026-09-04",
+    "scope": "秩父旅行プランWebサイト用グルメDB",
+    "count": 30,
+    "policy": "正確性優先。未確認情報を推測で埋めない。情報源間の差異はnotesに残す。",
+    "schema_version": "1.0"
+  },
+  "restaurants": [
+    {
+      "id": "r001",
+      "category": "gourmet",
+      "name": "豚みそ丼本舗 野さか",
+      "official_name": "秩父名物 豚みそ丼本舗 野さか",
+      "area": "秩父市・西武秩父駅周辺",
+      "genre": [
+        "豚みそ丼",
+        "郷土料理"
+      ],
+      "specialties": [
+        "豚みそ丼"
+      ],
+      "address": "〒368-0032 埼玉県秩父市野坂1-13-11",
+      "phone": "0494-22-0322",
+      "access": {
+        "train": "西武秩父駅から徒歩3分",
+        "bus": "公式情報なし",
+        "walk": "西武秩父駅から徒歩3分",
+        "car": "駐車場20台"
+      },
+      "hours": "11:00～15:00（豚みそ漬けがなくなり次第終了）",
+      "last_order": "15:00（営業は15:30まで）",
+      "closed": "公式サイト掲載の2026年9月臨時休業日に注意",
+      "price": "1000円前後",
+      "price_notes": "秩父観光協会掲載：並1000円、大盛1200円、特盛1650円。",
+      "parking": {
+        "available": true,
+        "capacity": "20台",
+        "fee": "公式情報なし",
+        "notes": "土日祝日は混雑で駐車できない場合あり"
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": false,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "席予約不可",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "臨時休業あり",
+      "official_url": "https://www.butamisodon.jp/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "店舗公式サイト",
+        "秩父観光協会"
+      ],
+      "status": "verified",
+      "notes": "公式サイトで2026年9月の具体的休業日を確認。訪問前に再確認推奨。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r002",
+      "category": "gourmet",
+      "name": "名物 秩父そば 立花",
+      "official_name": "名物秩父そば 立花",
+      "area": "秩父市・西武秩父駅周辺",
+      "genre": [
+        "そば",
+        "郷土料理"
+      ],
+      "specialties": [
+        "秩父そば",
+        "美人つけそば"
+      ],
+      "address": "埼玉県秩父市野坂町1-11-3",
+      "phone": "0494-24-5665",
+      "access": {
+        "train": "西武秩父駅から徒歩3分",
+        "bus": "公式情報なし",
+        "walk": "西武秩父駅から徒歩3分",
+        "car": "駐車場あり"
+      },
+      "hours": "月・火・金・土・日 11:00～15:00／水 11:00～14:15",
+      "closed": "木曜日",
+      "price": "1000～1999円程度",
+      "price_notes": "掲載情報の価格帯。",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "予約不可との情報あり",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間変更の可能性あり",
+      "official_url": "https://chichibusoba.net/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父観光協会",
+        "飲食情報サイト"
+      ],
+      "status": "partial",
+      "notes": "営業時間について情報源間に差異があるため訪問前確認推奨。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r003",
+      "category": "gourmet",
+      "name": "田舎屋",
+      "official_name": "田舎屋",
+      "area": "秩父市・西武秩父駅周辺",
+      "genre": [
+        "郷土料理",
+        "そば",
+        "定食",
+        "居酒屋"
+      ],
+      "specialties": [
+        "わらじかつ丼",
+        "豚みそ丼",
+        "秩父そば",
+        "みそポテト",
+        "ジビエ"
+      ],
+      "address": "〒368-0033 埼玉県秩父市野坂町1-16-4",
+      "phone": "0494-26-6810",
+      "access": {
+        "train": "西武秩父駅から徒歩1分",
+        "bus": "公式情報なし",
+        "walk": "西武秩父駅から徒歩1分、御花畑駅から徒歩2分",
+        "car": "駐車場あり"
+      },
+      "hours": "11:00～21:00",
+      "last_order": "20:30",
+      "closed": "不定休",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "不定休",
+      "official_url": "https://akr5598080266.owst.jp/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "店舗公式予約サイト",
+        "秩父観光協会"
+      ],
+      "status": "verified",
+      "notes": "駅近で複数の秩父名物を扱う。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r004",
+      "category": "gourmet",
+      "name": "TRAGHETTO（トラゲット）",
+      "official_name": "TRAGHETTO",
+      "area": "秩父市・秩父駅周辺",
+      "genre": [
+        "イタリアン",
+        "洋食",
+        "カフェ"
+      ],
+      "specialties": [
+        "マルゲリータ"
+      ],
+      "address": "埼玉県秩父市宮側町18-7",
+      "phone": "0494-22-6688",
+      "access": {
+        "train": "秩父鉄道秩父駅から徒歩3分",
+        "bus": "公式情報なし",
+        "walk": "秩父駅から徒歩3分",
+        "car": "40台。大型バス2台可との観光協会情報"
+      },
+      "hours": "11:00～15:00、17:00～21:00",
+      "last_order": "料理L.O.14:00／20:00、ドリンクL.O.14:00／20:30",
+      "closed": "年中無休（年末年始を除く）",
+      "price": "2700円～（コース例）",
+      "price_notes": "公式予約サイト掲載のコース価格例。",
+      "parking": {
+        "available": true,
+        "capacity": "40台",
+        "fee": "公式情報なし",
+        "notes": "大型バス2台可との観光協会情報"
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "コースは事前予約条件あり",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "年末年始を除く",
+      "official_url": "https://traghetto.owst.jp/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "店舗公式予約サイト",
+        "秩父観光協会"
+      ],
+      "status": "verified",
+      "notes": "公式ページと観光協会で営業時間表記に差があるため店舗公式を優先。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r005",
+      "category": "gourmet",
+      "name": "和味処 えん",
+      "official_name": "和味処 えん",
+      "area": "秩父市・西武秩父駅周辺",
+      "genre": [
+        "そば",
+        "海鮮料理",
+        "和食"
+      ],
+      "specialties": [
+        "そば"
+      ],
+      "address": "〒368-0032 埼玉県秩父市熊木町10-13",
+      "phone": "0494-22-2818",
+      "access": {
+        "train": "西武秩父駅周辺",
+        "bus": "公式情報なし",
+        "walk": "正確な徒歩分数は今回確定せず",
+        "car": "店前3台"
+      },
+      "hours": "11:30～14:00、17:00～22:00",
+      "last_order": "21:30",
+      "closed": "木曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "3台",
+        "fee": "公式情報なし",
+        "notes": "店前3台"
+      },
+      "car_free_score": 4,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "http://www.soba-en.com/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父観光協会"
+      ],
+      "status": "verified",
+      "notes": "主要店舗情報は秩父観光協会掲載情報。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r006",
+      "category": "gourmet",
+      "name": "そば処 まるた",
+      "official_name": "そば処まるた",
+      "area": "秩父市・西武秩父駅周辺",
+      "genre": [
+        "そば"
+      ],
+      "specialties": [
+        "手打ちそば",
+        "胡麻だれ",
+        "天ざる"
+      ],
+      "address": "埼玉県秩父市熊木町13-10",
+      "phone": "0494-24-2489",
+      "access": {
+        "train": "西武秩父駅から徒歩6分",
+        "bus": "公式情報なし",
+        "walk": "西武秩父駅から徒歩6分",
+        "car": "公式情報なし"
+      },
+      "hours": "11:30～16:00（なくなり次第終了）",
+      "closed": "木曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "売切れ終了あり",
+      "official_url": "公式URLを今回確認できず",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "西武鉄道公式記事",
+        "秩父観光協会"
+      ],
+      "status": "partial",
+      "notes": "西武鉄道公式記事は2026年3月時点。住所表記にも差異があるため再確認推奨。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r007",
+      "category": "gourmet",
+      "name": "やなぎや",
+      "official_name": "やなぎや",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば"
+      ],
+      "specialties": [
+        "鬼くるみ汁そばランチ"
+      ],
+      "address": "秩父市相生町7-10",
+      "phone": "0494-22-1646",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "駐車場8台"
+      },
+      "hours": "11:00～14:30 L.O.または売切まで",
+      "closed": "木・金曜日（祝日は営業）",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "8台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "予約可との掲載情報",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "売切れ終了あり",
+      "official_url": "https://soba-ya.co.jp/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r008",
+      "category": "gourmet",
+      "name": "武蔵屋本店",
+      "official_name": "武蔵屋本店",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば",
+        "うどん"
+      ],
+      "specialties": [
+        "そば",
+        "うどん",
+        "そば茶飯"
+      ],
+      "address": "秩父市上宮地町9-19",
+      "phone": "0494-23-6348",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "20台、大型可"
+      },
+      "hours": "売店9:00～18:00／そば処11:00～16:00（16:00以降予約のみ、8名様～）",
+      "closed": "毎週火曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "20台",
+        "fee": "公式情報なし",
+        "notes": "大型可"
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "16時以降は予約のみ・8名様～",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "http://www.chichibu-soba.com/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r009",
+      "category": "gourmet",
+      "name": "本格手打 わへいそば",
+      "official_name": "本格手打 わへいそば",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば",
+        "和食"
+      ],
+      "specialties": [
+        "くるみ汁の天ざる蕎麦"
+      ],
+      "address": "秩父市中村町1-4-13",
+      "phone": "0494-24-9280",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "25台"
+      },
+      "hours": "11:00～18:00（売り切れ次第終了）",
+      "closed": "毎週木曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "25台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "売切れ終了あり",
+      "official_url": "http://www.waheisoba.gr.jp/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r010",
+      "category": "gourmet",
+      "name": "そば処 大むら",
+      "official_name": "そば処 大むら",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば",
+        "うどん"
+      ],
+      "specialties": [
+        "わらじ丼",
+        "そば"
+      ],
+      "address": "秩父市宮側町17-3",
+      "phone": "0494-22-4147",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "店舗前コインパーキング利用"
+      },
+      "hours": "平日11:30～14:30／土日祝11:30～14:30、17:00～19:30",
+      "closed": "毎週水曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "コインパーキング",
+        "fee": "飲食代2000円以上60分無料サービスとの掲載情報",
+        "notes": ""
+      },
+      "car_free_score": 4,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "公式URLを今回確認できず",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r011",
+      "category": "gourmet",
+      "name": "手打そば 武蔵屋",
+      "official_name": "手打そば 武蔵屋",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば",
+        "うどん"
+      ],
+      "specialties": [
+        "手打そば",
+        "そば団子",
+        "そばしるこ"
+      ],
+      "address": "秩父市番場町4-11",
+      "phone": "0494-23-1818",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "秩父神社近く",
+        "car": "20台"
+      },
+      "hours": "平日11:00～16:00／土日祝11:00～15:00",
+      "closed": "毎週火曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "20台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 4,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "そば懐石は予約情報あり",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "http://www.chichibu-musashiya.co.jp/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r012",
+      "category": "gourmet",
+      "name": "大むら本店",
+      "official_name": "大むら本店",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば",
+        "和食"
+      ],
+      "specialties": [
+        "草の乱切（十割そば）",
+        "天せいろ",
+        "鴨南"
+      ],
+      "address": "秩父市東町12-17",
+      "phone": "0494-22-0050",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "6台"
+      },
+      "hours": "11:00～15:00（L.O.14:30）、17:00～20:00（L.O.19:30）",
+      "closed": "毎週水曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "6台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "公式URLを今回確認できず",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r013",
+      "category": "gourmet",
+      "name": "そばの杜",
+      "official_name": "そばの杜",
+      "area": "秩父市・中心地",
+      "genre": [
+        "そば",
+        "郷土料理"
+      ],
+      "specialties": [
+        "手打そば",
+        "秩父郷土料理"
+      ],
+      "address": "秩父市本町3-1 ふるさと館2F",
+      "phone": "0494-26-5335",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "8台（建物裏）"
+      },
+      "hours": "11:30～14:30（夜営業は予約）",
+      "closed": "毎週水曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "8台",
+        "fee": "公式情報なし",
+        "notes": "建物裏"
+      },
+      "car_free_score": 4,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "夜営業は予約",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "http://www.sobanomori.net/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "秩父そばの会公式会員ページを使用。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r014",
+      "category": "gourmet",
+      "name": "秩父そば 昌楽 道の駅店",
+      "official_name": "秩父そば 昌楽 道の駅店",
+      "area": "秩父市・道の駅ちちぶ",
+      "genre": [
+        "そば",
+        "郷土料理"
+      ],
+      "specialties": [
+        "くるみ汁ざるそば",
+        "しゃくし菜そば"
+      ],
+      "address": "秩父市大宮4625",
+      "phone": "0494-25-3717",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "道の駅ちちぶ駐車場"
+      },
+      "hours": "10:00～18:00",
+      "closed": "無休との掲載情報",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "道の駅ちちぶ駐車場",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "http://chichibu-syouraku.com/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父そばの会公式"
+      ],
+      "status": "verified",
+      "notes": "道の駅本体の営業状況とは別に店舗営業を確認する必要あり。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r015",
+      "category": "gourmet",
+      "name": "高砂ホルモン",
+      "official_name": "高砂ホルモン",
+      "aliases": [
+        "高砂（たかさご）ホルモン"
+      ],
+      "area": "秩父市・御花畑駅周辺",
+      "genre": [
+        "焼肉",
+        "ホルモン"
+      ],
+      "specialties": [
+        "ホルモン焼き"
+      ],
+      "address": "〒368-0042 埼玉県秩父市東町30-3",
+      "phone": "0494-23-5858",
+      "access": {
+        "train": "御花畑駅から徒歩約2分との情報",
+        "bus": "公式情報なし",
+        "walk": "御花畑駅から徒歩約2分",
+        "car": "公式情報なし"
+      },
+      "hours": "平日17:00～20:00／土曜16:30～20:00／日曜16:30～19:00",
+      "closed": "火・木曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": false,
+      "date_type_friendly": false,
+      "group_friendly": true,
+      "lunch": false,
+      "dinner": true,
+      "reservation_required": "現在予約制のため事前に電話確認が必要との観光公社情報",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "予約制・営業時間変更に注意",
+      "official_url": "公式URLを今回確認できず",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父地域おもてなし観光公社",
+        "秩父観光協会"
+      ],
+      "status": "verified",
+      "notes": "情報源間で営業時間に差異あり。訪問前に電話確認推奨。",
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r016",
+      "category": "gourmet",
+      "name": "かつ屋まんてん",
+      "official_name": "かつ屋まんてん",
+      "area": "秩父市・影森",
+      "genre": [
+        "とんかつ",
+        "定食"
+      ],
+      "specialties": [
+        "まんてん名物たれかつ丼",
+        "とじない特かつ丼",
+        "ひつまぶし"
+      ],
+      "address": "〒369-1872 埼玉県秩父市上影森715-5",
+      "phone": "0494-22-2990",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "公式情報なし"
+      },
+      "hours": "11:30～14:00、17:30～20:00",
+      "closed": "月曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 2,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "公式URLを今回確認できず",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父観光協会"
+      ],
+      "status": "partial",
+      "notes": "アクセス・駐車場等は追加確認推奨。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r017",
+      "category": "gourmet",
+      "name": "空＆閑",
+      "official_name": "秩父のお休み処 空＆閑",
+      "aliases": [
+        "空&閑",
+        "茶館 閑"
+      ],
+      "area": "秩父市・番場通り",
+      "genre": [
+        "カフェ",
+        "和菓子",
+        "ランチ"
+      ],
+      "specialties": [
+        "喫茶",
+        "和菓子"
+      ],
+      "address": "〒368-0041 埼玉県秩父市番場町15-5",
+      "phone": "0494-25-1308",
+      "access": {
+        "train": "御花畑から約5分、西武秩父から約10分との公式LINE情報",
+        "bus": "公式情報なし",
+        "walk": "御花畑から約5分、西武秩父から約10分",
+        "car": "駐車場ありとの公式LINE情報"
+      },
+      "hours": "10:30～17:00との公式LINE情報",
+      "closed": "茶館 閑は火・水定休との公式LINE情報",
+      "price": "1000円程度",
+      "price_notes": "公式LINE掲載の価格帯。",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業内容・時間変更の可能性あり",
+      "official_url": "https://www.kuandkan.com/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "店舗公式サイト",
+        "公式LINE"
+      ],
+      "status": "verified",
+      "notes": "公式LINEと公式サイトを確認。",
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r018",
+      "category": "gourmet",
+      "name": "焼き肉＆ホルモン あっとほ～む",
+      "official_name": "焼き肉＆ホルモン あっとほ～む",
+      "area": "秩父市・秩父駅周辺",
+      "genre": [
+        "焼肉",
+        "ホルモン"
+      ],
+      "specialties": [
+        "焼肉",
+        "ホルモン"
+      ],
+      "address": "〒368-0046 埼玉県秩父市宮側町8-6",
+      "phone": "0494-21-0029",
+      "access": {
+        "train": "秩父駅から徒歩約3分",
+        "bus": "公式情報なし",
+        "walk": "秩父駅から徒歩約3分",
+        "car": "公式情報なし"
+      },
+      "hours": "月・水～日 11:00～15:00（L.O.14:30）／月・水・木・日 17:00～23:00（L.O.22:30）／金・土 17:00～24:00（L.O.23:30）",
+      "closed": "火曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "予約可否は事前確認推奨",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間変更の可能性あり",
+      "official_url": "公式URLを今回確認できず",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "秩父観光協会",
+        "飲食情報サイト"
+      ],
+      "status": "partial",
+      "notes": "営業時間は情報サイト掲載情報を使用。公式一次情報での再確認が望ましい。",
+      "aliases": [],
+      "description": "",
+      "last_order": "公式情報なし"
+    },
+    {
+      "id": "r019",
+      "category": "gourmet",
+      "name": "長瀞屋",
+      "official_name": "長瀞屋",
+      "aliases": [],
+      "area": "長瀞町・長瀞駅前",
+      "genre": [
+        "郷土料理",
+        "そば",
+        "うどん",
+        "定食"
+      ],
+      "specialties": [
+        "味噌豚丼セット",
+        "おっきりこみうどん",
+        "そば・うどん"
+      ],
+      "description": "地粉使用のそば・うどん、秩父旅行向けの郷土料理を提供。",
+      "address": "〒369-1305 秩父郡長瀞町長瀞531-1",
+      "phone": "0494-66-0266",
+      "access": {
+        "train": "長瀞駅から徒歩約1分",
+        "bus": "公式情報なし",
+        "walk": "長瀞駅から徒歩約1分",
+        "car": "普通車30台、大型8台"
+      },
+      "hours": "11:00～15:00",
+      "last_order": "公式情報なし",
+      "closed": "木曜定休・月曜不定休",
+      "price": "880円～",
+      "price_notes": "そば・うどん880円より、おっきりこみ1,100円、とろろ定食1,540円、味噌豚丼セット1,540円",
+      "parking": {
+        "available": true,
+        "capacity": "普通車30台、大型8台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "予約料理あり",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/nagatoroya/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "駅前で電車旅行に組み込みやすい。"
+    },
+    {
+      "id": "r020",
+      "category": "gourmet",
+      "name": "そば処 うちだ",
+      "official_name": "そば処 うちだ",
+      "aliases": [],
+      "area": "長瀞町・上長瀞駅前",
+      "genre": [
+        "そば"
+      ],
+      "specialties": [
+        "そば"
+      ],
+      "description": "",
+      "address": "〒369-1305 秩父郡長瀞町長瀞1503",
+      "phone": "0494-66-0213",
+      "access": {
+        "train": "上長瀞駅前",
+        "bus": "公式情報なし",
+        "walk": "上長瀞駅前",
+        "car": "12台"
+      },
+      "hours": "10:30～15:00",
+      "last_order": "公式情報なし",
+      "closed": "金曜日",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "12台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": false,
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/%E3%81%9D%E3%81%B0%E5%87%A6%E3%80%80%E3%81%86%E3%81%A1%E3%81%A0/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "上長瀞駅前で自然の博物館と組み合わせやすい。"
+    },
+    {
+      "id": "r021",
+      "category": "gourmet",
+      "name": "お豆ふ処 うめだ屋",
+      "official_name": "お豆ふ処 うめだ屋",
+      "aliases": [],
+      "area": "長瀞町・国道140号沿線",
+      "genre": [
+        "豆腐料理",
+        "和食",
+        "食べ歩き"
+      ],
+      "specialties": [
+        "豆腐料理",
+        "豆腐スイーツ"
+      ],
+      "description": "",
+      "address": "〒369-1305 埼玉県秩父郡長瀞町長瀞268",
+      "phone": "0494-66-4883",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "駐車場あり"
+      },
+      "hours": "10:30～17:30",
+      "last_order": "公式情報なし",
+      "closed": "水曜日（祝日の場合は営業）",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/%E3%81%8A%E8%B1%86%E3%81%B5%E5%87%A6%E3%81%86%E3%82%81%E3%81%A0%E5%B1%8B/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "豆腐料理と食べ歩きに使える。"
+    },
+    {
+      "id": "r022",
+      "category": "gourmet",
+      "name": "豚みそ丼専門店 有隣",
+      "official_name": "豚みそ丼専門店 有隣",
+      "aliases": [],
+      "area": "長瀞町・長瀞駅前通り",
+      "genre": [
+        "豚みそ丼",
+        "郷土料理"
+      ],
+      "specialties": [
+        "豚みそ丼"
+      ],
+      "description": "",
+      "address": "〒369-1305 埼玉県秩父郡長瀞町長瀞532-5",
+      "phone": "0494-26-7299",
+      "access": {
+        "train": "長瀞駅周辺",
+        "bus": "公式情報なし",
+        "walk": "長瀞駅前通り",
+        "car": "駐車場あり"
+      },
+      "hours": "10:30～16:00",
+      "last_order": "公式情報なし",
+      "closed": "火曜日・水曜日",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/%E8%B1%9A%E3%81%BF%E3%81%9D%E4%B8%BC%E5%B0%82%E9%96%80%E5%BA%97%E3%80%80%E6%9C%89%E9%9A%A3/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "長瀞観光と秩父名物を直結できる。"
+    },
+    {
+      "id": "r023",
+      "category": "gourmet",
+      "name": "天狗鮨",
+      "official_name": "天狗鮨",
+      "aliases": [],
+      "area": "長瀞町・宝登山神社参道周辺",
+      "genre": [
+        "寿司",
+        "和食"
+      ],
+      "specialties": [
+        "おまかせ握り",
+        "特上にぎり",
+        "鉄火丼"
+      ],
+      "description": "",
+      "address": "〒369-1305 埼玉県秩父郡長瀞町長瀞1310",
+      "phone": "0494-66-0500",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "宝登山神社参道周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "11:30～13:30／16:30～22:00",
+      "last_order": "昼・夜とも公式ページ掲載時間内",
+      "closed": "水曜日",
+      "price": "おまかせ握り2,700円～",
+      "price_notes": "おまかせ握り1人前2,700円、上にぎり2,300円、並にぎり1,850円など",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/tengusushi/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "昼夜の両方に使える長瀞の食事候補。"
+    },
+    {
+      "id": "r024",
+      "category": "gourmet",
+      "name": "阿左美冷蔵 寶登山道店",
+      "official_name": "阿左美冷蔵 寶登山道店",
+      "aliases": [],
+      "area": "長瀞町・寶登山道",
+      "genre": [
+        "かき氷",
+        "スイーツ"
+      ],
+      "specialties": [
+        "かき氷"
+      ],
+      "description": "長瀞を代表するかき氷・スイーツ候補。",
+      "address": "埼玉県秩父郡長瀞町大字長瀞781-4",
+      "phone": "0494-66-1885",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "寶登山道周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "10:00～17:00頃",
+      "last_order": "公式情報なし",
+      "closed": "火曜日",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 3,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "季節・天候による変更可能性あり",
+      "official_url": "https://www.nagatoro.gr.jp/outletticket/%E9%98%BF%E5%B7%A6%E7%BE%8E%E5%86%B7%E8%94%B5%E3%80%80%E5%AF%B6%E7%99%BB%E5%B1%B1%E9%81%93%E5%BA%97/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "partial",
+      "notes": "営業時間が「～17:00頃」のため時間厳密性は低め。"
+    },
+    {
+      "id": "r025",
+      "category": "gourmet",
+      "name": "ジビエ料理の千葉亭 Gibier Dining Chibatei",
+      "official_name": "ジビエ料理の千葉亭 Gibier Dining Chibatei",
+      "aliases": [],
+      "area": "長瀞町・井戸・岩田",
+      "genre": [
+        "ジビエ",
+        "郷土料理"
+      ],
+      "specialties": [
+        "ぼたん鍋",
+        "鹿肉",
+        "うさぎ",
+        "鮎"
+      ],
+      "description": "",
+      "address": "〒369-1312 秩父郡長瀞町井戸675-3",
+      "phone": "0494-66-1980",
+      "access": {
+        "train": "電車利用は電話相談",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "皆野長瀞ICより一本道"
+      },
+      "hours": "11:00～21:00（8月31日までは20:00まで）",
+      "last_order": "公式情報なし",
+      "closed": "火曜日",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "20台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 2,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": false,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間変更あり",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/chibatei/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "車旅行向けで、秩父周辺のジビエ目的と相性がよい。"
+    },
+    {
+      "id": "r026",
+      "category": "gourmet",
+      "name": "楓庵",
+      "official_name": "楓庵",
+      "aliases": [],
+      "area": "長瀞町・野上・樋口",
+      "genre": [
+        "そば",
+        "うどん",
+        "郷土料理"
+      ],
+      "specialties": [
+        "手打ちそば",
+        "うどん",
+        "天ぷら"
+      ],
+      "description": "",
+      "address": "〒369-1302 埼玉県秩父郡長瀞町野上下郷947-1",
+      "phone": "0494-66-2917",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "15台"
+      },
+      "hours": "11:00～15:00",
+      "last_order": "公式情報なし",
+      "closed": "火曜日・水曜日",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "15台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 2,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "そば処は11:00～15:00",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/kaedean/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "野上・樋口方面の観光と組み合わせると分散しやすい。"
+    },
+    {
+      "id": "r027",
+      "category": "gourmet",
+      "name": "見晴",
+      "official_name": "見晴",
+      "aliases": [],
+      "area": "長瀞町・岩畳通り",
+      "genre": [
+        "郷土料理",
+        "そば",
+        "和食"
+      ],
+      "specialties": [
+        "川魚山菜料理",
+        "釜飯",
+        "そば"
+      ],
+      "description": "岩畳、荒川、ライン下りを眺めながら食事可能。",
+      "address": "〒369-1305 秩父郡長瀞町長瀞452",
+      "phone": "0494-66-0028",
+      "access": {
+        "train": "長瀞駅周辺から岩畳通り",
+        "bus": "公式情報なし",
+        "walk": "岩畳通り",
+        "car": "乗用車15台、大型バス4台"
+      },
+      "hours": "9:00～17:00",
+      "last_order": "公式情報なし",
+      "closed": "不定休",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "乗用車15台、大型バス4台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 4,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": false,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "団体利用情報あり",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/%E8%A6%8B%E6%99%B4/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "岩畳観光とセットにしやすい。"
+    },
+    {
+      "id": "r028",
+      "category": "gourmet",
+      "name": "芋うらら 長瀞店",
+      "official_name": "芋うらら 長瀞店",
+      "aliases": [],
+      "area": "長瀞町・長瀞駅前通り",
+      "genre": [
+        "スイーツ",
+        "食べ歩き"
+      ],
+      "specialties": [
+        "芋スイーツ"
+      ],
+      "description": "",
+      "address": "〒369-1305 埼玉県秩父郡長瀞町長瀞530-1",
+      "phone": "0494-53-9160",
+      "access": {
+        "train": "長瀞駅前通り",
+        "bus": "公式情報なし",
+        "walk": "長瀞駅前通り",
+        "car": "駐車場なし"
+      },
+      "hours": "10:00～17:00",
+      "last_order": "公式情報なし",
+      "closed": "火曜日",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": false,
+        "capacity": "0",
+        "fee": "なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "通常営業",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/%E8%8A%8B%E3%81%86%E3%82%89%E3%82%89%E3%80%80%E9%95%B7%E7%80%9E%E5%BA%97/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "食べ歩き目的に向く。"
+    },
+    {
+      "id": "r029",
+      "category": "gourmet",
+      "name": "いちごと抹茶 長瀞みるくスタンド",
+      "official_name": "いちごと抹茶 長瀞みるくスタンド",
+      "aliases": [],
+      "area": "長瀞町・岩畳通り",
+      "genre": [
+        "スイーツ",
+        "食べ歩き",
+        "カフェ"
+      ],
+      "specialties": [
+        "いちごスイーツ",
+        "抹茶ドリンク"
+      ],
+      "description": "",
+      "address": "〒369-1305 埼玉県秩父郡長瀞町長瀞454-9",
+      "phone": "0494-53-8222",
+      "access": {
+        "train": "長瀞駅周辺",
+        "bus": "公式情報なし",
+        "walk": "岩畳通り",
+        "car": "公式情報なし"
+      },
+      "hours": "10:00～17:00",
+      "last_order": "公式情報なし",
+      "closed": "月曜日（G.W、夏休み期間は無休）",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": 5,
+      "walking_difficulty": "低",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "季節商品あり",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/%E3%81%84%E3%81%A1%E3%81%94%E3%81%A8%E6%8A%B9%E8%8C%B6%E3%80%80%E9%95%B7%E7%80%9E%E3%81%BF%E3%82%8B%E3%81%8F%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%89/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "verified",
+      "notes": "岩畳散策中の食べ歩き候補。"
+    },
+    {
+      "id": "r030",
+      "category": "gourmet",
+      "name": "お食事処 さくらい",
+      "official_name": "お食事処 さくらい",
+      "aliases": [],
+      "area": "長瀞町・国道140号沿線",
+      "genre": [
+        "精進料理",
+        "季節料理",
+        "そば"
+      ],
+      "specialties": [
+        "精進料理",
+        "手打ちそば"
+      ],
+      "description": "自然に囲まれた精進料理・季節料理と手打ちそば。",
+      "address": "〒369-1305 秩父郡長瀞町長瀞811-5",
+      "phone": "0494-66-3022",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "15台"
+      },
+      "hours": "要予約",
+      "last_order": "公式情報なし",
+      "closed": "不定休",
+      "price": "公式情報なし",
+      "price_notes": "公式情報なし",
+      "parking": {
+        "available": true,
+        "capacity": "15台",
+        "fee": "公式情報なし",
+        "notes": "別の観光協会掲載ページに大型バス1台・20台の記載があるため公式ページ間で差異あり。"
+      },
+      "car_free_score": 2,
+      "walking_difficulty": "要確認",
+      "family_friendly": true,
+      "date_type_friendly": true,
+      "group_friendly": true,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "要予約",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "予約制",
+      "official_url": "https://www.nagatoro.gr.jp/shisetsu/sakurai/",
+      "source_checked_at": "2026-09-04",
+      "source_type": [
+        "長瀞町観光協会公式"
+      ],
+      "status": "partial",
+      "notes": "同一観光協会内で営業時間・駐車台数の掲載が異なるため、現行公式ページを優先し予約確認推奨。"
+    }
+  ]
+}

@@ -1,0 +1,1452 @@
+/* =========================================================
+   CHICHIBU JOURNEY
+   Elegant Travel Design
+========================================================= */
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    margin: 0;
+
+    font-family:
+        "Yu Gothic",
+        "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP",
+        Meiryo,
+        sans-serif;
+
+    background: #f3f0e8;
+
+    color: #24372f;
+
+    line-height: 1.8;
+}
+
+
+/* =========================================================
+   COMMON
+========================================================= */
+
+a {
+    transition: .3s ease;
+}
+
+
+button,
+select,
+input {
+    font-family: inherit;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+header {
+    position: relative;
+
+    min-height: 520px;
+
+    padding: 150px 30px 130px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    color: white;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            rgba(17, 46, 37, .82),
+            rgba(17, 46, 37, .72)
+        ),
+        url("https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=2200&q=85");
+
+    background-size: cover;
+
+    background-position: center;
+}
+
+
+header::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 25px;
+
+    border: 1px solid rgba(255,255,255,.18);
+
+    pointer-events: none;
+}
+
+
+header::after {
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+    height: 500px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(214,196,143,.15);
+
+    right: -180px;
+    bottom: -220px;
+}
+
+
+header h1 {
+    position: relative;
+
+    z-index: 2;
+
+    margin: 0 0 20px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:
+        clamp(42px, 7vw, 82px);
+
+    font-weight: 400;
+
+    letter-spacing: 5px;
+
+    line-height: 1.15;
+
+    text-shadow:
+        0 4px 20px rgba(0,0,0,.2);
+}
+
+
+header h1::before {
+    content: "CHICHIBU TRAVEL PLANNER";
+
+    display: block;
+
+    margin-bottom: 22px;
+
+    color: #d8c58e;
+
+    font-family:
+        "Yu Gothic",
+        sans-serif;
+
+    font-size: 10px;
+
+    font-weight: bold;
+
+    letter-spacing: 5px;
+}
+
+
+header p {
+    position: relative;
+
+    z-index: 2;
+
+    margin: 0;
+
+    max-width: 650px;
+
+    color: rgba(255,255,255,.78);
+
+    font-size: 14px;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main {
+    width: min(1100px, 90%);
+
+    margin: -65px auto 100px;
+
+    position: relative;
+
+    z-index: 5;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+section {
+    position: relative;
+
+    background: #fffdf8;
+
+    padding: 45px 50px;
+
+    margin-bottom: 28px;
+
+    border: 1px solid #e4dfd3;
+
+    border-radius: 2px;
+
+    box-shadow:
+        0 20px 50px rgba(35,55,47,.08);
+}
+
+
+section::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 55px;
+    height: 3px;
+
+    background: #b19a62;
+}
+
+
+/* =========================================================
+   HEADINGS
+========================================================= */
+
+h2 {
+    position: relative;
+
+    margin: 0 0 35px;
+
+    padding: 0 0 18px;
+
+    color: #203a2f;
+
+    border-bottom: 1px solid #ddd8ca;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 28px;
+
+    font-weight: 400;
+
+    letter-spacing: 1px;
+}
+
+
+h2::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: -1px;
+
+    width: 70px;
+    height: 2px;
+
+    background: #b19a62;
+}
+
+
+h3 {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-weight: 400;
+
+    letter-spacing: .5px;
+}
+
+
+/* =========================================================
+   LABEL
+========================================================= */
+
+label {
+    display: block;
+
+    margin-top: 24px;
+
+    color: #30483e;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: .5px;
+}
+
+
+label::first-line {
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   SELECT
+========================================================= */
+
+select {
+    width: 100%;
+
+    height: 52px;
+
+    margin-top: 8px;
+
+    padding: 0 17px;
+
+    border: 1px solid #d8d3c8;
+
+    border-radius: 2px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffdf9,
+            #f7f4ec
+        );
+
+    color: #283d34;
+
+    font-size: 14px;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition: .3s ease;
+}
+
+
+select:hover {
+    border-color: #a89465;
+}
+
+
+select:focus {
+    border-color: #8e7749;
+
+    box-shadow:
+        0 0 0 3px rgba(142,119,73,.10);
+}
+
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.checkbox {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 12px;
+
+    margin-top: 15px;
+}
+
+
+.checkbox label {
+    position: relative;
+
+    margin: 0;
+
+    min-height: 90px;
+
+    padding: 25px 20px;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    background: #f8f5ed;
+
+    border: 1px solid #ddd8cc;
+
+    cursor: pointer;
+
+    color: #344a40;
+
+    font-family:
+        Georgia,
+        "Yu Gothic",
+        serif;
+
+    font-size: 17px;
+
+    font-weight: 400;
+
+    transition: .35s ease;
+
+    overflow: hidden;
+}
+
+
+.checkbox label::before {
+    content: "";
+
+    position: absolute;
+
+    top: 15px;
+    left: 18px;
+
+    color: #ad955e;
+
+    font-family:
+        Georgia,
+        serif;
+
+    font-size: 11px;
+}
+
+
+.checkbox label:nth-child(1)::before {
+    content: "01";
+}
+
+
+.checkbox label:nth-child(2)::before {
+    content: "02";
+}
+
+
+.checkbox label:nth-child(3)::before {
+    content: "03";
+}
+
+
+.checkbox label:nth-child(4)::before {
+    content: "04";
+}
+
+
+.checkbox label:hover {
+    background: #fff;
+
+    border-color: #a99362;
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 12px 25px rgba(30,50,42,.08);
+}
+
+
+.checkbox input {
+    position: absolute;
+
+    opacity: 0;
+}
+
+
+.checkbox label:has(input:checked) {
+    background: #1c3c30;
+
+    border-color: #1c3c30;
+
+    color: white;
+
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 15px 30px rgba(28,60,48,.20);
+}
+
+
+.checkbox label:has(input:checked)::after {
+    content: "✓";
+
+    position: absolute;
+
+    top: 15px;
+    right: 15px;
+
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #d5c18a;
+
+    color: #18362b;
+
+    border-radius: 50%;
+
+    font-family: Arial, sans-serif;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+button {
+    position: relative;
+
+    width: 100%;
+
+    height: 64px;
+
+    margin-top: 40px;
+
+    padding: 0 28px;
+
+    border: 1px solid #1d3c30;
+
+    border-radius: 2px;
+
+    background: #1d3c30;
+
+    color: white;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition: .35s ease;
+}
+
+
+button::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -100%;
+
+    width: 100%;
+    height: 100%;
+
+    background: rgba(255,255,255,.08);
+
+    transition: .45s ease;
+}
+
+
+button::after {
+    content: "→";
+
+    position: absolute;
+
+    right: 25px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    font-size: 22px;
+
+    font-weight: normal;
+
+    transition: .3s ease;
+}
+
+
+button:hover {
+    background: #b0955d;
+
+    border-color: #b0955d;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 15px 30px rgba(29,60,48,.18);
+}
+
+
+button:hover::before {
+    left: 100%;
+}
+
+
+button:hover::after {
+    right: 18px;
+}
+
+
+/* =========================================================
+   RESULT PAGE
+========================================================= */
+
+.spot,
+.hotel {
+    position: relative;
+
+    padding: 28px 30px;
+
+    margin-top: 15px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #faf8f2,
+            #f4f1e8
+        );
+
+    border: 1px solid #dfdacd;
+
+    border-left:
+        3px solid #a98d56;
+
+    border-radius: 2px;
+
+    transition: .3s ease;
+}
+
+
+.spot:hover,
+.hotel:hover {
+    background: #fff;
+
+    transform: translateX(5px);
+
+    box-shadow:
+        0 10px 30px rgba(30,50,42,.08);
+}
+
+
+.spot h3,
+.hotel h3 {
+    margin: 0 0 8px;
+
+    color: #244236;
+
+    font-size: 21px;
+}
+
+
+.spot p,
+.hotel p {
+    margin: 5px 0;
+
+    color: #68746e;
+
+    font-size: 13px;
+
+    line-height: 1.9;
+}
+
+
+/* =========================================================
+   PRICE
+========================================================= */
+
+.price {
+    margin: 25px 0;
+
+    padding: 35px;
+
+    background: #1d3c30;
+
+    color: white;
+
+    text-align: center;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 42px;
+
+    font-weight: 400;
+
+    letter-spacing: 2px;
+
+    box-shadow:
+        0 15px 35px rgba(29,60,48,.16);
+}
+
+
+.price::before {
+    content: "ESTIMATED TRAVEL COST";
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #d5c18a;
+
+    font-family:
+        "Yu Gothic",
+        sans-serif;
+
+    font-size: 9px;
+
+    letter-spacing: 4px;
+}
+
+
+/* =========================================================
+   BACK BUTTON
+========================================================= */
+
+.back {
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 100%;
+
+    min-height: 60px;
+
+    margin-bottom: 40px;
+
+    background: transparent;
+
+    border: 1px solid #29473c;
+
+    color: #29473c;
+
+    border-radius: 2px;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+    letter-spacing: 1px;
+
+    transition: .35s ease;
+}
+
+
+.back::after {
+    content: "↗";
+
+    margin-left: 15px;
+
+    font-size: 18px;
+}
+
+
+.back:hover {
+    background: #1d3c30;
+
+    color: white;
+
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 12px 25px rgba(30,50,42,.15);
+}
+
+
+/* =========================================================
+   RESULT HEADER
+========================================================= */
+
+body:has(.spot) header {
+    min-height: 420px;
+
+    padding: 110px 30px;
+
+    background:
+        linear-gradient(
+            rgba(17,46,37,.88),
+            rgba(17,46,37,.76)
+        ),
+        url("https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=2200&q=85");
+
+    background-size: cover;
+
+    background-position: center;
+}
+
+
+/* =========================================================
+   TEXT INFORMATION
+========================================================= */
+
+section > p {
+    color: #596860;
+
+    font-size: 14px;
+}
+
+
+section > p strong {
+    color: #203c31;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 800px) {
+
+    header {
+        min-height: 500px;
+
+        padding:
+            110px 25px
+            100px;
+    }
+
+
+    header::before {
+        inset: 15px;
+    }
+
+
+    header h1 {
+        font-size: 48px;
+
+        letter-spacing: 2px;
+    }
+
+
+    main {
+        width: 94%;
+
+        margin-top: -40px;
+    }
+
+
+    section {
+        padding: 35px 25px;
+    }
+
+
+    .checkbox {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .price {
+        font-size: 34px;
+
+        padding: 30px 15px;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    header {
+        min-height: 450px;
+    }
+
+
+    header h1 {
+        font-size: 38px;
+    }
+
+
+    header h1::before {
+        font-size: 8px;
+
+        letter-spacing: 3px;
+    }
+
+
+    header p {
+        font-size: 12px;
+    }
+
+
+    main {
+        width: 94%;
+    }
+
+
+    section {
+        padding: 28px 20px;
+    }
+
+
+    h2 {
+        font-size: 24px;
+    }
+
+
+    .checkbox {
+        grid-template-columns: 1fr;
+    }
+
+
+    .checkbox label {
+        min-height: 75px;
+    }
+
+
+    .spot,
+    .hotel {
+        padding: 22px;
+    }
+
+
+    .price {
+        font-size: 28px;
+    }
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer {
+    padding: 70px 20px;
+
+    background: #0d241b;
+
+    color: white;
+
+    text-align: center;
+}
+
+
+footer strong {
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size: 30px;
+
+    font-weight: 400;
+
+    letter-spacing: 8px;
+}
+
+
+footer p {
+    margin: 12px 0 25px;
+
+    color: #cdbb86;
+
+    font-size: 8px;
+
+    letter-spacing: 4px;
+}
+
+
+footer small {
+    color: rgba(255,255,255,.32);
+
+    font-size: 9px;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+
+::-webkit-scrollbar-track {
+    background: #eeeae1;
+}
+
+
+::-webkit-scrollbar-thumb {
+    background: #526b5f;
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a48b58;
+}
+
+/* =========================================================
+   LUXURY TYPOGRAPHY OVERRIDE
+   基本情報の文字・選択欄を大きく上質に
+========================================================= */
+
+.section-title { gap: 26px; margin-bottom: 42px; padding-bottom: 26px; }
+
+.section-number {
+    width: 62px;
+    height: 62px;
+    font-size: 17px;
+    background: linear-gradient(145deg, #eee4c8, #d2bf8b);
+    color: #69552f;
+    box-shadow: 0 8px 22px rgba(100,80,40,.15);
+}
+
+.section-title h3 {
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    color: #1d352d;
+}
+
+.field {
+    padding: 34px 32px 32px;
+    min-height: 185px;
+    border: 1px solid #ddd6c7;
+    background: linear-gradient(145deg, #fffefa, #f7f4ec);
+    box-shadow: 0 8px 22px rgba(25,45,35,.045);
+    transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+
+.field:hover {
+    transform: translateY(-6px);
+    border-color: #b59a61;
+    box-shadow: 0 18px 42px rgba(31,52,43,.13);
+}
+
+.field label span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 9px;
+    color: #a1844e;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+}
+
+.field label span::after {
+    content: "";
+    width: 32px;
+    height: 1px;
+    background: #cbb98c;
+}
+
+.field label {
+    display: block;
+    margin-bottom: 18px;
+    color: #1e382f;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .08em;
+}
+
+.field select {
+    width: 100%;
+    height: 64px;
+    padding: 0 55px 0 23px;
+    border: 1px solid #d5cfc2;
+    border-radius: 0;
+    background-color: #fff;
+    color: #263e34;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    transition: border-color .3s ease, box-shadow .3s ease;
+}
+
+.field select:hover {
+    border-color: #aa925f;
+    box-shadow: 0 7px 18px rgba(40,55,45,.08);
+}
+
+.field select:focus {
+    border-color: #9a8252;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(154,130,82,.10), 0 8px 22px rgba(30,50,40,.08);
+}
+
+.fields { gap: 26px; }
+
+@media (max-width: 800px) {
+    .section-title h3 { font-size: 26px; }
+    .field { min-height: 175px; padding: 30px 26px; }
+    .field label { font-size: 20px; }
+    .field select { height: 60px; font-size: 17px; }
+}
+
+@media (max-width: 500px) {
+    .section-title { gap: 15px; }
+    .section-number { width: 50px; height: 50px; font-size: 14px; }
+    .section-title h3 { font-size: 23px; }
+    .field { padding: 27px 22px; }
+    .field label { font-size: 19px; }
+    .field label span { font-size: 10px; letter-spacing: 3px; }
+    .field select { height: 58px; font-size: 16px; }
+}
+
+/* =========================================================
+   TOURIST SPOT LINKS & MAP
+========================================================= */
+.spot-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.spot-buttons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border: 1px solid #cfc6b3;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: .5px;
+    transition: .3s ease;
+}
+
+.spot-buttons .site-button {
+    background: #1d3c30;
+    color: white;
+    border-color: #1d3c30;
+}
+
+.spot-buttons .site-button:hover {
+    background: #b0955d;
+    border-color: #b0955d;
+    transform: translateY(-2px);
+}
+
+.spot-buttons .map-button {
+    background: #fffdf8;
+    color: #29473c;
+}
+
+.spot-buttons .map-button:hover {
+    background: #f0ece2;
+    border-color: #a89465;
+    transform: translateY(-2px);
+}
+
+.spot-map {
+    width: 100%;
+    height: 240px;
+    margin-top: 18px;
+    overflow: hidden;
+    border: 1px solid #ddd8cc;
+    background: #eeeae1;
+}
+
+.spot-map iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 500px) {
+    .spot-buttons {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .spot-buttons a {
+        width: 100%;
+    }
+
+    .spot-map {
+        height: 210px;
+    }
+}
+
+/* =========================
+   GOURMET
+========================= */
+
+.gourmet-section{
+    margin-top:84px;
+}
+
+.gourmet-intro{
+    margin:-10px 0 28px;
+    color:#68746e;
+    font-size:13px;
+    line-height:1.9;
+}
+
+.gourmet-list{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:20px;
+}
+
+.gourmet-card{
+    background:#fff;
+    border-radius:16px;
+    padding:28px;
+
+    box-shadow:
+        0 10px 30px rgba(25,45,35,.06);
+
+    transition:.25s;
+}
+
+.gourmet-card:hover{
+    transform:translateY(-3px);
+
+    box-shadow:
+        0 16px 38px rgba(25,45,35,.10);
+}
+
+.gourmet-number{
+    color:#9a8252;
+    font-size:9px;
+    letter-spacing:3px;
+    font-weight:700;
+    margin-bottom:9px;
+}
+
+.gourmet-card h3{
+    margin:0 0 8px;
+    color:#18392f;
+    font-family:Georgia,serif;
+    font-size:24px;
+    font-weight:400;
+    line-height:1.4;
+}
+
+.gourmet-genre{
+    color:#9a8252;
+    font-size:11px;
+    margin-bottom:16px;
+}
+
+.gourmet-description{
+    margin:0 0 18px;
+    color:#68746e;
+    font-size:12px;
+    line-height:1.9;
+}
+
+.gourmet-specialties{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-bottom:18px;
+}
+
+.gourmet-specialty{
+    padding:6px 10px;
+    background:#f5f2e9;
+    border-radius:999px;
+    color:#6d5c36;
+    font-size:10px;
+}
+
+.gourmet-info{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+    margin-bottom:18px;
+}
+
+.gourmet-info-item{
+    background:#f7f5ef;
+    border-radius:8px;
+    padding:10px 11px;
+}
+
+.gourmet-info-item strong{
+    display:block;
+    margin-bottom:4px;
+    color:#9a8252;
+    font-size:8px;
+    letter-spacing:1.5px;
+}
+
+.gourmet-info-item span{
+    display:block;
+    color:#59665f;
+    font-size:10px;
+    line-height:1.65;
+}
+
+.gourmet-buttons{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.gourmet-button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:10px 14px;
+
+    border-radius:8px;
+    text-decoration:none;
+
+    font-size:11px;
+    font-weight:700;
+
+    transition:.25s;
+}
+
+.gourmet-button.primary{
+    background:#18392f;
+    color:#fff;
+}
+
+.gourmet-button.primary:hover{
+    background:#9a8252;
+}
+
+.gourmet-button.secondary{
+    background:#fffdf8;
+    color:#18392f;
+    border:1px solid #d8cfbb;
+}
+
+.gourmet-button.secondary:hover{
+    background:#18392f;
+    color:#fff;
+}
+
+.gourmet-empty{
+    background:#fff;
+    border-radius:14px;
+    padding:25px;
+    color:#68746e;
+    font-size:12px;
+}
+
+@media(max-width:850px){
+
+    .gourmet-list{
+        grid-template-columns:1fr;
+    }
+
+}
+
+@media(max-width:560px){
+
+    .gourmet-info{
+        grid-template-columns:1fr;
+    }
+
+}
+
+/* Step 4: 長めの推薦理由。既存カードの色・余白に合わせた最小追加。 */
+.day-spot-recommendation{
+    margin:0 0 20px;
+    padding:16px 18px;
+    background:#f7f5ef;
+    border-left:3px solid #9a8252;
+    border-radius:9px;
+}
+.day-spot-recommendation-label,
+.hotel-long-reason-label{
+    margin-bottom:8px;
+    color:#9a8252;
+    font-size:9px;
+    font-weight:700;
+    letter-spacing:1.8px;
+}
+.day-spot-recommendation p,
+.hotel-long-reason p{
+    margin:0;
+    color:#53625b;
+    font-size:12px;
+    line-height:1.9;
+}
+.hotel-long-reason{
+    margin:0 0 18px;
+    padding:16px 18px;
+    background:#f7f5ef;
+    border-left:3px solid #9a8252;
+    border-radius:9px;
+}
+/* =========================================================
+   TRIP BOOK CREATE BUTTON
+========================================================= */
+
+.trip-book-create-area{
+    margin:24px auto 0;
+    text-align:center;
+}
+
+.trip-book-create-button{
+    width:auto;
+    min-width:280px;
+    max-width:100%;
+    height:auto;
+    margin-top:0;
+    border:none;
+    border-radius:14px;
+    padding:15px 24px;
+    background:linear-gradient(135deg,#21483c,#17372f);
+    color:#fff;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.03em;
+    cursor:pointer;
+    box-shadow:0 12px 28px rgba(24,53,46,.18);
+    transition:.2s ease;
+}
+
+.trip-book-create-button:hover{
+    background:linear-gradient(135deg,#2b594b,#1b4036);
+    border-color:transparent;
+    transform:translateY(-2px);
+    box-shadow:0 18px 34px rgba(24,53,46,.24);
+}
+
+.trip-book-create-button::before,
+.trip-book-create-button::after{
+    display:none;
+}
+
+.trip-book-create-note{
+    margin:10px 0 0;
+    color:#777f7b;
+    font-size:10px;
+    line-height:1.7;
+}

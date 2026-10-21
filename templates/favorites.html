@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お気に入り | 秩父旅行プランナー</title>
+
+    <style>
+        *{box-sizing:border-box;}
+
+        body{
+            margin:0;
+            background:#f4f1e9;
+            color:#20352d;
+            font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+        }
+
+        a{
+            color:inherit;
+        }
+
+        .favorite-page-hero{
+            min-height:300px;
+            display:flex;
+            align-items:center;
+            position:relative;
+            color:#fff;
+            background:linear-gradient(
+                135deg,
+                #18392f 0%,
+                #0c211a 100%
+            );
+        }
+
+        .favorite-page-hero-inner{
+            width:min(1100px,90%);
+            margin:0 auto;
+            padding:62px 0;
+        }
+
+        .favorite-page-label{
+            margin-bottom:14px;
+            color:#d9c58b;
+            font-size:10px;
+            letter-spacing:4px;
+            font-weight:700;
+        }
+
+        .favorite-page-hero h1{
+            margin:0 0 14px;
+            font-family:Georgia,serif;
+            font-size:clamp(42px,6vw,70px);
+            line-height:1.1;
+            font-weight:400;
+        }
+
+        .favorite-page-hero h1 span{
+            color:#dcc98e;
+        }
+
+        .favorite-page-hero p{
+            margin:0;
+            color:rgba(255,255,255,.82);
+            line-height:1.9;
+            font-size:13px;
+        }
+
+        .back-plan-link{
+            position:absolute;
+            top:24px;
+            right:28px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:10px 16px;
+            border:1px solid rgba(255,255,255,.35);
+            border-radius:999px;
+            background:rgba(8,35,28,.42);
+            color:#fff;
+            text-decoration:none;
+            font-size:11px;
+            font-weight:700;
+            backdrop-filter:blur(8px);
+            transition:.25s;
+        }
+
+        .back-plan-link:hover{
+            background:#9a8252;
+            border-color:#9a8252;
+        }
+
+        .favorite-top-nav{
+            position:absolute;
+            top:24px;
+            right:28px;
+            display:flex;
+            flex-direction:column;
+            align-items:flex-end;
+            gap:8px;
+            z-index:20;
+        }
+
+        .favorite-top-nav .back-plan-link{
+            position:static;
+        }
+
+        .favorite-history-link{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:10px 16px;
+            border:1px solid rgba(255,255,255,.35);
+            border-radius:999px;
+            background:rgba(8,35,28,.42);
+            color:#fff;
+            text-decoration:none;
+            font-size:11px;
+            font-weight:700;
+            backdrop-filter:blur(8px);
+            transition:.25s;
+        }
+
+        .favorite-history-link:hover{
+            background:#9a8252;
+            border-color:#9a8252;
+        }
+
+        main{
+            width:min(1100px,90%);
+            margin:0 auto;
+            padding:68px 0 100px;
+        }
+
+        .favorite-category{
+            margin-bottom:68px;
+        }
+
+        .category-heading{
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-between;
+            gap:20px;
+            margin-bottom:22px;
+            padding-bottom:16px;
+            border-bottom:1px solid #ded9cc;
+        }
+
+        .category-heading-left small{
+            display:block;
+            margin-bottom:7px;
+            color:#9a8252;
+            font-size:9px;
+            font-weight:700;
+            letter-spacing:3px;
+        }
+
+        .category-heading h2{
+            margin:0;
+            color:#18392f;
+            font-family:Georgia,serif;
+            font-size:32px;
+            font-weight:400;
+        }
+
+        .favorite-count{
+            flex:0 0 auto;
+            color:#7a817d;
+            font-size:11px;
+        }
+
+        .favorite-grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:20px;
+        }
+
+        .favorite-card{
+            background:#fff;
+            cursor:pointer;
+            border-radius:18px;
+            padding:26px;
+            box-shadow:0 12px 35px rgba(25,45,35,.07);
+            transition:.25s;
+            position:relative;
+        }
+
+        .favorite-card:hover{
+            transform:translateY(-3px);
+            box-shadow:0 18px 42px rgba(25,45,35,.11);
+        }
+
+        .favorite-card-type{
+            display:inline-flex;
+            padding:6px 10px;
+            border-radius:999px;
+            background:#f5f2e9;
+            color:#9a8252;
+            font-size:8px;
+            font-weight:700;
+            letter-spacing:2px;
+        }
+
+        .favorite-card h3{
+            margin:12px 0 8px;
+            padding-right:45px;
+            color:#18392f;
+            font-family:Georgia,serif;
+            font-size:25px;
+            font-weight:400;
+            line-height:1.4;
+        }
+
+        .favorite-card-meta{
+            color:#8a7560;
+            font-size:10px;
+            line-height:1.7;
+            margin-bottom:12px;
+        }
+
+        .favorite-card-description{
+            margin:0 0 18px;
+            color:#68746e;
+            font-size:12px;
+            line-height:1.85;
+        }
+
+        .favorite-card-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:8px;
+        }
+                .favorite-action{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-height:38px;
+            padding:9px 13px;
+            border-radius:8px;
+            border:1px solid #d8cfbb;
+            background:#fffdf8;
+            color:#18392f;
+            font-family:inherit;
+            font-size:10px;
+            font-weight:700;
+            text-decoration:none;
+            cursor:pointer;
+            transition:.25s;
+        }
+
+        .favorite-action:hover{
+            background:#18392f;
+            border-color:#18392f;
+            color:#fff;
+        }
+
+        .favorite-action.primary{
+            background:#18392f;
+            border-color:#18392f;
+            color:#fff;
+        }
+
+        .favorite-action.primary:hover{
+            background:#9a8252;
+            border-color:#9a8252;
+        }
+
+        .favorite-action.remove{
+            color:#8a7560;
+        }
+
+        .favorite-action.remove:hover{
+            background:#f0e8d6;
+            border-color:#9a8252;
+            color:#6d5c36;
+        }
+
+        .empty-favorite{
+            padding:28px;
+            border:1px solid #ded9cc;
+            border-radius:14px;
+            background:#fffdf8;
+            color:#68746e;
+            font-size:12px;
+            line-height:1.9;
+        }
+
+        .empty-favorite strong{
+            display:block;
+            margin-bottom:6px;
+            color:#18392f;
+            font-family:Georgia,serif;
+            font-size:20px;
+            font-weight:400;
+        }
+
+        /* =========================
+           DETAIL MODAL
+        ========================= */
+        .detail-modal{
+            position:fixed;
+            inset:0;
+            display:none;
+            align-items:center;
+            justify-content:center;
+            padding:24px;
+            background:rgba(8,25,20,.64);
+            z-index:1000;
+        }
+
+        .detail-modal.is-open{
+            display:flex;
+        }
+
+        .detail-modal-panel{
+            width:min(760px,100%);
+            max-height:min(88vh,920px);
+            overflow:auto;
+            padding:34px;
+            border-radius:20px;
+            background:#fff;
+            box-shadow:0 30px 80px rgba(0,0,0,.25);
+            position:relative;
+        }
+
+        .detail-close{
+            position:absolute;
+            top:18px;
+            right:18px;
+            width:38px;
+            height:38px;
+            padding:0;
+            border:1px solid #d8cfbb;
+            border-radius:50%;
+            background:#fffdf8;
+            color:#18392f;
+            font-family:inherit;
+            font-size:18px;
+            cursor:pointer;
+        }
+
+        .detail-modal-label{
+            margin-bottom:8px;
+            color:#9a8252;
+            font-size:9px;
+            font-weight:700;
+            letter-spacing:3px;
+        }
+
+        .detail-modal-title{
+            margin:0 50px 10px 0;
+            color:#18392f;
+            font-family:Georgia,serif;
+            font-size:38px;
+            font-weight:400;
+            line-height:1.35;
+        }
+
+        .detail-modal-area{
+            margin-bottom:20px;
+            color:#9a8252;
+            font-size:11px;
+        }
+
+        .detail-modal-description{
+            margin:0 0 22px;
+            color:#68746e;
+            font-size:13px;
+            line-height:1.9;
+        }
+
+        .detail-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:10px;
+            margin-bottom:22px;
+        }
+
+        .detail-box{
+            padding:12px 14px;
+            background:#f7f5ef;
+            border-radius:9px;
+        }
+
+        .detail-box strong{
+            display:block;
+            margin-bottom:5px;
+            color:#9a8252;
+            font-size:8px;
+            letter-spacing:1.5px;
+        }
+
+        .detail-box span{
+            display:block;
+            color:#59665f;
+            font-size:11px;
+            line-height:1.7;
+            white-space:pre-line;
+        }
+
+        .detail-notes{
+            margin:0 0 20px;
+            color:#6a746f;
+            font-size:11px;
+            line-height:1.8;
+        }
+
+        .detail-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:9px;
+        }
+
+        /* =========================
+           REVIEWS
+        ========================= */
+        .review-section{
+            margin-top:28px;
+            padding-top:24px;
+            border-top:1px solid #ded9cc;
+        }
+
+        .review-heading{
+            display:flex;
+            align-items:flex-end;
+            justify-content:space-between;
+            gap:14px;
+            margin-bottom:16px;
+        }
+
+        .review-heading h3{
+            margin:0;
+            color:#18392f;
+            font-family:Georgia,serif;
+            font-size:24px;
+            font-weight:400;
+        }
+
+        .review-summary{
+            color:#9a8252;
+            font-size:12px;
+            font-weight:700;
+            white-space:nowrap;
+        }
+
+        .review-form{
+            display:grid;
+            grid-template-columns:150px 1fr;
+            gap:10px;
+            margin-bottom:18px;
+            padding:16px;
+            border-radius:12px;
+            background:#f7f5ef;
+        }
+
+        .review-form select,
+        .review-form input,
+        .review-form textarea{
+            width:100%;
+            box-sizing:border-box;
+            border:1px solid #d8cfbb;
+            border-radius:8px;
+            background:#fff;
+            color:#34443d;
+            font-family:inherit;
+            font-size:12px;
+            padding:11px 12px;
+        }
+
+        .review-form textarea{
+            grid-column:1 / -1;
+            min-height:96px;
+            resize:vertical;
+        }
+
+        .review-submit{
+            grid-column:1 / -1;
+            justify-self:start;
+            border:0;
+            border-radius:8px;
+            background:#18392f;
+            color:#fff;
+            font-family:inherit;
+            font-size:11px;
+            font-weight:700;
+            padding:11px 18px;
+            cursor:pointer;
+        }
+
+        .review-submit:disabled{
+            opacity:.55;
+            cursor:wait;
+        }
+
+        .review-status{
+            grid-column:1 / -1;
+            min-height:18px;
+            margin:0;
+            color:#68746e;
+            font-size:11px;
+        }
+
+        .review-status.is-error{
+            color:#a4483f;
+        }
+
+        .review-list{
+            display:grid;
+            gap:10px;
+        }
+
+        .review-item{
+            padding:14px 15px;
+            border:1px solid #e3ded1;
+            border-radius:10px;
+            background:#fffdf8;
+        }
+
+        .review-item-top{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            margin-bottom:7px;
+        }
+                .review-stars{
+            color:#b59245;
+            letter-spacing:1px;
+            font-size:14px;
+        }
+
+        .review-author{
+            color:#18392f;
+            font-size:11px;
+            font-weight:700;
+        }
+
+        .review-date{
+            margin-left:auto;
+            color:#8b948f;
+            font-size:9px;
+        }
+
+        .review-comment{
+            margin:0;
+            color:#59665f;
+            font-size:12px;
+            line-height:1.75;
+            white-space:pre-wrap;
+        }
+
+        .review-empty{
+            padding:14px;
+            border-radius:9px;
+            background:#f7f5ef;
+            color:#7b857f;
+            font-size:11px;
+            line-height:1.7;
+        }
+
+        footer{
+            background:#0c211a;
+            color:#fff;
+            text-align:center;
+            padding:60px 20px;
+        }
+
+        footer strong{
+            font-family:Georgia,serif;
+            font-size:28px;
+            letter-spacing:7px;
+        }
+
+        footer p{
+            margin:12px 0 0;
+            color:#cdbd8c;
+            font-size:9px;
+            letter-spacing:4px;
+        }
+
+        @media(max-width:760px){
+            .favorite-grid{
+                grid-template-columns:1fr;
+            }
+        }
+
+        @media(max-width:560px){
+            .favorite-page-hero-inner,
+            main{
+                width:94%;
+            }
+
+            .favorite-top-nav{
+                top:16px;
+                right:16px;
+                gap:6px;
+            }
+
+            .favorite-top-nav .back-plan-link,
+            .favorite-history-link{
+                padding:9px 12px;
+                font-size:10px;
+            }
+
+            .category-heading{
+                align-items:flex-start;
+                flex-direction:column;
+                gap:7px;
+            }
+
+            .category-heading h2{
+                font-size:28px;
+            }
+
+            .detail-modal-panel{
+                padding:26px 20px;
+            }
+
+            .detail-grid{
+                grid-template-columns:1fr;
+            }
+
+            .detail-modal-title{
+                font-size:30px;
+            }
+
+            .review-form{
+                grid-template-columns:1fr;
+            }
+
+            .review-form textarea,
+            .review-submit,
+            .review-status{
+                grid-column:1;
+            }
+
+            .review-heading{
+                align-items:flex-start;
+                flex-direction:column;
+            }
+
+            .review-item-top{
+                align-items:flex-start;
+                flex-wrap:wrap;
+            }
+
+            .review-date{
+                width:100%;
+                margin-left:0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="favorite-page-hero">
+
+    <div class="favorite-top-nav">
+        <a href="/" class="back-plan-link" id="backToPlanLink">
+            ← 旅行プランに戻る
+        </a>
+
+        <a href="/history" class="favorite-history-link">
+            ▣ 旅行プラン履歴
+        </a>
+    </div>
+
+    <div class="favorite-page-hero-inner">
+
+        <div class="favorite-page-label">
+            YOUR FAVORITES
+        </div>
+
+        <h1>
+            ♡ <span>お気に入り</span>
+        </h1>
+
+        <p>
+            あなたが保存した観光地・飲食店・宿泊施設をまとめて確認できます。<br>
+            気になる場所を残して、自分だけの秩父旅行候補を作りましょう。
+        </p>
+
+    </div>
+
+</header>
+
+<main id="favoritesMain">
+
+    <section class="favorite-category" data-category="観光地">
+
+        <div class="category-heading">
+
+            <div class="category-heading-left">
+                <small>SPOTS</small>
+                <h2>🏞 観光地</h2>
+            </div>
+
+            <div
+                class="favorite-count"
+                data-count-for="観光地"
+            >
+                0件
+            </div>
+
+        </div>
+
+        <div
+            class="favorite-grid"
+            data-grid-for="観光地"
+        ></div>
+
+    </section>
+
+
+    <section class="favorite-category" data-category="飲食店">
+
+        <div class="category-heading">
+
+            <div class="category-heading-left">
+                <small>RESTAURANTS</small>
+                <h2>🍴 飲食店</h2>
+            </div>
+
+            <div
+                class="favorite-count"
+                data-count-for="飲食店"
+            >
+                0件
+            </div>
+
+        </div>
+
+        <div
+            class="favorite-grid"
+            data-grid-for="飲食店"
+        ></div>
+
+    </section>
+
+
+    <section class="favorite-category" data-category="宿泊施設">
+
+        <div class="category-heading">
+
+            <div class="category-heading-left">
+                <small>STAYS</small>
+                <h2>🏨 宿泊施設</h2>
+            </div>
+
+            <div
+                class="favorite-count"
+                data-count-for="宿泊施設"
+            >
+                0件
+            </div>
+
+        </div>
+
+        <div
+            class="favorite-grid"
+            data-grid-for="宿泊施設"
+        ></div>
+
+    </section>
+
+</main>
+
+
+<div
+    class="detail-modal"
+    id="detailModal"
+    aria-hidden="true"
+>
+
+    <div
+        class="detail-modal-panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="detailModalTitle"
+    >
+
+        <button
+            type="button"
+            class="detail-close"
+            id="detailCloseButton"
+            aria-label="閉じる"
+        >
+            ×
+        </button>
+
+        <div
+            class="detail-modal-label"
+            id="detailModalLabel"
+        ></div>
+
+        <h2
+            class="detail-modal-title"
+            id="detailModalTitle"
+        ></h2>
+
+        <div
+            class="detail-modal-area"
+            id="detailModalArea"
+        ></div>
+
+        <p
+            class="detail-modal-description"
+            id="detailModalDescription"
+        ></p>
+
+        <div
+            class="detail-grid"
+            id="detailGrid"
+        ></div>
+
+        <p
+            class="detail-notes"
+            id="detailModalNotes"
+        ></p>
+
+        <div
+            class="detail-actions"
+            id="detailModalActions"
+        ></div>
+
+
+        <section
+            class="review-section"
+            id="reviewSection"
+        >
+
+            <div class="review-heading">
+
+                <h3>口コミ・レビュー</h3>
+
+                <div
+                    class="review-summary"
+                    id="reviewSummary"
+                >
+                    読み込み中…
+                </div>
+
+            </div>
+
+            <form
+                class="review-form"
+                id="reviewForm"
+            >
+
+                <select
+                    id="reviewRating"
+                    required
+                >
+                    <option value="">
+                        星評価を選択
+                    </option>
+
+                    <option value="5">
+                        ★★★★★ 5
+                    </option>
+
+                    <option value="4">
+                        ★★★★☆ 4
+                    </option>
+
+                    <option value="3">
+                        ★★★☆☆ 3
+                    </option>
+
+                    <option value="2">
+                        ★★☆☆☆ 2
+                    </option>
+
+                    <option value="1">
+                        ★☆☆☆☆ 1
+                    </option>
+                </select>
+
+                <input
+                    type="text"
+                    id="reviewNickname"
+                    maxlength="40"
+                    placeholder="ニックネーム"
+                    required
+                >
+
+                <textarea
+                    id="reviewComment"
+                    maxlength="500"
+                    placeholder="この施設の感想を書いてください"
+                    required
+                ></textarea>
+
+                <button
+                    type="submit"
+                    class="review-submit"
+                    id="reviewSubmit"
+                >
+                    レビューを投稿する
+                </button>
+
+                <p
+                    class="review-status"
+                    id="reviewStatus"
+                ></p>
+
+            </form>
+
+            <div
+                class="review-list"
+                id="reviewList"
+            ></div>
+
+        </section>
+
+    </div>
+
+</div>
+
+
+<footer>
+    <strong>CHICHIBU</strong>
+    <p>
+        DISCOVER · EXPERIENCE · REMEMBER
+    </p>
+</footer>
+
+
+<script
+    id="favoriteCatalogData"
+    type="application/json"
+>
+    {{ favorite_catalog | tojson }}
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const STORAGE_KEY = "chichibuTravelFavoritesV1";
+    const CATEGORIES = [
+        "観光地",
+        "飲食店",
+        "宿泊施設"
+    ];
+
+    const catalogElement =
+        document.getElementById("favoriteCatalogData");
+
+    let catalog = {};
+
+    if (catalogElement) {
+        try {
+            catalog = JSON.parse(
+                catalogElement.textContent || "{}"
+            );
+        } catch (error) {
+            console.error(
+                "お気に入りカタログの読み込みエラー:",
+                error
+            );
+            catalog = {};
+        }
+    }
+
+
+    const modal =
+        document.getElementById("detailModal");
+
+    const closeButton =
+        document.getElementById("detailCloseButton");
+
+    const modalLabel =
+        document.getElementById("detailModalLabel");
+
+    const modalTitle =
+        document.getElementById("detailModalTitle");
+
+    const modalArea =
+        document.getElementById("detailModalArea");
+
+    const modalDescription =
+        document.getElementById(
+            "detailModalDescription"
+        );
+
+    const detailGrid =
+        document.getElementById("detailGrid");
+
+    const modalNotes =
+        document.getElementById(
+            "detailModalNotes"
+        );
+
+    const modalActions =
+        document.getElementById(
+            "detailModalActions"
+        );
+
+
+    const reviewForm =
+        document.getElementById("reviewForm");
+
+    const reviewRating =
+        document.getElementById(
+            "reviewRating"
+        );
+
+    const reviewNickname =
+        document.getElementById(
+            "reviewNickname"
+        );
+
+    const reviewComment =
+        document.getElementById(
+            "reviewComment"
+        );
+
+    const reviewSubmit =
+        document.getElementById(
+            "reviewSubmit"
+        );
+
+    const reviewStatus =
+        document.getElementById(
+            "reviewStatus"
+        );
+
+    const reviewSummary =
+        document.getElementById(
+            "reviewSummary"
+        );
+
+    const reviewList =
+        document.getElementById(
+            "reviewList"
+        );
+
+
+    let currentReviewFacility = null;
+
+
+    function readFavorites() {
+
+        try {
+
+            const raw =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
+
+            const parsed =
+                raw
+                    ? JSON.parse(raw)
+                    : [];
+
+            if (!Array.isArray(parsed)) {
+                return [];
+            }
+
+            const unique = [];
+            const seen = new Set();
+
+            parsed
+                .filter(function (item) {
+                    return (
+                        item &&
+                        item.type &&
+                        item.name
+                    );
+                })
+                .forEach(function (item) {
+
+                    const key =
+                        favoriteKey(item);
+
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        unique.push(item);
+                    }
+
+                });
+
+            return unique;
+
+        } catch (error) {
+
+            console.error(
+                "お気に入り読み込みエラー:",
+                error
+            );
+
+            return [];
+        }
+    }
+
+
+    function writeFavorites(favorites) {
+
+        try {
+
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(favorites)
+            );
+
+        } catch (error) {
+
+            console.error(
+                "お気に入り保存エラー:",
+                error
+            );
+        }
+    }
+
+
+    function favoriteKey(item) {
+
+        return [
+            item.type || "",
+            item.name || "",
+            item.address || ""
+        ].join("|");
+    }
+
+
+    function findCatalogItem(favorite) {
+
+        const items =
+            Array.isArray(
+                catalog[favorite.type]
+            )
+                ? catalog[favorite.type]
+                : [];
+
+        const exact =
+            items.find(function (item) {
+
+                return (
+                    favoriteKey(item) ===
+                    favoriteKey(favorite)
+                );
+            });
+
+        if (exact) {
+            return exact;
+        }
+
+        return items.find(
+            function (item) {
+                return (
+                    item.name ===
+                    favorite.name
+                );
+            }
+        );
+    }
+
+
+    function addDetailBox(
+        label,
+        value
+    ) {
+
+        if (
+            value === null ||
+            value === undefined ||
+            value === ""
+        ) {
+            return;
+        }
+
+        const box =
+            document.createElement("div");
+
+        box.className =
+            "detail-box";
+
+        const strong =
+            document.createElement(
+                "strong"
+            );
+
+        strong.textContent =
+            label;
+
+        const span =
+            document.createElement(
+                "span"
+            );
+
+        span.textContent =
+            String(value);
+
+        box.appendChild(strong);
+        box.appendChild(span);
+
+        detailGrid.appendChild(box);
+    }
+
+
+    function closeModal() {
+
+        modal.classList.remove(
+            "is-open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.style.overflow =
+            "";
+
+        currentReviewFacility = null;
+    }
+
+
+    function formatStars(rating) {
+
+        const value =
+            Math.max(
+                0,
+                Math.min(
+                    5,
+                    Number(rating) || 0
+                )
+            );
+
+        const full =
+            "★".repeat(
+                Math.round(value)
+            );
+
+        const empty =
+            "☆".repeat(
+                5 -
+                Math.round(value)
+            );
+
+        return full + empty;
+    }
+
+
+    function formatReviewDate(value) {
+
+        if (!value) {
+            return "";
+        }
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "";
+        }
+
+        return date.toLocaleString(
+            "ja-JP",
+            {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+    }
+
+
+    function clearReviewArea() {
+
+        reviewSummary.textContent =
+            "読み込み中…";
+
+        reviewList.innerHTML =
+            "";
+
+        reviewStatus.textContent =
+            "";
+
+        reviewStatus.classList.remove(
+            "is-error"
+        );
+    }
+
+
+    function renderReviews(data) {
+
+        reviewList.innerHTML =
+            "";
+
+        const reviews =
+            Array.isArray(data.reviews)
+                ? data.reviews
+                : [];
+
+        const count =
+            Number(
+                data.count !== undefined
+                    ? data.count
+                    : reviews.length
+            );
+
+        const average =
+            Number(data.average || 0);
+
+        if (count > 0) {
+
+            reviewSummary.textContent =
+                formatStars(average) +
+                " " +
+                average.toFixed(1) +
+                " / 5 (" +
+                count +
+                "件)";
+
+        } else {
+
+            reviewSummary.textContent =
+                "まだレビューはありません";
+        }
+
+
+        if (!reviews.length) {
+
+            const empty =
+                document.createElement(
+                    "div"
+                );
+
+            empty.className =
+                "review-empty";
+
+            empty.textContent =
+                "この施設の最初のレビューを投稿してみましょう。";
+
+            reviewList.appendChild(
+                empty
+            );
+
+            return;
+        }
+
+
+        reviews.forEach(
+            function (review) {
+
+                const item =
+                    document.createElement(
+                        "article"
+                    );
+
+                item.className =
+                    "review-item";
+
+
+                const top =
+                    document.createElement(
+                        "div"
+                    );
+
+                top.className =
+                    "review-item-top";
+
+
+                const stars =
+                    document.createElement(
+                        "span"
+                    );
+
+                stars.className =
+                    "review-stars";
+
+                stars.textContent =
+                    formatStars(
+                        review.rating
+                    );
+
+
+                const author =
+                    document.createElement(
+                        "span"
+                    );
+
+                author.className =
+                    "review-author";
+
+                author.textContent =
+                    review.nickname ||
+                    "匿名";
+
+
+                const date =
+                    document.createElement(
+                        "span"
+                    );
+
+                date.className =
+                    "review-date";
+
+                date.textContent =
+                    formatReviewDate(
+                        review.created_at
+                    );
+
+
+                top.appendChild(stars);
+                top.appendChild(author);
+                top.appendChild(date);
+
+
+                const comment =
+                    document.createElement(
+                        "p"
+                    );
+
+                comment.className =
+                    "review-comment";
+
+                comment.textContent =
+                    review.comment || "";
+
+
+                item.appendChild(top);
+                item.appendChild(comment);
+
+                reviewList.appendChild(
+                    item
+                );
+            }
+        );
+    }
+
+
+    async function loadReviews(
+        facilityType,
+        facilityName
+    ) {
+
+        clearReviewArea();
+
+        try {
+
+            const params =
+                new URLSearchParams({
+                    facility_type:
+                        facilityType,
+                    facility_name:
+                        facilityName
+                });
+
+            const response =
+                await fetch(
+                    "/api/reviews?" +
+                    params.toString()
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "レビューを取得できませんでした。"
+                );
+            }
+
+            renderReviews(data);
+
+        } catch (error) {
+
+            console.error(
+                "レビュー取得エラー:",
+                error
+            );
+
+            reviewSummary.textContent =
+                "レビューを取得できませんでした";
+
+            reviewList.innerHTML =
+                "";
+        }
+    }
+
+
+    function openDetail(
+        favorite,
+        item
+    ) {
+
+        const data =
+            item || favorite;
+
+        const category =
+            favorite.type ||
+            data.favorite_type ||
+            data.type ||
+            "";
+
+        const name =
+            data.name ||
+            favorite.name ||
+            "";
+
+        currentReviewFacility = {
+            facility_type:
+                category,
+            facility_name:
+                name
+        };
+
+
+        modalLabel.textContent =
+            category;
+
+        modalTitle.textContent =
+            name;
+
+        modalArea.textContent =
+            data.area || "";
+
+        modalDescription.textContent =
+            data.description ||
+            "施設の詳しい説明は登録データにありません。";
+
+
+        detailGrid.innerHTML = "";
+
+        addDetailBox(
+            "TYPE",
+            data.category_detail
+        );
+
+        addDetailBox(
+            "ADDRESS",
+            data.address
+        );
+
+        addDetailBox(
+            "PHONE",
+            data.phone
+        );
+
+        addDetailBox(
+            "TRAIN",
+            data.access &&
+            data.access.train
+        );
+
+        addDetailBox(
+            "BUS",
+            data.access &&
+            data.access.bus
+        );
+
+        addDetailBox(
+            "WALK",
+            data.access &&
+            data.access.walk
+        );
+
+        addDetailBox(
+            "CAR",
+            data.access &&
+            data.access.car
+        );
+
+        addDetailBox(
+            "HOURS",
+            data.hours
+        );
+
+        addDetailBox(
+            "PRICE",
+            data.price
+        );
+
+        addDetailBox(
+            "CLOSED",
+            data.closed
+        );
+
+        addDetailBox(
+            "PARKING",
+            data.parking
+        );
+
+        addDetailBox(
+            "SEASON",
+            data.season
+        );
+
+        addDetailBox(
+            "STAY TIME",
+            data.time
+                ? data.time + "時間"
+                : ""
+        );
+
+
+        modalNotes.textContent =
+            data.notes || "";
+
+        modalActions.innerHTML =
+            "";
+
+
+        if (
+            data.url ||
+            data.official_url
+        ) {
+
+            const official =
+                document.createElement(
+                    "a"
+                );
+
+            official.className =
+                "favorite-action primary";
+
+            official.href =
+                data.url ||
+                data.official_url;
+
+            official.target =
+                "_blank";
+
+            official.rel =
+                "noopener noreferrer";
+
+            official.textContent =
+                "公式サイト";
+
+            modalActions.appendChild(
+                official
+            );
+        }
+
+
+        if (data.map_url) {
+
+            const map =
+                document.createElement(
+                    "a"
+                );
+
+            map.className =
+                "favorite-action";
+
+            map.href =
+                data.map_url;
+
+            map.target =
+                "_blank";
+
+            map.rel =
+                "noopener noreferrer";
+
+            map.textContent =
+                "Google Maps";
+
+            modalActions.appendChild(
+                map
+            );
+        }
+
+
+        reviewRating.value = "";
+        reviewComment.value = "";
+
+        modal.classList.add(
+            "is-open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.style.overflow =
+            "hidden";
+
+
+        loadReviews(
+            category,
+            name
+        );
+    }
+        reviewForm.addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            if (!currentReviewFacility) {
+                return;
+            }
+
+            const rating =
+                Number(reviewRating.value);
+
+            const nickname =
+                reviewNickname.value.trim();
+
+            const comment =
+                reviewComment.value.trim();
+
+            if (
+                !rating ||
+                rating < 1 ||
+                rating > 5
+            ) {
+
+                reviewStatus.textContent =
+                    "星評価を選択してください。";
+
+                reviewStatus.classList.add(
+                    "is-error"
+                );
+
+                return;
+            }
+
+            if (!nickname) {
+
+                reviewStatus.textContent =
+                    "ニックネームを入力してください。";
+
+                reviewStatus.classList.add(
+                    "is-error"
+                );
+
+                return;
+            }
+
+            if (!comment) {
+
+                reviewStatus.textContent =
+                    "コメントを入力してください。";
+
+                reviewStatus.classList.add(
+                    "is-error"
+                );
+
+                return;
+            }
+
+
+            reviewSubmit.disabled = true;
+
+            reviewStatus.textContent =
+                "投稿中…";
+
+            reviewStatus.classList.remove(
+                "is-error"
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/reviews",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                facility_type:
+                                    currentReviewFacility
+                                        .facility_type,
+
+                                facility_name:
+                                    currentReviewFacility
+                                        .facility_name,
+
+                                rating:
+                                    rating,
+
+                                nickname:
+                                    nickname,
+
+                                comment:
+                                    comment
+                            })
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "レビューを投稿できませんでした。"
+                    );
+                }
+
+
+                reviewStatus.textContent =
+                    "レビューを投稿しました。";
+
+                reviewStatus.classList.remove(
+                    "is-error"
+                );
+
+
+                reviewRating.value =
+                    "";
+
+                reviewComment.value =
+                    "";
+
+
+                await loadReviews(
+                    currentReviewFacility
+                        .facility_type,
+
+                    currentReviewFacility
+                        .facility_name
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "レビュー投稿エラー:",
+                    error
+                );
+
+                reviewStatus.textContent =
+                    error.message ||
+                    "レビューを投稿できませんでした。";
+
+                reviewStatus.classList.add(
+                    "is-error"
+                );
+
+            } finally {
+
+                reviewSubmit.disabled =
+                    false;
+            }
+        }
+    );
+
+
+    function createCard(
+        favorite,
+        item
+    ) {
+
+        const data =
+            item || favorite;
+
+
+        const card =
+            document.createElement(
+                "article"
+            );
+
+        card.className =
+            "favorite-card";
+
+
+        const type =
+            document.createElement(
+                "span"
+            );
+
+        type.className =
+            "favorite-card-type";
+
+        type.textContent =
+            favorite.type;
+
+
+        const title =
+            document.createElement(
+                "h3"
+            );
+
+        title.textContent =
+            favorite.name;
+
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+        meta.className =
+            "favorite-card-meta";
+
+        const metaParts = [];
+
+        if (data.area) {
+            metaParts.push(
+                data.area
+            );
+        }
+
+        if (data.address) {
+            metaParts.push(
+                data.address
+            );
+        }
+
+        meta.textContent =
+            metaParts.join(" / ");
+
+
+        const description =
+            document.createElement(
+                "p"
+            );
+
+        description.className =
+            "favorite-card-description";
+
+        description.textContent =
+            data.description ||
+            "登録されている詳細情報はありません。";
+
+
+        const actions =
+            document.createElement(
+                "div"
+            );
+
+        actions.className =
+            "favorite-card-actions";
+
+
+        const detailButton =
+            document.createElement(
+                "button"
+            );
+
+        detailButton.type =
+            "button";
+
+        detailButton.className =
+            "favorite-action primary";
+
+        detailButton.textContent =
+            "詳細を見る";
+
+
+        detailButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.stopPropagation();
+
+                openDetail(
+                    favorite,
+                    item
+                );
+            }
+        );
+
+
+        const removeButton =
+            document.createElement(
+                "button"
+            );
+
+        removeButton.type =
+            "button";
+
+        removeButton.className =
+            "favorite-action remove";
+
+        removeButton.textContent =
+            "お気に入りから削除";
+
+
+        removeButton.addEventListener(
+            "click",
+            function (event) {
+
+                event.stopPropagation();
+
+
+                const favorites =
+                    readFavorites()
+                        .filter(
+                            function (saved) {
+
+                                return (
+                                    favoriteKey(saved)
+                                    !==
+                                    favoriteKey(favorite)
+                                );
+                            }
+                        );
+
+
+                writeFavorites(
+                    favorites
+                );
+
+                renderFavorites();
+            }
+        );
+
+
+        actions.appendChild(
+            detailButton
+        );
+
+        actions.appendChild(
+            removeButton
+        );
+
+
+        card.appendChild(
+            type
+        );
+
+        card.appendChild(
+            title
+        );
+
+
+        if (meta.textContent) {
+
+            card.appendChild(
+                meta
+            );
+        }
+
+
+        card.appendChild(
+            description
+        );
+
+        card.appendChild(
+            actions
+        );
+
+
+        card.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target.closest(
+                        ".favorite-action"
+                    )
+                ) {
+                    return;
+                }
+
+                openDetail(
+                    favorite,
+                    item
+                );
+            }
+        );
+
+
+        return card;
+    }
+
+
+    function renderFavorites() {
+
+        const favorites =
+            readFavorites();
+
+
+        CATEGORIES.forEach(
+            function (category) {
+
+                const section =
+                    document.querySelector(
+                        '[data-category="' +
+                        category +
+                        '"]'
+                    );
+
+                const grid =
+                    document.querySelector(
+                        '[data-grid-for="' +
+                        category +
+                        '"]'
+                    );
+
+                const count =
+                    document.querySelector(
+                        '[data-count-for="' +
+                        category +
+                        '"]'
+                    );
+
+
+                if (
+                    !section ||
+                    !grid ||
+                    !count
+                ) {
+                    return;
+                }
+
+
+                const categoryFavorites =
+                    favorites.filter(
+                        function (favorite) {
+
+                            return (
+                                favorite.type ===
+                                category
+                            );
+                        }
+                    );
+
+
+                count.textContent =
+                    categoryFavorites.length +
+                    "件";
+
+
+                grid.innerHTML =
+                    "";
+
+
+                if (
+                    !categoryFavorites.length
+                ) {
+
+                    const empty =
+                        document.createElement(
+                            "div"
+                        );
+
+                    empty.className =
+                        "empty-favorite";
+
+                    empty.style.gridColumn =
+                        "1 / -1";
+
+                    empty.innerHTML =
+                        "<strong>お気に入りはまだありません。</strong>" +
+                        "旅行プランの各施設にある♡お気に入りから追加してください。";
+
+
+                    grid.appendChild(
+                        empty
+                    );
+
+                    return;
+                }
+
+
+                categoryFavorites.forEach(
+                    function (favorite) {
+
+                        const item =
+                            findCatalogItem(
+                                favorite
+                            );
+
+                        grid.appendChild(
+                            createCard(
+                                favorite,
+                                item
+                            )
+                        );
+                    }
+                );
+            }
+        );
+    }
+
+
+    closeButton.addEventListener(
+        "click",
+        closeModal
+    );
+
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (
+                event.target === modal
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    document.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key ===
+                "Escape"
+            ) {
+
+                closeModal();
+            }
+        }
+    );
+
+
+    window.addEventListener(
+        "storage",
+        function (event) {
+
+            if (
+                event.key ===
+                STORAGE_KEY
+            ) {
+
+                renderFavorites();
+            }
+        }
+    );
+
+
+    const backToPlanLink =
+        document.getElementById(
+            "backToPlanLink"
+        );
+
+
+    if (
+        backToPlanLink &&
+        document.referrer.indexOf(
+            "/result"
+        ) !== -1
+    ) {
+
+        backToPlanLink.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                history.back();
+            }
+        );
+    }
+
+
+    renderFavorites();
+
+});
+</script>
+
+</body>
+</html>
