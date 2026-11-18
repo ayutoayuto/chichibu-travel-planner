@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "count": 25,
+  "locations": [
+    {
+      "name": "小松沢レジャー農園",
+      "category": "公式住所",
+      "address": "埼玉県秩父郡横瀬町横瀬1408"
+    },
+    {
+      "name": "長瀞ラインくだり",
+      "category": "ラインくだり本部・受付",
+      "address": "埼玉県秩父郡長瀞町長瀞489-2"
+    },
+    {
+      "name": "名物 秩父そば 立花",
+      "category": "gourmet",
+      "address": "埼玉県秩父市野坂町1-11-3"
+    },
+    {
+      "name": "田舎屋",
+      "category": "gourmet",
+      "address": "埼玉県秩父市野坂町1-16-4"
+    },
+    {
+      "name": "TRAGHETTO（トラゲット）",
+      "category": "gourmet",
+      "address": "埼玉県秩父市宮側町18-7"
+    },
+    {
+      "name": "和味処 えん",
+      "category": "gourmet",
+      "address": "埼玉県秩父市熊木町10-13"
+    },
+    {
+      "name": "そば処 まるた",
+      "category": "gourmet",
+      "address": "埼玉県秩父市熊木町13-10"
+    },
+    {
+      "name": "武蔵屋本店",
+      "category": "gourmet",
+      "address": "秩父市上宮地町9-19"
+    },
+    {
+      "name": "本格手打 わへいそば",
+      "category": "gourmet",
+      "address": "秩父市中村町1-4-13"
+    },
+    {
+      "name": "そば処 大むら",
+      "category": "gourmet",
+      "address": "秩父市宮側町17-3"
+    },
+    {
+      "name": "手打そば 武蔵屋",
+      "category": "gourmet",
+      "address": "秩父市番場町4-11"
+    },
+    {
+      "name": "大むら本店",
+      "category": "gourmet",
+      "address": "秩父市東町12-17"
+    },
+    {
+      "name": "そばの杜",
+      "category": "gourmet",
+      "address": "秩父市本町3-1"
+    },
+    {
+      "name": "秩父そば 昌楽 道の駅店",
+      "category": "gourmet",
+      "address": "秩父市大宮4625"
+    },
+    {
+      "name": "高砂ホルモン",
+      "category": "gourmet",
+      "address": "埼玉県秩父市東町30-3"
+    },
+    {
+      "name": "かつ屋まんてん",
+      "category": "gourmet",
+      "address": "埼玉県秩父市上影森715-5"
+    },
+    {
+      "name": "焼き肉＆ホルモン あっとほ～む",
+      "category": "gourmet",
+      "address": "埼玉県秩父市宮側町8-6"
+    },
+    {
+      "name": "お豆ふ処 うめだ屋",
+      "category": "gourmet",
+      "address": "埼玉県秩父郡長瀞町長瀞268"
+    },
+    {
+      "name": "天狗鮨",
+      "category": "gourmet",
+      "address": "埼玉県秩父郡長瀞町長瀞1310"
+    },
+    {
+      "name": "阿左美冷蔵 寶登山道店",
+      "category": "gourmet",
+      "address": "埼玉県秩父郡長瀞町長瀞781-4"
+    },
+    {
+      "name": "ジビエ料理の千葉亭 Gibier Dining Chibatei",
+      "category": "gourmet",
+      "address": "秩父郡長瀞町井戸675-3"
+    },
+    {
+      "name": "楓庵",
+      "category": "gourmet",
+      "address": "埼玉県秩父郡長瀞町野上下郷947-1"
+    },
+    {
+      "name": "芋うらら 長瀞店",
+      "category": "gourmet",
+      "address": "埼玉県秩父郡長瀞町長瀞530-1"
+    },
+    {
+      "name": "いちごと抹茶 長瀞みるくスタンド",
+      "category": "gourmet",
+      "address": "埼玉県秩父郡長瀞町長瀞454-9"
+    },
+    {
+      "name": "お食事処 さくらい",
+      "category": "gourmet",
+      "address": "秩父郡長瀞町長瀞811-5"
+    }
+  ]
+}

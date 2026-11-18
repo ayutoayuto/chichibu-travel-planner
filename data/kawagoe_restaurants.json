@@ -1,0 +1,1668 @@
+{
+  "meta": {
+    "database_version": "kawagoe_restaurants_master_2026-11-18",
+    "base_date": "2026-11-18",
+    "scope": "埼玉県南西部旅行プランWebサイト・川越地域グルメDB",
+    "count": 30,
+    "policy": "正確性優先。未確認情報を推測で埋めない。公式サイト・小江戸川越観光協会を優先し、変動する営業時間・価格・休業日は固定値を絶対視しない。",
+    "schema_version": "1.0",
+    "implementation_rules": [
+      "秩父restaurants.jsonと同じ基本フィールド構成を維持する",
+      "存在・住所・電話は店舗公式または小江戸川越観光協会で確認した情報を優先する",
+      "営業時間・定休日は変動するため、現行公式値を取得できた店舗のみ具体値を記録する",
+      "公式確認できない項目は公式情報なし・公式情報要確認・nullのいずれかとし、推測値を作らない",
+      "car_free_score、family_friendly等の主観評価は現段階ではnullとし、後工程の共通評価ルールで秩父・川越・飯能を同一基準評価する",
+      "推薦スコアはデータ層ではなくapp.py側で計算する",
+      "食べ歩き専門店だけに偏らず、昼食・夕食として旅行プランに組み込みやすい店舗を中心にする"
+    ],
+    "genre_balance": {
+      "うなぎ・川魚": 7,
+      "そば・うどん・郷土料理": 5,
+      "日本料理・寿司・会席": 5,
+      "洋食・スペイン・鉄板焼き": 4,
+      "カフェ・甘味・ベーカリー": 7,
+      "ラーメン・つけ麺": 1,
+      "海鮮": 1
+    },
+    "source_checked_at": "2026-11-18"
+  },
+  "restaurants": [
+    {
+      "id": "r001",
+      "category": "gourmet",
+      "name": "小川菊",
+      "official_name": "小川菊",
+      "area": "仲町・大正浪漫夢通り周辺",
+      "genre": [
+        "うなぎ",
+        "日本料理"
+      ],
+      "specialties": [
+        "うな重",
+        "蒲焼"
+      ],
+      "address": "〒350-0065 埼玉県川越市仲町3-22",
+      "phone": "049-222-0034",
+      "access": {
+        "train": "本川越駅から徒歩圏",
+        "bus": "公式情報なし",
+        "walk": "仲町・大正浪漫夢通り周辺",
+        "car": "観光協会団体向け資料では乗用車3台"
+      },
+      "hours": "営業時間は店舗公式で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式で利用日前に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "3台（観光協会資料）",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.ogakiku.com/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "観光協会現行スポットページで住所・電話・営業中の店舗実体を確認。営業時間は変動を考慮し固定化しない。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r002",
+      "category": "gourmet",
+      "name": "林屋",
+      "official_name": "林屋 川越店",
+      "area": "仲町・蔵造り周辺",
+      "genre": [
+        "うなぎ",
+        "日本料理"
+      ],
+      "specialties": [
+        "うな重",
+        "蒲焼"
+      ],
+      "address": "〒350-0065 埼玉県川越市仲町2-4",
+      "phone": "049-226-3058",
+      "access": {
+        "train": "本川越駅から徒歩圏",
+        "bus": "公式情報なし",
+        "walk": "蔵造りの町並みから徒歩圏",
+        "car": "公式情報なし"
+      },
+      "hours": "11:00～L.O.16:00（観光協会『Discover Taste of Kawagoe』掲載）",
+      "last_order": "16:00",
+      "closed": "火曜日（観光協会掲載）",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://nasu-hayashiya.co.jp/store/kawagoe/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r003",
+      "category": "gourmet",
+      "name": "いちのや",
+      "official_name": "川越 いちのや",
+      "area": "松江町・喜多院周辺",
+      "genre": [
+        "うなぎ",
+        "和食"
+      ],
+      "specialties": [
+        "うな重",
+        "蒲焼"
+      ],
+      "address": "〒350-0056 埼玉県川越市松江町1-18-10",
+      "phone": "049-222-0354",
+      "access": {
+        "train": "本川越駅から徒歩約10分",
+        "bus": "公式情報なし",
+        "walk": "本川越駅から徒歩約10分",
+        "car": "観光協会団体向け資料では乗用車50台・バス駐車場あり"
+      },
+      "hours": "曜日により昼・夜営業。利用日前に公式サイトで確認",
+      "last_order": "公式情報なし",
+      "closed": "営業カレンダーを公式サイトで確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "乗用車50台（観光協会団体向け資料）",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "予約可。条件は公式サイト確認",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "http://www.unagi-ichinoya.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r004",
+      "category": "gourmet",
+      "name": "東屋",
+      "official_name": "東屋",
+      "area": "西小仙波町・喜多院周辺",
+      "genre": [
+        "うなぎ",
+        "川魚料理",
+        "海鮮"
+      ],
+      "specialties": [
+        "うなぎ蒲焼"
+      ],
+      "address": "〒350-0035 埼玉県川越市西小仙波町1-16-1",
+      "phone": "049-222-0757",
+      "access": {
+        "train": "本川越駅から徒歩圏",
+        "bus": "喜多院周辺の路線バス利用可",
+        "walk": "観光協会会員住所を確認",
+        "car": "駐車情報は利用前に公式確認"
+      },
+      "hours": "営業時間は利用前に店舗へ確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日・不定休は利用前に店舗へ確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "事前連絡推奨",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/category/food/%E3%81%86%E3%81%AA%E3%81%8E%E6%96%99%E7%90%86/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "観光協会2025年会員一覧で住所・電話・業種を確認。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r005",
+      "category": "gourmet",
+      "name": "小川藤",
+      "official_name": "小川藤",
+      "area": "松江町・大正浪漫夢通り周辺",
+      "genre": [
+        "うなぎ"
+      ],
+      "specialties": [
+        "うなぎ蒲焼"
+      ],
+      "address": "〒350-0056 埼玉県川越市松江町2-3-1",
+      "phone": "049-222-0643",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "蓮馨寺・大正浪漫夢通り周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗公式で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式で利用日前に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/spot_026/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r006",
+      "category": "gourmet",
+      "name": "ぽんぽこ亭",
+      "official_name": "ぽんぽこ亭",
+      "area": "藤間・新河岸駅周辺",
+      "genre": [
+        "うなぎ"
+      ],
+      "specialties": [
+        "国産うなぎ",
+        "うな重"
+      ],
+      "address": "〒350-1142 埼玉県川越市藤間151-7",
+      "phone": "049-243-5450",
+      "access": {
+        "train": "東武東上線 新河岸駅から徒歩約10分",
+        "bus": "川越市バス 藤間伊勢原・高階市民センター等から徒歩約4分",
+        "walk": "新河岸駅から約790m",
+        "car": "専用駐車場あり"
+      },
+      "hours": "11:00～14:00／17:00～20:45",
+      "last_order": "昼13:30／夜20:00",
+      "closed": "火曜日",
+      "price": "5,000円～（店舗公式の平均予算表記）",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "約45台",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "7名以上のみ予約可",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://ponpokotei.com/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "観光協会会員一覧の代表電話と店舗公式電話に差があるため、店舗公式の049-243-5450を採用。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r007",
+      "category": "gourmet",
+      "name": "うなっ子",
+      "official_name": "うなぎ専門店 うなっ子",
+      "area": "元町・菓子屋横丁",
+      "genre": [
+        "うなぎ",
+        "日本料理"
+      ],
+      "specialties": [
+        "うなぎ蒲焼"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町2-10-6",
+      "phone": "049-228-0567",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "菓子屋横丁入口",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は公式サイトで利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式サイトで利用日前に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/spot_031/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r008",
+      "category": "gourmet",
+      "name": "寿庵 蔵のまち店",
+      "official_name": "寿庵 蔵のまち店",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "そば",
+        "和食",
+        "抹茶"
+      ],
+      "specialties": [
+        "河越抹茶そば",
+        "割子そば"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町3-18",
+      "phone": "049-226-9725",
+      "access": {
+        "train": "本川越駅から徒歩約10分",
+        "bus": "公式情報なし",
+        "walk": "蔵造り一番街内",
+        "car": "公式情報なし"
+      },
+      "hours": "11:15～（L.O.19:00）",
+      "last_order": "19:00",
+      "closed": "水曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "http://www.kawagoe.com/kotobukian",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "売り切れで早仕舞いの場合あり。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r009",
+      "category": "gourmet",
+      "name": "陶路子",
+      "official_name": "陶路子",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "さつまいも料理",
+        "和食",
+        "甘味"
+      ],
+      "specialties": [
+        "さつまいもミニ懐石",
+        "おしるこ"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町7-1",
+      "phone": "049-226-1065",
+      "access": {
+        "train": "本川越駅から徒歩約15分",
+        "bus": "公式情報なし",
+        "walk": "陶舗やまわの一角",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は公式サイトで利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式サイトで確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "http://www.touho-yamawa.co.jp",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r010",
+      "category": "gourmet",
+      "name": "十限無",
+      "official_name": "十限無",
+      "area": "久保町・喜多院周辺",
+      "genre": [
+        "そば",
+        "和食"
+      ],
+      "specialties": [
+        "十割そば",
+        "天ぷら"
+      ],
+      "address": "〒350-0055 埼玉県川越市久保町6-6",
+      "phone": "049-277-5752",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "喜多院周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "11:00～15:00／18:00～21:00",
+      "last_order": "公式情報なし",
+      "closed": "水曜日・第3木曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/spot_183/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会",
+        "店舗SNS"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r011",
+      "category": "gourmet",
+      "name": "浪漫茶房 右門",
+      "official_name": "浪漫茶房 右門",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "和食",
+        "郷土料理",
+        "甘味"
+      ],
+      "specialties": [
+        "いもおこわ",
+        "芋料理"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町1-6",
+      "phone": "049-225-6001",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "蔵造りの町並み沿い",
+        "car": "公式情報なし"
+      },
+      "hours": "11:00～L.O.16:00",
+      "last_order": "16:00",
+      "closed": "年末年始",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://imokoi.com/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r012",
+      "category": "gourmet",
+      "name": "郷土ぐるめ 開運亭",
+      "official_name": "郷土ぐるめ 開運亭",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "郷土料理",
+        "うどん",
+        "焼きそば"
+      ],
+      "specialties": [
+        "太麺焼きそば",
+        "すったてうどん",
+        "お切り込み"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町2-11 白石商店2F",
+      "phone": "049-223-3335",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "蔵造りエリア徒歩圏",
+        "car": "公式情報なし"
+      },
+      "hours": "11:00～L.O.17:00",
+      "last_order": "17:00",
+      "closed": "月曜日・第3火曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/feel-edo-culture/assets/link_pdf/discover-taste-of-kawagoe.pdf",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r013",
+      "category": "gourmet",
+      "name": "HATSUNEYA GARDEN",
+      "official_name": "HATSUNEYA GARDEN",
+      "area": "元町・札の辻",
+      "genre": [
+        "フレンチ",
+        "洋食",
+        "カフェ"
+      ],
+      "specialties": [
+        "コース料理"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町1-9-8",
+      "phone": "049-222-2300",
+      "access": {
+        "train": "本川越駅から徒歩16分",
+        "bus": "川越駅東口から東武バス『札の辻』下車徒歩1分",
+        "walk": "札の辻から徒歩1分",
+        "car": "周辺コインパーキング利用"
+      },
+      "hours": "Restaurant Lunch 11:30～15:00（L.O.14:00）／Dinner 17:30～21:00（L.O.19:00）",
+      "last_order": "昼14:00／夜19:00",
+      "closed": "火曜日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "周辺コインパーキング",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "ディナーは前日までの完全予約制",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://hatsuneya.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r014",
+      "category": "gourmet",
+      "name": "料亭 山屋",
+      "official_name": "料亭 山屋",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "日本料理",
+        "会席",
+        "料亭"
+      ],
+      "specialties": [
+        "会席料理",
+        "日本料理"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町11-2",
+      "phone": "049-224-0048",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "時の鐘・菓子屋横丁・蔵造りの町並み徒歩圏",
+        "car": "駐車場あり"
+      },
+      "hours": "11:30～14:00／17:00～21:00",
+      "last_order": "昼13:30／夜19:00",
+      "closed": "月曜日＋不定期で週1日",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "電話予約可",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://ryoutei-yamaya.com/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r015",
+      "category": "gourmet",
+      "name": "すぺいん亭",
+      "official_name": "すぺいん亭",
+      "area": "今成",
+      "genre": [
+        "スペイン料理"
+      ],
+      "specialties": [
+        "パエリア",
+        "スペイン料理"
+      ],
+      "address": "〒350-1105 埼玉県川越市今成4-11-4",
+      "phone": "049-241-3535",
+      "access": {
+        "train": "最寄駅からの詳細は公式サイト確認",
+        "bus": "公式情報なし",
+        "walk": "公式情報なし",
+        "car": "車利用可。駐車詳細は公式サイトで確認"
+      },
+      "hours": "営業時間は公式サイトで利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式サイトで利用日前に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.spainteikawagoe.com/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r016",
+      "category": "gourmet",
+      "name": "太陽軒",
+      "official_name": "太陽軒",
+      "area": "元町・市役所周辺",
+      "genre": [
+        "洋食"
+      ],
+      "specialties": [
+        "洋食",
+        "コース料理"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町1-1-23",
+      "phone": "049-222-0259",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "川越市役所周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗公式で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式で利用日前に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会 会員一覧"
+      ],
+      "status": "verified",
+      "notes": "2025年10月6日現在の観光協会正会員一覧で店舗名・住所・電話・洋食店であることを確認。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r017",
+      "category": "gourmet",
+      "name": "吉寅",
+      "official_name": "吉寅",
+      "area": "元町・市役所周辺",
+      "genre": [
+        "すき焼き",
+        "日本料理"
+      ],
+      "specialties": [
+        "すき焼き"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町1-9-3",
+      "phone": "049-222-0102",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "元町・蔵造りエリア徒歩圏",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗公式で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式で利用日前に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会 会員一覧"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r018",
+      "category": "gourmet",
+      "name": "頑者 本店",
+      "official_name": "頑者 本店",
+      "area": "新富町・本川越駅周辺",
+      "genre": [
+        "つけ麺",
+        "ラーメン"
+      ],
+      "specialties": [
+        "つけ麺"
+      ],
+      "address": "〒350-0043 埼玉県川越市新富町1-1-8",
+      "phone": "049-226-1194",
+      "access": {
+        "train": "本川越駅から徒歩圏",
+        "bus": "公式情報なし",
+        "walk": "本川越駅周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "11:30～16:20（観光協会ガイド掲載。最新は公式確認）",
+      "last_order": "公式情報なし",
+      "closed": "日曜日（観光協会ガイド掲載。最新は公式確認）",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.ganja.co.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "営業時間・定休日は古い観光ガイド掲載値のため、利用時は公式最新情報を優先。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r019",
+      "category": "gourmet",
+      "name": "ミオ・カザロ 川越 蔵のまち店",
+      "official_name": "ミオ・カザロ 川越 蔵のまち店",
+      "area": "元町・蔵造り",
+      "genre": [
+        "豚肉料理",
+        "軽食"
+      ],
+      "specialties": [
+        "小江戸黒豚ホットドッグ",
+        "ソーセージ"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町1-15-3",
+      "phone": "049-222-2861",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "蔵造り・市役所周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "10:00～18:00（観光協会ガイド掲載。最新は公式確認）",
+      "last_order": "公式情報なし",
+      "closed": "不定休・最新は公式確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.miocasalo.co.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r020",
+      "category": "gourmet",
+      "name": "glin coffee 元町1号店",
+      "official_name": "glin coffee 元町1号店",
+      "area": "元町・市役所周辺",
+      "genre": [
+        "カフェ",
+        "コーヒー",
+        "スイーツ"
+      ],
+      "specialties": [
+        "コーヒー",
+        "パルゼン"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町1-1-20",
+      "phone": "049-298-7006",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "川越市役所周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は公式サイトで利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式サイトで確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://glincoffee.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r021",
+      "category": "gourmet",
+      "name": "une brise",
+      "official_name": "une brise",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "カフェ",
+        "洋食",
+        "スイーツ"
+      ],
+      "specialties": [
+        "カフェメニュー"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町3-8",
+      "phone": "049-299-7152",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "蔵造りエリア",
+        "car": "公式情報なし"
+      },
+      "hours": "11:00～17:00",
+      "last_order": "16:30",
+      "closed": "月曜日（祝日の場合は次の平日）",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://unebrise.owst.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式予約サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r022",
+      "category": "gourmet",
+      "name": "あぶり珈琲",
+      "official_name": "あぶり珈琲",
+      "area": "大手町・時の鐘周辺",
+      "genre": [
+        "カフェ",
+        "コーヒー"
+      ],
+      "specialties": [
+        "自家焙煎珈琲"
+      ],
+      "address": "〒350-0057 埼玉県川越市大手町15-8",
+      "phone": "049-226-8556",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "時の鐘・蔵造りエリア徒歩圏",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は公式情報で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式情報で確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会 会員一覧"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r023",
+      "category": "gourmet",
+      "name": "1901 TEA SALON",
+      "official_name": "1901 TEA SALON",
+      "area": "連雀町・大正浪漫夢通り",
+      "genre": [
+        "日本茶",
+        "カフェ",
+        "和菓子"
+      ],
+      "specialties": [
+        "日本茶",
+        "和菓子"
+      ],
+      "address": "〒350-0066 埼玉県川越市連雀町13-4",
+      "phone": "049-236-3883",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "大正浪漫夢通り周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗公式・SNSで利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式・SNSで確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会 会員一覧"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r024",
+      "category": "gourmet",
+      "name": "川越ベーカリー楽楽",
+      "official_name": "川越ベーカリー楽楽",
+      "area": "元町・菓子屋横丁",
+      "genre": [
+        "ベーカリー",
+        "軽食"
+      ],
+      "specialties": [
+        "パン"
+      ],
+      "address": "〒350-0062 埼玉県川越市元町2-10-13",
+      "phone": "049-257-7200",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "菓子屋横丁周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗公式で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式で確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.bakery-rakuraku.com/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会 会員一覧"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r025",
+      "category": "gourmet",
+      "name": "うんとん処 春夏秋冬",
+      "official_name": "うんとん処 春夏秋冬",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "うどん",
+        "和食"
+      ],
+      "specialties": [
+        "金笛醤油を使ったうどん"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町10-5",
+      "phone": "049-225-6701",
+      "access": {
+        "train": "本川越駅から徒歩約15分",
+        "bus": "公式情報なし",
+        "walk": "蔵造り一番街",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は金笛川越店公式で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式サイトで確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.kinbue.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r026",
+      "category": "gourmet",
+      "name": "海鮮料理 近長魚店",
+      "official_name": "海鮮料理 近長魚店",
+      "area": "幸町・時の鐘",
+      "genre": [
+        "海鮮料理",
+        "和食"
+      ],
+      "specialties": [
+        "海鮮丼",
+        "焼魚定食"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町6-11",
+      "phone": "049-222-0818",
+      "access": {
+        "train": "本川越駅から徒歩約15分",
+        "bus": "公式情報なし",
+        "walk": "時の鐘正面",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗へ利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "水曜日（観光協会案内）",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r027",
+      "category": "gourmet",
+      "name": "甘味茶房 かすが",
+      "official_name": "甘味茶房 かすが",
+      "area": "幸町・時の鐘",
+      "genre": [
+        "甘味",
+        "和食",
+        "軽食"
+      ],
+      "specialties": [
+        "芋そうめん",
+        "焼き団子",
+        "和甘味"
+      ],
+      "address": "〒350-0063 埼玉県川越市幸町6-1",
+      "phone": "049-226-2392",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "時の鐘・蔵造り周辺",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗へ利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗へ確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": false,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会 会員一覧"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r028",
+      "category": "gourmet",
+      "name": "Te’PAN Le OMUS",
+      "official_name": "Te’PAN Le OMUS",
+      "area": "幸町・蔵造り",
+      "genre": [
+        "鉄板焼き",
+        "クラフトビール"
+      ],
+      "specialties": [
+        "鉄板焼き",
+        "クラフトビール"
+      ],
+      "address": "埼玉県川越市幸町（蔵造り一番街・明文館2階）",
+      "phone": null,
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "蔵造りの町並み通り沿い",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は公式情報で利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は公式情報で確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://koedo.or.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "小江戸川越観光協会"
+      ],
+      "status": "partial",
+      "notes": "観光協会で店舗実体・業態を確認。正確な番地・電話は今回公式確認できないため推測せず未入力。",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r029",
+      "category": "gourmet",
+      "name": "日本料理 美鈴",
+      "official_name": "日本料理 美鈴",
+      "area": "仲町・蔵造り周辺",
+      "genre": [
+        "日本料理",
+        "会席"
+      ],
+      "specialties": [
+        "会席料理"
+      ],
+      "address": "〒350-0065 埼玉県川越市仲町5-2",
+      "phone": "049-222-0368",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "仲町・蔵造りエリア",
+        "car": "観光協会団体向け資料で駐車場あり"
+      },
+      "hours": "完全予約制。時間は予約時に確認",
+      "last_order": "公式情報なし",
+      "closed": "営業日は予約時に確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": true,
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "完全予約制",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://www.misuzu1935.net/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式サイト",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    },
+    {
+      "id": "r030",
+      "category": "gourmet",
+      "name": "和創菜と四季のすし 風凛",
+      "official_name": "和創菜と四季のすし 風凛",
+      "area": "仲町・蔵造り周辺",
+      "genre": [
+        "寿司",
+        "和食",
+        "会席"
+      ],
+      "specialties": [
+        "寿司",
+        "会席料理"
+      ],
+      "address": "〒350-0065 埼玉県川越市仲町6-4",
+      "phone": "049-222-0231",
+      "access": {
+        "train": "公式情報なし",
+        "bus": "公式情報なし",
+        "walk": "仲町・蔵造りエリア",
+        "car": "公式情報なし"
+      },
+      "hours": "営業時間は店舗公式・予約ページで利用日前に確認",
+      "last_order": "公式情報なし",
+      "closed": "定休日は店舗公式・予約ページで確認",
+      "price": "公式情報なし",
+      "price_notes": "",
+      "parking": {
+        "available": "公式情報なし",
+        "capacity": "公式情報なし",
+        "fee": "公式情報なし",
+        "notes": ""
+      },
+      "car_free_score": null,
+      "walking_difficulty": null,
+      "family_friendly": null,
+      "date_type_friendly": null,
+      "group_friendly": null,
+      "lunch": true,
+      "dinner": true,
+      "reservation_required": "公式情報なし",
+      "season": "通年",
+      "best_season": "通年",
+      "seasonal_operation": "営業時間・休業日は利用前に公式情報を再確認",
+      "official_url": "https://wasousaitoshikinosushifurin.gorp.jp/",
+      "source_checked_at": "2026-11-18",
+      "source_type": [
+        "店舗公式予約ページ",
+        "小江戸川越観光協会"
+      ],
+      "status": "verified",
+      "notes": "",
+      "aliases": [],
+      "description": ""
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+{
+  "meta": {
+    "schema_version": 2,
+    "region": "川越",
+    "generated_at": "2026-11-18",
+    "review_required": true
+  },
+  "review": {
+    "蔵造りの町並み": {
+      "category": "観光スポット",
+      "address": "",
+      "status": "manual_review_required",
+      "reason": "信頼度不足",
+      "best_score": 215,
+      "best_reasons": [
+        "川越市一致",
+        "addressdetails川越一致"
+      ],
+      "best_candidate": {
+        "display_name": "川越一番街商店街 - 蔵造りの街, 一番街, 元町一丁目, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+        "lat": 35.9235447,
+        "lon": 139.4829264
+      },
+      "top_candidates": [
+        {
+          "score": 215,
+          "query_kind": "override",
+          "display_name": "川越一番街商店街 - 蔵造りの街, 一番街, 元町一丁目, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+          "lat": "35.9235447",
+          "lon": "139.4829264",
+          "reasons": [
+            "川越市一致",
+            "addressdetails川越一致"
+          ]
+        }
+      ]
+    },
+    "川越熊野神社": {
+      "category": "観光スポット",
+      "address": "350-0066 埼玉県川越市連雀町17-1",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "国指定史跡 河越館跡": {
+      "category": "観光スポット",
+      "address": "川越市上戸192-1ほか",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "松村屋旅館": {
+      "category": "宿泊施設",
+      "address": "350-0062 埼玉県川越市元町1-1-11",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "川越ビジネスホテル": {
+      "category": "宿泊施設",
+      "address": "350-0033 埼玉県川越市富士見町12-2",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "川越東武ホテル": {
+      "category": "宿泊施設",
+      "address": "350-1123 埼玉県川越市脇田本町8-1",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "川越湯遊ランド・ホテル三光": {
+      "category": "宿泊施設",
+      "address": "350-0043 埼玉県川越市新富町1-9-1",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "UTILITY HOTEL cooju": {
+      "category": "宿泊施設",
+      "address": "350-1122 埼玉県川越市脇田町17-4",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "旅籠 小江戸や": {
+      "category": "宿泊施設",
+      "address": "350-0066 埼玉県川越市連雀町8-1",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "泊まれるリラクゼーションサロン ゆきき": {
+      "category": "宿泊施設",
+      "address": "350-0062 埼玉県川越市元町1-8-8",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "ちゃぶだい Guesthouse, Cafe&Bar": {
+      "category": "宿泊施設",
+      "address": "350-0054 埼玉県川越市三久保町1-14",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "小江戸川越おもてなしの家": {
+      "category": "宿泊施設",
+      "address": "350-0054 埼玉県川越市三久保町9-4",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "月の宿 KAGUYA": {
+      "category": "宿泊施設",
+      "address": "350-0003 埼玉県川越市八ツ島49",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "WE HOME STAY 川越・的場": {
+      "category": "宿泊施設",
+      "address": "350-1101 埼玉県川越市的場1891-1",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "結家 -MUSUBIYA-": {
+      "category": "宿泊施設",
+      "address": "350-0824 埼玉県川越市石原町1-6-7",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "ゲストハウスくく 川越店": {
+      "category": "宿泊施設",
+      "address": "350-0057 埼玉県川越市大手町1-8",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "林屋": {
+      "category": "gourmet",
+      "address": "350-0065 埼玉県川越市仲町2-4",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "ぽんぽこ亭": {
+      "category": "gourmet",
+      "address": "350-1142 埼玉県川越市藤間151-7",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "寿庵 蔵のまち店": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町3-18",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "十限無": {
+      "category": "gourmet",
+      "address": "350-0055 埼玉県川越市久保町6-6",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "料亭 山屋": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町11-2",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "頑者 本店": {
+      "category": "gourmet",
+      "address": "350-0043 埼玉県川越市新富町1-1-8",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "ミオ・カザロ 川越 蔵のまち店": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町1-15-3",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "glin coffee 元町1号店": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町1-1-20",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "une brise": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町3-8",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "1901 TEA SALON": {
+      "category": "gourmet",
+      "address": "350-0066 埼玉県川越市連雀町13-4",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "うんとん処 春夏秋冬": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町10-5",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "海鮮料理 近長魚店": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町6-11",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "甘味茶房 かすが": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町6-1",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "Te’PAN Le OMUS": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町（蔵造り一番街・明文館2階）",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "日本料理 美鈴": {
+      "category": "gourmet",
+      "address": "350-0065 埼玉県川越市仲町5-2",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    },
+    "和創菜と四季のすし 風凛": {
+      "category": "gourmet",
+      "address": "350-0065 埼玉県川越市仲町6-4",
+      "status": "manual_review_required",
+      "reason": "川越範囲内の候補なし"
+    }
+  }
+}

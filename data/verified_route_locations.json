@@ -1,0 +1,271 @@
+{
+  "schema_version": 3,
+  "verified_on": "2026-11-17",
+  "policy": "自動ジオコード結果を実行時に利用しない。店名・住所を一次/準一次情報で照合し、地図サービスの施設ピンまたは公式埋め込み地図で位置を確認した固定座標。",
+  "locations": {
+    "小松沢レジャー農園": {
+      "latitude": 35.981819,
+      "longitude": 139.114583,
+      "address": "埼玉県秩父郡横瀬町横瀬1408",
+      "verification_method": "address_match + map_place_pin",
+      "verification_level": "A"
+    },
+    "長瀞ラインくだり": {
+      "latitude": 36.0949783,
+      "longitude": 139.1127901,
+      "address": "埼玉県秩父郡長瀞町長瀞489-2",
+      "verification_method": "official_address + direct_map_coordinate",
+      "verification_level": "A"
+    },
+    "豚みそ丼本舗 野さか": {
+      "latitude": 35.98722904,
+      "longitude": 139.08338987,
+      "address": "埼玉県秩父市野坂町1-13-11",
+      "verification_method": "official_address + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "名物 秩父そば 立花": {
+      "latitude": 35.9883154,
+      "longitude": 139.0820478,
+      "address": "埼玉県秩父市野坂町1-11-3",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "田舎屋": {
+      "latitude": 35.9911589,
+      "longitude": 139.0838634,
+      "address": "埼玉県秩父市野坂町1-16-4",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "TRAGHETTO（トラゲット）": {
+      "latitude": 35.9982006,
+      "longitude": 139.0831135,
+      "address": "埼玉県秩父市宮側町18-7",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "和味処 えん": {
+      "latitude": 35.990289,
+      "longitude": 139.084709,
+      "address": "埼玉県秩父市熊木町10-13",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "そば処 まるた": {
+      "latitude": 35.9905098,
+      "longitude": 139.086942,
+      "address": "埼玉県秩父市熊木町13-10",
+      "verification_method": "current listing address + tourism map coordinate",
+      "verification_level": "A",
+      "note": "観光協会の別表記も存在するため、現行施設データの13-10を維持。"
+    },
+    "やなぎや": {
+      "latitude": 36.00536827,
+      "longitude": 139.08661063,
+      "address": "埼玉県秩父市相生町7-10",
+      "verification_method": "official address + Yahoo map place pin",
+      "verification_level": "A",
+      "note": "旧自動ジオコード値は別地点だったため破棄。"
+    },
+    "武蔵屋本店": {
+      "latitude": 36.00156,
+      "longitude": 139.086458,
+      "address": "埼玉県秩父市上宮地町9-19",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "本格手打 わへいそば": {
+      "latitude": 35.999398,
+      "longitude": 139.0785452,
+      "address": "埼玉県秩父市中村町1-4-13",
+      "verification_method": "official address + direct map coordinate",
+      "verification_level": "A"
+    },
+    "そば処 大むら": {
+      "latitude": 35.99770472,
+      "longitude": 139.08287273,
+      "address": "埼玉県秩父市宮側町17-3",
+      "verification_method": "address match + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "手打そば 武蔵屋": {
+      "latitude": 35.996646,
+      "longitude": 139.084886,
+      "address": "埼玉県秩父市番場町4-11",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "大むら本店": {
+      "latitude": 35.99426541,
+      "longitude": 139.08278198,
+      "address": "埼玉県秩父市東町12-17",
+      "verification_method": "address match + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "そばの杜": {
+      "latitude": 35.997004338298,
+      "longitude": 139.08252098805,
+      "address": "埼玉県秩父市本町3-1 秩父ふるさと館2F",
+      "verification_method": "official building address + Yahoo map shop pin",
+      "verification_level": "A"
+    },
+    "秩父そば 昌楽 道の駅店": {
+      "latitude": 35.99744004,
+      "longitude": 139.08939581,
+      "address": "埼玉県秩父市大宮4625 道の駅ちちぶ",
+      "verification_method": "official building address + Yahoo map shop pin",
+      "verification_level": "A"
+    },
+    "高砂ホルモン": {
+      "latitude": 35.9918496,
+      "longitude": 139.0821893,
+      "address": "埼玉県秩父市東町30-3",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "かつ屋まんてん": {
+      "latitude": 35.9779619,
+      "longitude": 139.067816,
+      "address": "埼玉県秩父市上影森715-5",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "空＆閑": {
+      "latitude": 35.99442261,
+      "longitude": 139.08361688,
+      "address": "埼玉県秩父市番場町15-5",
+      "verification_method": "official address + Yahoo map place pin",
+      "verification_level": "A",
+      "note": "旧自動ジオコード値は別地点だったため破棄。"
+    },
+    "焼き肉＆ホルモン あっとほ～む": {
+      "latitude": 36.0001239,
+      "longitude": 139.085736,
+      "address": "埼玉県秩父市宮側町8-6",
+      "verification_method": "tourism association address + map coordinate",
+      "verification_level": "A"
+    },
+    "長瀞屋": {
+      "latitude": 36.09492375,
+      "longitude": 139.11137466,
+      "address": "埼玉県秩父郡長瀞町長瀞531",
+      "verification_method": "current Yahoo listing address + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "そば処 うちだ": {
+      "latitude": 36.0860756,
+      "longitude": 139.1144598,
+      "address": "埼玉県秩父郡長瀞町長瀞1503",
+      "verification_method": "current Yahoo listing address + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "お豆ふ処 うめだ屋": {
+      "latitude": 36.100783,
+      "longitude": 139.1093,
+      "address": "埼玉県秩父郡長瀞町長瀞268",
+      "verification_method": "address match + direct map coordinate",
+      "verification_level": "A"
+    },
+    "豚みそ丼専門店 有隣": {
+      "latitude": 36.094736708245,
+      "longitude": 139.11111416902,
+      "address": "埼玉県秩父郡長瀞町長瀞532-5",
+      "verification_method": "official listing + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "天狗鮨": {
+      "latitude": 36.090036,
+      "longitude": 139.110331,
+      "address": "埼玉県秩父郡長瀞町長瀞1310",
+      "verification_method": "address match + direct map coordinate",
+      "verification_level": "A"
+    },
+    "阿左美冷蔵 寶登山道店": {
+      "latitude": 36.093867,
+      "longitude": 139.108897,
+      "address": "埼玉県秩父郡長瀞町長瀞781-4",
+      "verification_method": "official address + direct map coordinate",
+      "verification_level": "A"
+    },
+    "ジビエ料理の千葉亭 Gibier Dining Chibatei": {
+      "latitude": 36.101722,
+      "longitude": 139.118161,
+      "address": "埼玉県秩父郡長瀞町井戸675-3",
+      "verification_method": "address match + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "楓庵": {
+      "latitude": 36.13081718326867,
+      "longitude": 139.1214277321922,
+      "address": "埼玉県秩父郡長瀞町野上下郷947-1",
+      "verification_method": "official site address + official site Google map/Street View coordinate",
+      "verification_level": "A"
+    },
+    "見晴": {
+      "latitude": 36.09477575,
+      "longitude": 139.11501899,
+      "address": "埼玉県秩父郡長瀞町長瀞452",
+      "verification_method": "current Yahoo listing address + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "芋うらら 長瀞店": {
+      "latitude": 36.09494986,
+      "longitude": 139.11146493,
+      "address": "埼玉県秩父郡長瀞町長瀞530-1",
+      "verification_method": "official tourism address + Yahoo map place pin",
+      "verification_level": "A"
+    },
+    "いちごと抹茶 長瀞みるくスタンド": {
+      "latitude": 36.09463532558499,
+      "longitude": 139.11364204723344,
+      "address": "埼玉県秩父郡長瀞町長瀞454-9",
+      "verification_method": "Nagatoro Tourism Association address + embedded Google map for exact address",
+      "verification_level": "A"
+    },
+    "お食事処 さくらい": {
+      "latitude": 36.09428,
+      "longitude": 139.110829,
+      "address": "埼玉県秩父郡長瀞町長瀞800-7",
+      "verification_method": "current official address + direct map coordinate",
+      "verification_level": "A",
+      "note": "旧データの811-5ではなく、現在の公式掲載800-7を採用。"
+    },
+    "西武秩父駅": {
+      "latitude": 35.9896882,
+      "longitude": 139.0833801,
+      "address": "埼玉県秩父市野坂町1丁目16-15",
+      "verification_method": "railway/Yahoo listing + Yahoo map station pin",
+      "verification_level": "A"
+    },
+    "秩父駅": {
+      "latitude": 35.9985927,
+      "longitude": 139.0857462,
+      "address": "埼玉県秩父市宮側町1-7",
+      "verification_method": "railway/Yahoo listing + Yahoo map station pin",
+      "verification_level": "A"
+    },
+    "長瀞駅": {
+      "latitude": 36.0951721,
+      "longitude": 139.1123148,
+      "address": "埼玉県秩父郡長瀞町長瀞529",
+      "verification_method": "railway/Yahoo listing + Yahoo map station pin",
+      "verification_level": "A"
+    },
+    "花園IC": {
+      "latitude": 36.126268,
+      "longitude": 139.245269,
+      "address": "埼玉県深谷市荒川・黒田周辺",
+      "verification_method": "NAVITIME interchange representative coordinate",
+      "verification_level": "A",
+      "note": "IC全体の代表座標。上り/下り個別入口ではなく施設中心点を採用。"
+    },
+    "芦ヶ久保駅": {
+      "latitude": 35.9769038,
+      "longitude": 139.1369203,
+      "address": "埼玉県秩父郡横瀬町芦ケ久保1925",
+      "verification_method": "railway/Yahoo listing + Yahoo map station pin",
+      "verification_level": "A"
+    }
+  }
+}

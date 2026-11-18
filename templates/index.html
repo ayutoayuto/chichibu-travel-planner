@@ -1,221 +1,166 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
-    <title>秩父旅行プランナー</title>
-
+    <title>{{ region_name }}旅行プランナー</title>
     <link
         rel="stylesheet"
         href="{{ url_for('static', filename='style.css') }}"
     >
-
     <style>
-
         /* ==============================
            RESET
         ============================== */
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-
             font-family:
                 "Yu Gothic",
                 "Hiragino Kaku Gothic ProN",
                 Meiryo,
                 sans-serif;
-
             background: #f4f1e9;
-
             color: #20352d;
         }
-
 
         /* ==============================
            HERO
         ============================== */
-
-    
-
         .hero {
+            min-height: 600px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            color: white;
+            background:
+                linear-gradient(
+                    135deg,
+                    #0d3028 0%,
+                    #173c31 36%,
+                    #315648 62%,
+                    #8b7551 100%
+                );
+            background-size: cover;
+            background-position: center;
+        }
 
-    min-height: 600px;
-
-    position: relative;
-
-    display: flex;
-
-    align-items: center;
-
-    overflow: hidden;
-
-    color: white;
-
-    background:
-
-        linear-gradient(
-            90deg,
-            rgba(8, 35, 28, 0.92),
-            rgba(8, 35, 28, 0.68),
-            rgba(8, 35, 28, 0.28)
-        ),
-
-        url(
-            "{{ url_for('static', filename='images/home_bg_5.png.png') }}"
-        );
-
-    background-size: cover;
-
-    background-position: center;
-}
-
-
-
+        body.region-kawagoe .hero {
+            background:
+                linear-gradient(
+                    135deg,
+                    #5b4939 0%,
+                    #8f7253 45%,
+                    #c8b28d 72%,
+                    #6f725f 100%
+                );
+        }
 
         /* ==============================
            TOP NAVIGATION
         ============================== */
-
         .hero-top-nav {
-
             position: absolute;
-
             top: 26px;
-
             right: 30px;
-
             z-index: 20;
-
             display: flex;
-
             flex-direction: row;
-
             align-items: center;
-
             justify-content: flex-end;
-
             gap: 10px;
-
             flex-wrap: wrap;
         }
 
-
         .hero-nav-link {
-
             display: inline-flex;
-
             align-items: center;
-
             justify-content: center;
-
             gap: 7px;
-
             min-height: 46px;
-
             padding:
                 0
                 18px;
-
             border:
                 1px solid
                 rgba(255,255,255,.35);
-
             border-radius:
                 999px;
-
             background:
                 rgba(20,55,46,.42);
-
             color: #fff;
-
             text-decoration: none;
-
             font-size: 11px;
-
             font-weight: 700;
-
             letter-spacing: .2px;
-
             backdrop-filter:
                 blur(8px);
-
             -webkit-backdrop-filter:
                 blur(8px);
-
             transition:
                 background .2s ease,
                 border-color .2s ease,
                 transform .2s ease;
         }
 
-
         .hero-nav-link:hover {
-
             background: #9a8252;
-
             border-color: #9a8252;
-
             transform:
                 translateY(-1px);
         }
 
-
         .hero-nav-count {
-
             min-width: 20px;
-
             height: 20px;
-
             padding:
                 0
                 6px;
-
             display: inline-flex;
-
             align-items: center;
-
             justify-content: center;
-
             border-radius:
                 999px;
-
             background:
                 #dcc98e;
-
             color:
                 #18392f;
-
             font-size: 9px;
-
             line-height: 1;
         }
 
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 520px;
+            height: 520px;
+            right: -100px;
+            top: -180px;
+            border-radius: 50%;
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(255,238,190,.22) 0%,
+                    rgba(255,238,190,.08) 34%,
+                    rgba(255,255,255,0) 70%
+                );
+            pointer-events: none;
+        }
 
         .hero::after {
-
             content: "";
-
             position: absolute;
-
             left: 0;
-
             right: 0;
-
             bottom: 0;
-
             height: 120px;
-
             background:
                 linear-gradient(
                     transparent,
@@ -223,260 +168,184 @@
                 );
         }
 
-
         .hero-content {
-
             width:
                 min(
                     1100px,
                     90%
                 );
-
             margin:
                 0
                 auto;
-
             padding:
                 80px
                 0;
-
             position: relative;
-
             z-index: 2;
         }
 
-
         .hero-small {
-
             display: flex;
-
             align-items: center;
-
             gap: 14px;
-
             margin-bottom: 25px;
-
             color:
                 #d9c58b;
-
             font-size: 11px;
-
             font-weight: bold;
-
             letter-spacing:
                 5px;
         }
 
-
         .hero-small::before {
-
             content: "";
-
             width: 45px;
-
             height: 1px;
-
             background:
                 #d9c58b;
         }
 
-
         .hero h1 {
-
             margin:
                 0
                 0
                 25px;
-
             font-family:
                 Georgia,
                 serif;
-
             font-size:
                 clamp(
                     55px,
                     8vw,
                     100px
                 );
-
             font-weight:
                 normal;
-
             line-height:
                 1.05;
-
             letter-spacing:
                 -4px;
         }
 
-
         .hero h1 span {
-
             color:
                 #dcc98e;
         }
 
-
         .hero p {
-
             margin: 0;
-
             font-size:
                 15px;
-
             line-height:
                 2;
-
             color:
                 rgba(255,255,255,.82);
         }
 
-
         .hero-scroll {
-
             position:
                 absolute;
-
             bottom:
                 40px;
-
             right:
                 6%;
-
             z-index:
                 5;
-
             writing-mode:
                 vertical-rl;
-
             font-size:
                 9px;
-
             letter-spacing:
                 4px;
-
             color:
                 rgba(255,255,255,.65);
         }
 
-
         /* ==============================
            MAIN
         ============================== */
-
         main {
-
             width:
                 min(
                     1100px,
                     90%
                 );
-
             margin:
                 -20px
                 auto
                 100px;
-
             position:
                 relative;
-
             z-index:
                 10;
         }
 
-
         /* ==============================
            INTRO CARD
         ============================== */
-
         .intro {
-
             padding:
                 45px
                 50px;
-
             background:
                 rgba(255,255,255,.92);
-
             border:
                 1px solid
                 rgba(255,255,255,.8);
-
             box-shadow:
                 0
                 25px
                 60px
                 rgba(30,50,40,.12);
-
             margin-bottom:
                 35px;
         }
 
-
         .intro-label {
-
             margin:
                 0
                 0
                 8px;
-
             color:
                 #9a8252;
-
             font-size:
                 10px;
-
             font-weight:
                 bold;
-
             letter-spacing:
                 4px;
         }
 
-
         .intro h2 {
-
             margin:
                 0
                 0
                 12px;
-
             font-family:
                 Georgia,
                 serif;
-
             font-size:
                 32px;
-
             font-weight:
                 normal;
         }
 
-
         .intro p {
-
             margin: 0;
-
             color:
                 #68736d;
-
             line-height:
                 2;
-
             font-size:
                 14px;
         }
 
-
         /* ==============================
            FORM
         ============================== */
-
         form {
-
             background:
                 #fff;
-
             box-shadow:
                 0
                 25px
@@ -484,340 +353,241 @@
                 rgba(25,45,35,.10);
         }
 
-
         .form-header {
-
             padding:
                 55px
                 55px
                 45px;
-
             background:
                 #18392f;
-
             color:
                 white;
-
             position:
                 relative;
-
             overflow:
                 hidden;
         }
 
-
         .form-header::after {
-
             content:
-                "CHICHIBU";
-
+                "{{ region_name_en }}";
             position:
                 absolute;
-
             right:
                 -20px;
-
             bottom:
                 -35px;
-
             font-family:
                 Georgia,
                 serif;
-
             font-size:
                 130px;
-
             color:
                 rgba(255,255,255,.035);
         }
 
-
         .form-header small {
-
             color:
                 #d7c58e;
-
             font-size:
                 9px;
-
             letter-spacing:
                 4px;
         }
 
-
         .form-header h2 {
-
             margin:
                 10px
                 0
                 0;
-
             font-size:
                 34px;
-
             font-weight:
                 700;
         }
 
-
         .form-header p {
-
             margin:
                 10px
                 0
                 0;
-
             color:
                 rgba(255,255,255,.65);
-
             font-size:
                 13px;
         }
 
-
         .form-body {
-
             padding:
                 50px
                 55px;
         }
 
-
         /* ==============================
            SECTION
         ============================== */
-
         .section-title {
-
             display:
                 flex;
-
             align-items:
                 center;
-
             gap:
                 18px;
-
             margin-bottom:
                 30px;
-
             padding-bottom:
                 18px;
-
             border-bottom:
                 1px solid
                 #e3ded3;
         }
 
-
         .section-number {
-
             width:
                 38px;
-
             height:
                 38px;
-
             display:
                 flex;
-
             align-items:
                 center;
-
             justify-content:
                 center;
-
             background:
                 #e8ddbd;
-
             color:
                 #705b35;
-
             border-radius:
                 50%;
-
             font-family:
                 Georgia,
                 serif;
-
             font-size:
                 15px;
         }
 
-
         .section-title div {
-
             flex:
                 1;
         }
 
-
         .section-title small {
-
             display:
                 block;
-
             color:
                 #a18859;
-
             font-size:
                 8px;
-
             letter-spacing:
                 3px;
         }
 
-
         .section-title h3 {
-
             margin:
                 3px
                 0
                 0;
-
             font-size:
                 21px;
         }
 
-
         /* ==============================
            GRID
         ============================== */
-
         .fields {
-
             display:
                 grid;
-
             grid-template-columns:
                 repeat(
                     2,
                     1fr
                 );
-
             gap:
                 18px;
-
             margin-bottom:
                 60px;
         }
 
-
         .field {
-
             padding:
                 22px;
-
             border:
                 1px solid
                 #dedbd2;
-
             background:
                 #faf9f5;
-
             transition:
                 .25s;
         }
 
-
         .field:hover {
-
             background:
                 white;
-
             border-color:
                 #a18a5d;
-
             box-shadow:
                 0
                 12px
                 30px
                 rgba(25,45,35,.08);
-
             transform:
                 translateY(-2px);
         }
 
-
         .field label {
-
             display:
                 block;
-
             margin-bottom:
                 10px;
-
             font-weight:
                 bold;
-
             font-size:
                 14px;
         }
 
-
         .field label span {
-
             display:
                 block;
-
             margin-bottom:
                 4px;
-
             color:
                 #a18859;
-
             font-size:
                 8px;
-
             letter-spacing:
                 3px;
         }
 
-
         select {
-
             width:
                 100%;
-
             height:
                 48px;
-
             padding:
                 0
                 15px;
-
             border:
                 1px solid
                 #d7d3ca;
-
             border-radius:
                 0;
-
             background:
                 white;
-
             color:
                 #263d34;
-
             font-size:
                 14px;
-
             font-family:
                 inherit;
-
             cursor:
                 pointer;
-
             outline:
                 none;
         }
-
 
         select:focus {
-
             border-color:
                 #8d754b;
-
             box-shadow:
                 0
                 0
@@ -826,51 +596,36 @@
                 rgba(141,117,75,.1);
         }
 
-
         input[type="date"] {
-
             width:
                 100%;
-
             height:
                 48px;
-
             padding:
                 0
                 15px;
-
             border:
                 1px solid
                 #d7d3ca;
-
             border-radius:
                 0;
-
             background:
                 white;
-
             color:
                 #263d34;
-
             font-size:
                 14px;
-
             font-family:
                 inherit;
-
             cursor:
                 pointer;
-
             outline:
                 none;
         }
 
-
         input[type="date"]:focus {
-
             border-color:
                 #8d754b;
-
             box-shadow:
                 0
                 0
@@ -878,44 +633,33 @@
                 3px
                 rgba(141,117,75,.1);
         }
-
 
         /* ==============================
            INPUT CONSISTENCY
         ============================== */
-
         .selection-note {
-
             margin:
                 10px
                 0
                 0;
-
             color:
                 #7a817d;
-
             font-size:
                 11px;
-
             line-height:
                 1.7;
         }
 
-
         select option:disabled {
-
             color:
                 #a7aaa8;
-
             background:
                 #f0eee8;
         }
 
-
-        /* ここから 2/4 に続く */        /* ==============================
+        /* ==============================
            WEATHER FORECAST
         ============================== */
-
         .weather-forecast-panel {
             margin: -25px 0 60px;
             padding: 28px;
@@ -1076,11 +820,9 @@
             line-height: 1.8;
         }
 
-
         /* ==============================
            PURPOSE
         ============================== */
-
         .purpose-description {
             margin: -15px 0 25px;
             color: #7a817d;
@@ -1151,7 +893,6 @@
             color: white;
             border-color: #18392f;
             transform: translateY(-5px);
-
             box-shadow:
                 0 15px 35px
                 rgba(24,57,47,.22);
@@ -1177,11 +918,9 @@
             font-size: 17px;
         }
 
-
         /* ==============================
            SUBMIT
         ============================== */
-
         .submit-area {
             margin-top: 55px;
             padding-top: 45px;
@@ -1231,17 +970,14 @@
         button:hover {
             background: #9a8252;
             transform: translateY(-4px);
-
             box-shadow:
                 0 15px 30px
                 rgba(25,45,35,.18);
         }
 
-
         /* ==============================
            FOOTER
         ============================== */
-
         footer {
             padding: 65px 20px;
             background: #0c211a;
@@ -1267,13 +1003,10 @@
             font-size: 9px;
         }
 
-
         /* ==============================
            RESPONSIVE
         ============================== */
-
         @media (max-width: 950px) {
-
             .weather-forecast-list {
                 grid-template-columns:
                     repeat(
@@ -1283,9 +1016,7 @@
             }
         }
 
-
         @media (max-width: 750px) {
-
             .hero-top-nav {
                 position: relative;
                 top: auto;
@@ -1344,9 +1075,7 @@
             }
         }
 
-
         @media (max-width: 650px) {
-
             .weather-forecast-panel {
                 padding: 22px;
             }
@@ -1374,9 +1103,7 @@
             }
         }
 
-
         @media (max-width: 450px) {
-
             .hero h1 {
                 font-size: 45px;
             }
@@ -1390,17 +1117,363 @@
             }
         }
 
-    </style>
+        /* ==============================
+           MUST VISIT SPOTS
+        ============================== */
+        .must-visit-panel {
+            margin:
+                0
+                0
+                60px;
+            padding:
+                24px;
+            border:
+                1px solid
+                #dedbd2;
+            background:
+                #faf9f5;
+        }
 
+        .must-visit-panel > p {
+            margin:
+                0
+                0
+                18px;
+            color:
+                #7a817d;
+            font-size:
+                12px;
+            line-height:
+                1.8;
+        }
+
+        .must-visit-grid {
+            display:
+                grid;
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+            gap:
+                8px
+                14px;
+        }
+
+        .must-visit-grid label {
+            display:
+                flex;
+            align-items:
+                center;
+            gap:
+                9px;
+            min-height:
+                42px;
+            padding:
+                8px
+                10px;
+            border:
+                1px solid
+                #e0ddd5;
+            background:
+                #fff;
+            color:
+                #35483f;
+            font-size:
+                12px;
+            line-height:
+                1.5;
+            cursor:
+                pointer;
+        }
+
+        .must-visit-grid label:hover {
+            border-color:
+                #a18a5d;
+        }
+
+        .must-visit-grid input {
+            width:
+                16px;
+            height:
+                16px;
+            margin:
+                0;
+            accent-color:
+                #18392f;
+        }
+
+        .must-visit-limit {
+            margin:
+                14px
+                0
+                0;
+            color:
+                #8a7650;
+            font-size:
+                11px;
+        }
+
+        @media (max-width: 750px) {
+            .must-visit-grid {
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
+            }
+        }
+
+        @media (max-width: 450px) {
+            .must-visit-grid {
+                grid-template-columns:
+                    1fr;
+            }
+        }
+
+        .must-visit-grid input[type="checkbox"] {
+            position:
+                static !important;
+            opacity:
+                1 !important;
+            appearance:
+                auto !important;
+            -webkit-appearance:
+                checkbox !important;
+            width:
+                16px !important;
+            height:
+                16px !important;
+            flex:
+                0 0 auto;
+            pointer-events:
+                auto !important;
+        }
+
+        .must-visit-grid span {
+            display:
+                inline !important;
+            font-size:
+                12px;
+        }
+
+        .must-visit-grid small {
+            display:
+                inline !important;
+            color:
+                #8b8b84;
+            font-size:
+                10px;
+            letter-spacing:
+                0;
+        }
+
+        /* ==============================
+           FULL SCREEN LOADING
+        ============================== */
+        .plan-loading-overlay {
+            position:
+                fixed;
+            inset:
+                0;
+            z-index:
+                99999;
+            display:
+                flex;
+            align-items:
+                center;
+            justify-content:
+                center;
+            padding:
+                24px;
+            background:
+                rgba(
+                    250,
+                    249,
+                    245,
+                    0.96
+                );
+            backdrop-filter:
+                blur(
+                    2px
+                );
+            -webkit-backdrop-filter:
+                blur(
+                    2px
+                );
+        }
+
+        .plan-loading-overlay[hidden] {
+            display:
+                none !important;
+        }
+
+        .plan-loading-box {
+            width:
+                min(
+                    92vw,
+                    460px
+                );
+            padding:
+                42px
+                34px;
+            text-align:
+                center;
+            border:
+                1px solid
+                #dedbd2;
+            background:
+                #ffffff;
+            box-shadow:
+                0
+                18px
+                50px
+                rgba(
+                    23,
+                    60,
+                    49,
+                    0.10
+                );
+        }
+
+        .plan-loading-spinner {
+            width:
+                54px;
+            height:
+                54px;
+            margin:
+                0
+                auto
+                24px;
+            border:
+                4px solid
+                #e7e3da;
+            border-top-color:
+                #173c31;
+            border-radius:
+                50%;
+            animation:
+                planLoadingSpin
+                0.85s
+                linear
+                infinite;
+        }
+
+        @keyframes planLoadingSpin {
+            from {
+                transform:
+                    rotate(
+                        0deg
+                    );
+            }
+
+            to {
+                transform:
+                    rotate(
+                        360deg
+                    );
+            }
+        }
+
+        .plan-loading-eyebrow {
+            margin:
+                0
+                0
+                9px;
+            color:
+                #9a7440;
+            font-size:
+                11px;
+            letter-spacing:
+                0.22em;
+        }
+
+        .plan-loading-title {
+            margin:
+                0
+                0
+                12px;
+            color:
+                #173c31;
+            font-size:
+                24px;
+            font-weight:
+                600;
+            line-height:
+                1.5;
+        }
+
+        .plan-loading-text {
+            margin:
+                0;
+            color:
+                #747b77;
+            font-size:
+                13px;
+            line-height:
+                1.9;
+        }
+
+        .plan-loading-dots::after {
+            content:
+                "";
+            animation:
+                planLoadingDots
+                1.4s
+                steps(
+                    4,
+                    end
+                )
+                infinite;
+        }
+
+        @keyframes planLoadingDots {
+            0% {
+                content:
+                    "";
+            }
+
+            25% {
+                content:
+                    ".";
+            }
+
+            50% {
+                content:
+                    "..";
+            }
+
+            75%,
+            100% {
+                content:
+                    "...";
+            }
+        }
+
+        @media (
+            prefers-reduced-motion:
+            reduce
+        ) {
+            .plan-loading-spinner {
+                animation-duration:
+                    1.6s;
+            }
+
+            .plan-loading-dots::after {
+                animation:
+                    none;
+                content:
+                    "...";
+            }
+        }
+    </style>
 </head>
 
-
-<body>
+<body class="region-{{ region_code }}">
 
     <!-- =========================================
          HERO
     ========================================= -->
-
     <header class="hero">
 
         <div class="hero-top-nav">
@@ -1449,28 +1522,25 @@
 
         </div>
 
-
         <div class="hero-content">
 
             <div class="hero-small">
-                CHICHIBU TRAVEL PLANNER
+                {{ region_name_en }} TRAVEL PLANNER
             </div>
 
             <h1>
-                秩父を、<br>
-
+                {{ region_name }}を、<br>
                 <span>
                     もっと自分らしく。
                 </span>
             </h1>
 
             <p>
-                あなたの年齢、人数、予算、目的から<br>
-                あなただけの秩父旅行プランを提案します。
+                あなたの年齢や人数、予算、目的、移動の希望から<br>
+                あなただけの{{ region_name }}旅行プランを提案します。
             </p>
 
         </div>
-
 
         <div class="hero-scroll">
             SCROLL TO PLAN ↓
@@ -1478,15 +1548,12 @@
 
     </header>
 
-
     <!-- =========================================
          MAIN
     ========================================= -->
-
     <main>
 
         <!-- INTRO -->
-
         <section class="intro">
 
             <p class="intro-label">
@@ -1498,25 +1565,23 @@
             </h2>
 
             <p>
-                秩父には、豊かな自然や温泉、歴史、
-                そしてここでしか味わえないグルメがあります。
-
+                {{ region_name }}の観光地・宿泊施設・グルメ情報をもとに、
+                あなたの条件に合った旅行プランを作成します。
                 いくつかの条件を選択するだけで、
                 あなたの旅行スタイルに合ったプランを作成できます。
             </p>
 
         </section>
 
-
-        <!-- ここから 3/4 に続く -->        <!-- FORM -->
-
+        <!-- FORM -->
         <form
             action="/result"
             method="POST"
+            id="tripPlannerForm"
         >
+            <input type="hidden" name="region_code" value="{{ region_code }}">
 
             <!-- HEADER -->
-
             <div class="form-header">
 
                 <small>
@@ -1533,9 +1598,7 @@
 
             </div>
 
-
             <div class="form-body">
-
 
                 <!-- =========================
                      BASIC INFORMATION
@@ -1561,22 +1624,16 @@
 
                 </div>
 
-
                 <div class="fields">
 
-
                     <!-- 年齢 -->
-
                     <div class="field">
 
                         <label>
-
                             <span>
                                 AGE
                             </span>
-
                             年齢
-
                         </label>
 
                         <select name="age">
@@ -1605,52 +1662,14 @@
 
                     </div>
 
-
-                    <!-- 性別 -->
-
-                    <div class="field">
-
-                        <label>
-
-                            <span>
-                                GENDER
-                            </span>
-
-                            性別
-
-                        </label>
-
-                        <select name="gender">
-
-                            <option value="男性">
-                                男性
-                            </option>
-
-                            <option value="女性">
-                                女性
-                            </option>
-
-                            <option value="その他">
-                                その他
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
                     <!-- 人数 -->
-
                     <div class="field">
 
                         <label>
-
                             <span>
                                 PEOPLE
                             </span>
-
                             人数
-
                         </label>
 
                         <select
@@ -1689,19 +1708,14 @@
 
                     </div>
 
-
                     <!-- 旅行メンバー -->
-
                     <div class="field">
 
                         <label>
-
                             <span>
                                 MEMBER
                             </span>
-
                             旅行メンバー
-
                         </label>
 
                         <select
@@ -1746,7 +1760,6 @@
 
                 </div>
 
-
                 <!-- =========================
                      TRIP STYLE
                 ========================== -->
@@ -1771,12 +1784,16 @@
 
                 </div>
 
-
                 <div class="fields">
 
+                    <!-- 車移動固定 -->
+                    <input
+                        type="hidden"
+                        name="car"
+                        value="あり"
+                    >
 
-                    <!-- 車 -->
-
+                    <!-- 移動手段 -->
                     <div class="field">
 
                         <label>
@@ -1785,27 +1802,120 @@
                                 TRANSPORT
                             </span>
 
-                            車の利用
+                            移動手段
 
                         </label>
 
-                        <select name="car">
+                        <select
+                            name="travel_mode"
+                            id="travelModeSelect"
+                            aria-label="移動手段"
+                        >
 
-                            <option value="あり">
-                                車あり
+                            <option
+                                value="車"
+                                selected
+                            >
+                                車
                             </option>
 
-                            <option value="なし">
-                                車なし
+                        </select>
+
+                        <p class="selection-note">
+                            埼玉県南西部の広域観光に対応するため、車移動を前提にしています。
+                        </p>
+
+                    </div>
+
+                    <!-- 旅行ペース -->
+                    <div class="field">
+
+                        <label>
+
+                            <span>
+                                TRAVEL PACE
+                            </span>
+
+                            旅行ペース
+
+                        </label>
+
+                        <select
+                            name="travel_pace"
+                            aria-label="希望する旅行ペース"
+                        >
+
+                            <option value="ゆっくり">
+                                ゆっくり
+                            </option>
+
+                            <option
+                                value="普通"
+                                selected
+                            >
+                                普通
+                            </option>
+
+                            <option value="たくさん回りたい">
+                                たくさん回りたい
                             </option>
 
                         </select>
 
                     </div>
 
+                    <!-- 車の入口 -->
+                    <div
+                        class="field"
+                        id="carArrivalField"
+                    >
+
+                        <label>
+
+                            <span>
+                                CAR ENTRY
+                            </span>
+
+                            {{ region_name }}方面への入口
+
+                        </label>
+
+                        <select
+                            name="arrival_detail"
+                            id="carArrivalSelect"
+                            aria-label="{{ region_name }}方面への入口"
+                        >
+
+                            <option
+                                value="花園IC"
+                                selected
+                            >
+                                関越道方面から（花園IC）
+                            </option>
+
+                            <option value="芦ヶ久保駅">
+                                飯能方面から（国道299号・芦ヶ久保）
+                            </option>
+
+                        </select>
+                            {% for option in arrival_options %}
+                            <option
+                                value="{{ option.value }}"
+                                {% if option.selected %}selected{% endif %}
+                            >
+                                {{ option.label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <p class="selection-note">
+                            来る方向に近い入口を選んでください。
+                            ここから先の移動時間は事前計算した車ルートデータを使用します。
+                        </p>
+
+                    </div>
 
                     <!-- 日数 -->
-
                     <div class="field">
 
                         <label>
@@ -1832,9 +1942,7 @@
 
                     </div>
 
-
                     <!-- 日付 -->
-
                     <div class="field">
 
                         <label>
@@ -1856,9 +1964,7 @@
 
                     </div>
 
-
                     <!-- 予算 -->
-
                     <div class="field">
 
                         <label>
@@ -1902,7 +2008,6 @@
 
                 </div>
 
-
                 <!-- =========================
                      WEATHER FORECAST
                 ========================== -->
@@ -1921,27 +2026,23 @@
                             </small>
 
                             <h3 id="weatherForecastTitle">
-                                秩父の7日間天気予報
+                                {{ region_name }}の7日間天気予報
                             </h3>
 
                         </div>
 
                         <div class="weather-forecast-meta">
-
                             今日を含む7日間<br>
                             旅行日は7日間に限定されません
-
                         </div>
 
                     </div>
-
 
                     {% if weather_error %}
 
                         <div class="weather-error">
                             {{ weather_error }}
                         </div>
-
 
                     {% elif weather_forecast %}
 
@@ -1961,7 +2062,6 @@
 
                                     </div>
 
-
                                     <div
                                         class="weather-card-icon"
                                         aria-label="{{ weather.weather }}"
@@ -1969,11 +2069,9 @@
                                         {{ weather.icon }}
                                     </div>
 
-
                                     <div class="weather-card-name">
                                         {{ weather.weather }}
                                     </div>
-
 
                                     <div class="weather-card-temp">
 
@@ -1987,14 +2085,10 @@
 
                                     </div>
 
-
                                     <div class="weather-card-rain">
-
                                         降水確率
                                         {{ weather.precipitation_probability }}
-
                                     </div>
-
 
                                     <button
                                         type="button"
@@ -2010,7 +2104,6 @@
 
                         </div>
 
-
                         <p
                             class="weather-date-status"
                             id="weatherTravelDateStatus"
@@ -2022,30 +2115,93 @@
                             現在の詳細予報の対象外です。
                         </p>
 
-
                         <p class="weather-source">
-
                             天気情報：
                             Open-Meteo ／
                             {{ weather_model }} ／
                             日本時間（JST）
-
                         </p>
-
 
                     {% else %}
 
                         <div class="weather-error">
-
                             現在、天気予報を表示できません。
                             時間をおいて再度お試しください。
-
                         </div>
 
                     {% endif %}
 
                 </section>
 
+                <!-- =========================
+                     MUST VISIT
+                ========================== -->
+
+                <div class="section-title">
+
+                    <div class="section-number">
+                        03
+                    </div>
+
+                    <div>
+
+                        <small>
+                            MUST VISIT
+                        </small>
+
+                        <h3>
+                            行きたい場所
+                        </h3>
+
+                    </div>
+
+                </div>
+
+                <div class="must-visit-panel">
+
+                    <p>
+                        「ここだけは行きたい」という観光地があれば選択してください。
+                        選択した場所を優先してプランに入れます。
+                        何も選ばなくても利用できます。
+                    </p>
+
+                    <div class="must-visit-grid">
+
+                        {% for spot in spot_options %}
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                name="must_visit_spots"
+                                value="{{ spot.name }}"
+                            >
+
+                            <span>
+
+                                {{ spot.name }}
+
+                                {% if spot.area %}
+
+                                <small>
+                                    （{{ spot.area }}）
+                                </small>
+
+                                {% endif %}
+
+                            </span>
+
+                        </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <p class="must-visit-limit">
+                        現在は最大5か所まで指定できます。
+                    </p>
+
+                </div>
 
                 <!-- =========================
                      PURPOSE
@@ -2054,7 +2210,7 @@
                 <div class="section-title">
 
                     <div class="section-number">
-                        03
+                        04
                     </div>
 
                     <div>
@@ -2071,89 +2227,40 @@
 
                 </div>
 
-
                 <p class="purpose-description">
-
+                    {% if region_code == "kawagoe" %}
+                    川越で特に楽しみたいテーマを選択してください。
+                    小江戸の町並み、歴史・文化、食べ歩き、自然散策から複数選択できます。
+                    何も選ばない場合は「おまかせ」として提案します。
+                    {% else %}
                     今回の旅行で特に楽しみたいものを選択してください。
-                    複数選択できます。
-
+                    複数選択できます。何も選ばない場合は「おまかせ」として提案します。
+                    {% endif %}
                 </p>
-
 
                 <div class="checkbox">
 
-
-                    <!-- 自然 -->
-
-                    <label>
-
-                        <input
-                            type="checkbox"
-                            name="purpose"
-                            value="自然"
-                        >
-
-                        <span>
-                            自然
-                        </span>
-
-                    </label>
-
-
-                    <!-- 温泉 -->
+                    {% for option in purpose_options %}
 
                     <label>
 
                         <input
                             type="checkbox"
                             name="purpose"
-                            value="温泉"
+                            value="{{ option.value }}"
                         >
 
                         <span>
-                            温泉
+                            {{ option.label }}
                         </span>
 
                     </label>
 
-
-                    <!-- グルメ -->
-
-                    <label>
-
-                        <input
-                            type="checkbox"
-                            name="purpose"
-                            value="グルメ"
-                        >
-
-                        <span>
-                            グルメ
-                        </span>
-
-                    </label>
-
-
-                    <!-- 歴史 -->
-
-                    <label>
-
-                        <input
-                            type="checkbox"
-                            name="purpose"
-                            value="歴史"
-                        >
-
-                        <span>
-                            歴史
-                        </span>
-
-                    </label>
+                    {% endfor %}
 
                 </div>
 
-
-                <!-- ここから 4/4 に続く -->                <!-- =========================
+                <!-- =========================
                      SUBMIT
                 ========================== -->
 
@@ -2166,13 +2273,15 @@
                         </small>
 
                         <p>
-                            秩父旅行をはじめよう。
+                            {{ region_name }}旅行をはじめよう。
                         </p>
 
                     </div>
 
-
-                    <button type="submit">
+                    <button
+                        type="submit"
+                        id="createPlanButton"
+                    >
                         おすすめプランを作成
                     </button>
 
@@ -2184,7 +2293,6 @@
 
     </main>
 
-
     <!-- =========================================
          FOOTER
     ========================================= -->
@@ -2192,7 +2300,7 @@
     <footer>
 
         <strong>
-            CHICHIBU
+            {{ region_name_en }}
         </strong>
 
         <p>
@@ -2200,18 +2308,18 @@
         </p>
 
         <small>
-            © 2026 CHICHIBU TRAVEL PLANNER
+            © 2026 {{ region_name_en }} TRAVEL PLANNER
         </small>
 
     </footer>
 
-
     <script>
 
         document.addEventListener(
-            "DOMContentLoaded",
-            function () {
 
+            "DOMContentLoaded",
+
+            function () {
 
                 /* ==============================
                    PEOPLE / MEMBER CONTROL
@@ -2232,7 +2340,6 @@
                         "memberSelectionNote"
                     );
 
-
                 function updateMemberOptions() {
 
                     if (
@@ -2243,12 +2350,10 @@
                         return;
                     }
 
-
                     const people =
                         Number(
                             peopleSelect.value
                         );
-
 
                     const soloOption =
                         memberSelect.querySelector(
@@ -2269,7 +2374,6 @@
                         memberSelect.querySelector(
                             'option[value="友人"]'
                         );
-
 
                     /* ==============================
                        1人の場合
@@ -2293,10 +2397,8 @@
                             friendOption.disabled = true;
                         }
 
-
                         memberSelect.value =
                             "一人";
-
 
                         if (memberSelectionNote) {
 
@@ -2310,7 +2412,6 @@
                         }
 
                     }
-
 
                     /* ==============================
                        2人以上の場合
@@ -2334,16 +2435,12 @@
                             friendOption.disabled = false;
                         }
 
-
                         if (
                             memberSelect.value === "一人"
                         ) {
-
                             memberSelect.value =
                                 "友人";
-
                         }
-
 
                         if (memberSelectionNote) {
 
@@ -2358,7 +2455,6 @@
 
                 }
 
-
                 if (
                     peopleSelect
                     &&
@@ -2370,12 +2466,9 @@
                         updateMemberOptions
                     );
 
-
                     updateMemberOptions();
 
                 }
-
-
 
                 /* ==============================
                    EXISTING ELEMENTS
@@ -2386,31 +2479,25 @@
                         'input[name="travel_date"]'
                     );
 
-
                 const weatherButtons =
                     document.querySelectorAll(
                         '[data-set-travel-date]'
                     );
-
 
                 const status =
                     document.getElementById(
                         'weatherTravelDateStatus'
                     );
 
-
                 const favoriteCountElement =
                     document.getElementById(
                         'indexFavoriteCount'
                     );
 
-
                 const historyCountElement =
                     document.getElementById(
                         'indexHistoryCount'
                     );
-
-
 
                 /* ==============================
                    FAVORITE COUNT
@@ -2423,7 +2510,6 @@
                             'chichibuTravelFavoritesV1'
                         );
 
-
                     const favorites =
                         rawFavorites
                         ?
@@ -2432,7 +2518,6 @@
                         )
                         :
                         [];
-
 
                     if (
                         favoriteCountElement
@@ -2444,7 +2529,6 @@
 
                         favoriteCountElement.textContent =
                             String(
-
                                 favorites.filter(
                                     function (item) {
 
@@ -2458,7 +2542,6 @@
 
                                     }
                                 ).length
-
                             );
 
                     }
@@ -2474,8 +2557,6 @@
 
                 }
 
-
-
                 /* ==============================
                    HISTORY COUNT
                 ============================== */
@@ -2487,7 +2568,6 @@
                             'chichibuTravelPlanHistoryV1'
                         );
 
-
                     const history =
                         rawHistory
                         ?
@@ -2496,7 +2576,6 @@
                         )
                         :
                         [];
-
 
                     if (
                         historyCountElement
@@ -2524,8 +2603,6 @@
 
                 }
 
-
-
                 /*
                 旅行予定日の入力欄が存在しない場合でも、
                 人数・旅行メンバー制御は上で完了しているため、
@@ -2535,12 +2612,8 @@
                 if (
                     !travelDateInput
                 ) {
-
                     return;
-
                 }
-
-
 
                 /* ==============================
                    WEATHER DATE STATUS
@@ -2555,24 +2628,17 @@
                         ||
                         !status.dataset.forecastEnd
                     ) {
-
                         return;
-
                     }
-
 
                     const selectedDate =
                         travelDateInput.value;
 
-
                     const startDate =
                         status.dataset.forecastStart;
 
-
                     const endDate =
                         status.dataset.forecastEnd;
-
-
 
                     if (
                         !selectedDate
@@ -2588,7 +2654,6 @@
                         return;
 
                     }
-
 
                     if (
                         selectedDate >= startDate
@@ -2625,8 +2690,6 @@
 
                 }
 
-
-
                 /* ==============================
                    WEATHER BUTTON
                 ============================== */
@@ -2644,22 +2707,16 @@
                                 const targetDate =
                                     button.dataset.setTravelDate;
 
-
                                 if (
                                     !targetDate
                                 ) {
-
                                     return;
-
                                 }
-
 
                                 travelDateInput.value =
                                     targetDate;
 
-
                                 travelDateInput.dispatchEvent(
-
                                     new Event(
                                         'input',
                                         {
@@ -2667,12 +2724,9 @@
                                                 true
                                         }
                                     )
-
                                 );
 
-
                                 travelDateInput.dispatchEvent(
-
                                     new Event(
                                         'change',
                                         {
@@ -2680,9 +2734,7 @@
                                                 true
                                         }
                                     )
-
                                 );
-
 
                                 updateWeatherDateStatus();
 
@@ -2694,26 +2746,221 @@
 
                 );
 
-
                 travelDateInput.addEventListener(
                     'change',
                     updateWeatherDateStatus
                 );
-
 
                 travelDateInput.addEventListener(
                     'input',
                     updateWeatherDateStatus
                 );
 
-
                 updateWeatherDateStatus();
 
             }
+
         );
 
     </script>
 
-</body>
+    <script>
 
+        document.addEventListener(
+
+            "DOMContentLoaded",
+
+            function () {
+
+                const mustVisitBoxes =
+                    Array.from(
+                        document.querySelectorAll(
+                            'input[name="must_visit_spots"]'
+                        )
+                    );
+
+                mustVisitBoxes.forEach(
+
+                    function (box) {
+
+                        box.addEventListener(
+
+                            "change",
+
+                            function () {
+
+                                const checked =
+                                    mustVisitBoxes.filter(
+                                        function (item) {
+                                            return item.checked;
+                                        }
+                                    );
+
+                                if (
+                                    checked.length
+                                    >
+                                    5
+                                ) {
+
+                                    box.checked =
+                                        false;
+
+                                    alert(
+                                        "行きたい場所は5か所まで選択できます。"
+                                    );
+
+                                }
+
+                            }
+
+                        );
+
+                    }
+
+                );
+
+            }
+
+        );
+
+    </script>
+
+    <script>
+
+        document.addEventListener(
+
+            "DOMContentLoaded",
+
+            function () {
+
+                const form =
+                    document.getElementById(
+                        "tripPlannerForm"
+                    );
+
+                const button =
+                    document.getElementById(
+                        "createPlanButton"
+                    );
+
+                if (!form || !button) {
+                    return;
+                }
+
+                const loadingOverlay =
+                    document.getElementById(
+                        "planLoadingOverlay"
+                    );
+
+                form.addEventListener(
+
+                    "submit",
+
+                    function () {
+
+                        if (
+                            button.disabled
+                        ) {
+                            return;
+                        }
+
+                        button.disabled =
+                            true;
+
+                        button.textContent =
+                            "プランを作成しています…";
+
+                        button.setAttribute(
+                            "aria-busy",
+                            "true"
+                        );
+
+                        if (
+                            loadingOverlay
+                        ) {
+
+                            loadingOverlay.hidden =
+                                false;
+
+                            document.body.style.overflow =
+                                "hidden";
+
+                        }
+
+                    }
+
+                );
+
+                window.addEventListener(
+
+                    "pageshow",
+
+                    function () {
+
+                        button.disabled =
+                            false;
+
+                        button.removeAttribute(
+                            "aria-busy"
+                        );
+
+                        button.textContent =
+                            "おすすめプランを作成";
+
+                        if (
+                            loadingOverlay
+                        ) {
+
+                            loadingOverlay.hidden =
+                                true;
+
+                            document.body.style.overflow =
+                                "";
+
+                        }
+
+                    }
+
+                );
+
+            }
+
+        );
+
+    </script>
+
+    <div
+        class="plan-loading-overlay"
+        id="planLoadingOverlay"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        hidden
+    >
+
+        <div class="plan-loading-box">
+
+            <div
+                class="plan-loading-spinner"
+                aria-hidden="true"
+            ></div>
+
+            <p class="plan-loading-eyebrow">
+                CREATING YOUR TRIP
+            </p>
+
+            <h2 class="plan-loading-title">
+                旅行プランを作成しています<span class="plan-loading-dots"></span>
+            </h2>
+
+            <p class="plan-loading-text">
+                条件に合う観光地・宿泊施設・食事を組み立てています。<br>
+                移動時間を考慮しながら旅行プランを作成しています。
+            </p>
+
+        </div>
+
+    </div>
+
+</body>
 </html>

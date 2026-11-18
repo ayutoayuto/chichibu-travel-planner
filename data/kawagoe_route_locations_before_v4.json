@@ -1,0 +1,1055 @@
+{
+  "meta": {
+    "schema_version": 3,
+    "region": "川越",
+    "generated_at": "2026-11-18",
+    "expected_location_count": 70,
+    "resolved_count": 70,
+    "manual_review_count": 0,
+    "runtime_geocoding": false,
+    "coordinate_policy": "v2高信頼座標を保持し、未確定地点は公式/マスター住所から国土地理院AddressSearchで事前固定。面状観光地は代表ルート地点を明示。",
+    "note": "このJSON生成後、Webアプリ実行時に外部ジオコードは行わない。道路ルート行列作成時に最寄りdriveノードへスナップする。"
+  },
+  "route_locations": {
+    "時の鐘": {
+      "category": "観光スポット",
+      "address": "川越市幸町15番地7",
+      "latitude": 35.9234837,
+      "longitude": 139.4833395,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:幸町"
+      ],
+      "geocode_query": "時の鐘, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "時の鐘, 鐘つき通り, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+      "distance_from_kawagoe_center_km": 0.285,
+      "verified_at": "2026-11-18"
+    },
+    "蔵造りの町並み": {
+      "category": "観光スポット",
+      "address": "埼玉県川越市幸町・元町周辺",
+      "latitude": 35.9235447,
+      "longitude": 139.4829264,
+      "coordinate_source": "representative_route_point",
+      "verification_note": "蔵造りの町並みは線・面状の観光エリアのため、一番街中心部の代表地点をルート計算用に固定。",
+      "verified_at": "2026-11-18"
+    },
+    "菓子屋横丁": {
+      "category": "観光スポット",
+      "address": "川越市元町2丁目",
+      "latitude": 35.9250914,
+      "longitude": 139.4808048,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:元町"
+      ],
+      "geocode_query": "菓子屋横丁, 川越市元町2丁目, 日本",
+      "geocode_display_name": "菓子屋横丁, 高澤通り, 元町二丁目, 神明町, 川越市, 埼玉県, 350-0062, 日本",
+      "distance_from_kawagoe_center_km": 0.45,
+      "verified_at": "2026-11-18"
+    },
+    "川越まつり会館": {
+      "category": "観光スポット",
+      "address": "350-0062 川越市元町2丁目1番地10",
+      "latitude": 35.9244661,
+      "longitude": 139.4828631,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:元町"
+      ],
+      "geocode_query": "川越まつり会館, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越まつり会館, 一番街, 元町一丁目, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+      "distance_from_kawagoe_center_km": 0.274,
+      "verified_at": "2026-11-18"
+    },
+    "旧山崎家別邸": {
+      "category": "観光スポット",
+      "address": "川越市松江町2丁目7番地8",
+      "latitude": 35.9217438,
+      "longitude": 139.4845139,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:松江町"
+      ],
+      "geocode_query": "旧山崎家別邸, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "旧山崎家別邸, 川越上尾線, 松江町二丁目, 大手町, 川越市, 埼玉県, 350-0056, 日本",
+      "distance_from_kawagoe_center_km": 0.391,
+      "verified_at": "2026-11-18"
+    },
+    "小江戸蔵里": {
+      "category": "観光スポット",
+      "address": "川越市新富町1丁目10番地1",
+      "latitude": 35.9162357,
+      "longitude": 139.4837768,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 355,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市"
+      ],
+      "geocode_query": "小江戸蔵里, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "小江戸蔵里, 八幡通り, 通町, 川越市, 埼玉県, 350-0043, 日本",
+      "distance_from_kawagoe_center_km": 1.002,
+      "verified_at": "2026-11-18"
+    },
+    "蓮馨寺": {
+      "category": "観光スポット",
+      "address": "川越市連雀町7番地1",
+      "latitude": 35.9194529,
+      "longitude": 139.4821487,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:連雀町"
+      ],
+      "geocode_query": "蓮馨寺, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "蓮馨寺, 中央通り, 連雀町, 川越市, 埼玉県, 350-0066, 日本",
+      "distance_from_kawagoe_center_km": 0.709,
+      "verified_at": "2026-11-18"
+    },
+    "大正浪漫夢通り": {
+      "category": "観光スポット",
+      "address": "",
+      "latitude": 35.9198924,
+      "longitude": 139.483578,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 315,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含"
+      ],
+      "geocode_query": "大正浪漫夢通り 川越市",
+      "geocode_display_name": "大正浪漫夢通り, 連雀町, 川越市, 埼玉県, 350-0056, 日本",
+      "distance_from_kawagoe_center_km": 0.613,
+      "verified_at": "2026-11-18"
+    },
+    "川越熊野神社": {
+      "category": "観光スポット",
+      "address": "埼玉県川越市連雀町17-1",
+      "latitude": 35.919167,
+      "longitude": 139.483307,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市連雀町１７番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "川越城本丸御殿": {
+      "category": "観光スポット",
+      "address": "350-0053 川越市郭町2丁目13番地1",
+      "latitude": 35.9245029,
+      "longitude": 139.4914968,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:郭町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "川越城本丸御殿, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越城本丸御殿, 初雁城（川越城）通り, 郭町二丁目, 城下町, 川越市, 埼玉県, 350-0053, 日本",
+      "distance_from_kawagoe_center_km": 0.517,
+      "verified_at": "2026-11-18"
+    },
+    "川越市立博物館": {
+      "category": "観光スポット",
+      "address": "川越市郭町2丁目30番地1",
+      "latitude": 35.9258523,
+      "longitude": 139.491508,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:郭町"
+      ],
+      "geocode_query": "川越市立博物館, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越市立博物館, 初雁城（川越城）通り, 郭町二丁目, 城下町, 川越市, 埼玉県, 350-0053, 日本",
+      "distance_from_kawagoe_center_km": 0.521,
+      "verified_at": "2026-11-18"
+    },
+    "川越市立美術館": {
+      "category": "観光スポット",
+      "address": "川越市郭町2丁目30番地1",
+      "latitude": 35.9257128,
+      "longitude": 139.490825,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:郭町"
+      ],
+      "geocode_query": "川越市立美術館, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越市立美術館, 初雁城（川越城）通り, 郭町二丁目, 城下町, 川越市, 埼玉県, 350-0053, 日本",
+      "distance_from_kawagoe_center_km": 0.458,
+      "verified_at": "2026-11-18"
+    },
+    "三芳野神社": {
+      "category": "観光スポット",
+      "address": "川越市郭町2丁目25番地11",
+      "latitude": 35.9242257,
+      "longitude": 139.4924551,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 315,
+      "verification_reasons": [
+        "川越市一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:郭町"
+      ],
+      "geocode_query": "三芳野神社, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "三芳野神社, 11, 郭町二丁目, 城下町, 志木市, 川越市, 埼玉県, 350-0053, 日本",
+      "distance_from_kawagoe_center_km": 0.607,
+      "verified_at": "2026-11-18"
+    },
+    "川越氷川神社": {
+      "category": "観光スポット",
+      "address": "川越市宮下町2-11-3",
+      "latitude": 35.9271396,
+      "longitude": 139.4887762,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:宮下町"
+      ],
+      "geocode_query": "川越氷川神社, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越氷川神社, 川越上尾線, 宮下町一丁目, 氷川町, 川越市, 埼玉県, 350-0053, 日本",
+      "distance_from_kawagoe_center_km": 0.351,
+      "verified_at": "2026-11-18"
+    },
+    "川越城中ノ門堀跡": {
+      "category": "観光スポット",
+      "address": "川越市郭町1丁目8番6",
+      "latitude": 35.9247651,
+      "longitude": 139.4881584,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:郭町"
+      ],
+      "geocode_query": "川越城中ノ門堀跡, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越城中ノ門堀跡, 初雁城（川越城）通り, 郭町一丁目, 氷川町, 川越市, 埼玉県, 350-0057, 日本",
+      "distance_from_kawagoe_center_km": 0.216,
+      "verified_at": "2026-11-18"
+    },
+    "喜多院": {
+      "category": "観光スポット",
+      "address": "川越市小仙波町1丁目20番地1号",
+      "latitude": 35.9178236,
+      "longitude": 139.4889051,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:小仙波町"
+      ],
+      "geocode_query": "喜多院, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "喜多院, 喜多院門前通り, 小仙波町一丁目, 久保町, 川越市, 埼玉県, 350-0054, 日本",
+      "distance_from_kawagoe_center_km": 0.856,
+      "verified_at": "2026-11-18"
+    },
+    "仙波東照宮": {
+      "category": "観光スポット",
+      "address": "川越市小仙波町1丁目21番地1",
+      "latitude": 35.9166262,
+      "longitude": 139.4897977,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 395,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:小仙波町"
+      ],
+      "geocode_query": "仙波東照宮, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "仙波東照宮, 東照宮中院通り, 小仙波町一丁目, 小仙波, 川越市, 埼玉県, 350-0054, 日本",
+      "distance_from_kawagoe_center_km": 1.009,
+      "verified_at": "2026-11-18"
+    },
+    "中院": {
+      "category": "観光スポット",
+      "address": "350-0036 埼玉県川越市小仙波町5-15-1",
+      "latitude": 35.9147469,
+      "longitude": 139.4904278,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:小仙波町"
+      ],
+      "geocode_query": "中院, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "中院, 東照宮中院通り, 小仙波町一丁目, 小仙波, 川越市, 埼玉県, 350-0054, 日本",
+      "distance_from_kawagoe_center_km": 1.224,
+      "verified_at": "2026-11-18"
+    },
+    "成田山川越別院": {
+      "category": "観光スポット",
+      "address": "",
+      "latitude": 35.9193156,
+      "longitude": 139.4888188,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 315,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含"
+      ],
+      "geocode_query": "成田山川越別院 川越市",
+      "geocode_display_name": "成田山川越別院, 川越日高線, 松江町一丁目, 久保町, 川越市, 埼玉県, 350-0054, 日本",
+      "distance_from_kawagoe_center_km": 0.698,
+      "verified_at": "2026-11-18"
+    },
+    "川越八幡宮": {
+      "category": "観光スポット",
+      "address": "350-0045 埼玉県川越市南通町19-3",
+      "latitude": 35.911243,
+      "longitude": 139.4845526,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 325,
+      "verification_reasons": [
+        "川越市一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:南通町"
+      ],
+      "geocode_query": "川越八幡宮, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越八幡宮, 1, 南通町, 志木市, 川越市, 埼玉県, 350-0043, 日本",
+      "distance_from_kawagoe_center_km": 1.545,
+      "verified_at": "2026-11-18"
+    },
+    "伊佐沼": {
+      "category": "観光スポット",
+      "address": "",
+      "latitude": 35.9238606,
+      "longitude": 139.516155,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 315,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含"
+      ],
+      "geocode_query": "伊佐沼 川越市",
+      "geocode_display_name": "伊佐沼, 川越市, 埼玉県, 日本",
+      "distance_from_kawagoe_center_km": 2.737,
+      "verified_at": "2026-11-18"
+    },
+    "国指定史跡 河越館跡": {
+      "category": "観光スポット",
+      "address": "埼玉県川越市上戸195-1",
+      "latitude": 35.930382,
+      "longitude": 139.451752,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市上戸１９５番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "松村屋旅館": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市元町1-1-11",
+      "latitude": 35.924339,
+      "longitude": 139.484955,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市元町一丁目１番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "川越ビジネスホテル": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市富士見町12-2",
+      "latitude": 35.902515,
+      "longitude": 139.488007,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市富士見町１２番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "川越東武ホテル": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市脇田本町8-1",
+      "latitude": 35.905926,
+      "longitude": 139.48114,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市脇田本町８番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "川越第一ホテル": {
+      "category": "宿泊施設",
+      "address": "350-0046 埼玉県川越市菅原町7-34",
+      "latitude": 35.9068793,
+      "longitude": 139.4859928,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:菅原町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "川越第一ホテル, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越第一ホテル, 川越街道, 菅原町, 川越市, 埼玉県, 350-0046, 日本",
+      "distance_from_kawagoe_center_km": 2.026,
+      "verified_at": "2026-11-18"
+    },
+    "川越プリンスホテル": {
+      "category": "宿泊施設",
+      "address": "350-8501 埼玉県川越市新富町1-22",
+      "latitude": 35.9136658,
+      "longitude": 139.481363,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:新富町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "川越プリンスホテル, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越プリンスホテル, 新富町二丁目, 東田町, 川越市, 埼玉県, 350-8501, 日本",
+      "distance_from_kawagoe_center_km": 1.333,
+      "verified_at": "2026-11-18"
+    },
+    "川越湯遊ランド・ホテル三光": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市新富町1-9-1",
+      "latitude": 35.916927,
+      "longitude": 139.483765,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市新富町一丁目９番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "デイリーホテル小江戸川越店": {
+      "category": "宿泊施設",
+      "address": "350-0066 埼玉県川越市連雀町22-5",
+      "latitude": 35.9185335,
+      "longitude": 139.4838015,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:連雀町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "デイリーホテル小江戸川越店, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "デイリーホテル小江戸川越店, 川越日高線, 松江町一丁目, 連雀町, 川越市, 埼玉県, 350-0066, 日本",
+      "distance_from_kawagoe_center_km": 0.752,
+      "verified_at": "2026-11-18"
+    },
+    "UTILITY HOTEL cooju": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市脇田町17-4",
+      "latitude": 35.908688,
+      "longitude": 139.483948,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市脇田町１７番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "スーパーホテル埼玉・川越": {
+      "category": "宿泊施設",
+      "address": "350-0043 埼玉県川越市新富町2-31-5",
+      "latitude": 35.9119207,
+      "longitude": 139.4811325,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:新富町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "スーパーホテル埼玉・川越, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "スーパーホテル埼玉・川越, 5, 新富町二丁目, 東田町, 川越市, 埼玉県, 350-0043, 日本",
+      "distance_from_kawagoe_center_km": 1.525,
+      "verified_at": "2026-11-18"
+    },
+    "旅籠 小江戸や": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市連雀町8-1",
+      "latitude": 35.919327,
+      "longitude": 139.483078,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市連雀町８番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "泊まれるリラクゼーションサロン ゆきき": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市元町1-8-8",
+      "latitude": 35.925152,
+      "longitude": 139.485001,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市元町一丁目８番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "ちゃぶだい Guesthouse, Cafe&Bar": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市三久保町1-14",
+      "latitude": 35.920551,
+      "longitude": 139.486145,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市三久保町１番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "小江戸川越おもてなしの家": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市三久保町9-4",
+      "latitude": 35.920418,
+      "longitude": 139.488235,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市三久保町９番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "月の宿 KAGUYA": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市八ツ島52-1",
+      "latitude": 35.917961,
+      "longitude": 139.511185,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市八ツ島５２番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "WE HOME STAY 川越・的場": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市的場1891-1",
+      "latitude": 35.919399,
+      "longitude": 139.437119,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市的場１８９１番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "結家 -MUSUBIYA-": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市石原町1-6-7",
+      "latitude": 35.925957,
+      "longitude": 139.479279,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市石原町一丁目６番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "丹徳庭園": {
+      "category": "宿泊施設",
+      "address": "350-0041 埼玉県川越市六軒町1-8-2",
+      "latitude": 35.9166069,
+      "longitude": 139.4776547,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 375,
+      "verification_reasons": [
+        "川越市一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:六軒町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "丹徳庭園, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "丹徳庭園, 2, 六軒町一丁目, 田町, 志木市, 川越市, 埼玉県, 350-0041, 日本",
+      "distance_from_kawagoe_center_km": 1.196,
+      "verified_at": "2026-11-18"
+    },
+    "ゲストハウスくく 川越店": {
+      "category": "宿泊施設",
+      "address": "埼玉県川越市大手町1-8",
+      "latitude": 35.92244,
+      "longitude": 139.484482,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市大手町１番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "小川菊": {
+      "category": "gourmet",
+      "address": "350-0065 埼玉県川越市仲町3-22",
+      "latitude": 35.9206551,
+      "longitude": 139.4832565,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:仲町"
+      ],
+      "geocode_query": "小川菊, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "うなぎ 小川菊, 大正浪漫夢通り, 仲町, 川越市, 埼玉県, 350-0056, 日本",
+      "distance_from_kawagoe_center_km": 0.545,
+      "verified_at": "2026-11-18"
+    },
+    "林屋": {
+      "category": "gourmet",
+      "address": "埼玉県川越市仲町2-4",
+      "latitude": 35.921448,
+      "longitude": 139.483643,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市仲町２番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "いちのや": {
+      "category": "gourmet",
+      "address": "350-0056 埼玉県川越市松江町1-18-10",
+      "latitude": 35.919348,
+      "longitude": 139.4854991,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:松江町"
+      ],
+      "geocode_query": "いちのや, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "うなぎ割烹 いちのや, 川越日高線, 松江町一丁目, 久保町, 川越市, 埼玉県, 350-0054, 日本",
+      "distance_from_kawagoe_center_km": 0.64,
+      "verified_at": "2026-11-18"
+    },
+    "東屋": {
+      "category": "gourmet",
+      "address": "350-0035 埼玉県川越市西小仙波町1-16-1",
+      "latitude": 35.9203396,
+      "longitude": 139.4843075,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 265,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "住所一致:川越市"
+      ],
+      "geocode_query": "東屋, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "旧川越織物市場　東棟, 立門前商栄会, 松江町二丁目, 連雀町, 川越市, 埼玉県, 350-0056, 日本",
+      "distance_from_kawagoe_center_km": 0.546,
+      "verified_at": "2026-11-18"
+    },
+    "小川藤": {
+      "category": "gourmet",
+      "address": "350-0056 埼玉県川越市松江町2-3-1",
+      "latitude": 35.9206293,
+      "longitude": 139.4851083,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:松江町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "小川藤, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "小川藤, 川越上尾線, 松江町二丁目, 大手町, 川越市, 埼玉県, 350-0056, 日本",
+      "distance_from_kawagoe_center_km": 0.501,
+      "verified_at": "2026-11-18"
+    },
+    "ぽんぽこ亭": {
+      "category": "gourmet",
+      "address": "埼玉県川越市藤間151-7",
+      "latitude": 35.883762,
+      "longitude": 139.496368,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市藤間１５１番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "うなっ子": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町2-10-6",
+      "latitude": 35.9241008,
+      "longitude": 139.4816721,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:元町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "うなっ子, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "うなっ子, 門前横丁, 元町二丁目, 幸町, 川越市, 埼玉県, 350-0062, 日本",
+      "distance_from_kawagoe_center_km": 0.388,
+      "verified_at": "2026-11-18"
+    },
+    "寿庵 蔵のまち店": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町3-18",
+      "latitude": 35.922565,
+      "longitude": 139.482513,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町３番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "陶路子": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町7-1",
+      "latitude": 35.9231863,
+      "longitude": 139.4825769,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:幸町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "陶路子, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "陶路子, 一番街, 元町一丁目, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+      "distance_from_kawagoe_center_km": 0.36,
+      "verified_at": "2026-11-18"
+    },
+    "十限無": {
+      "category": "gourmet",
+      "address": "埼玉県川越市久保町6-6",
+      "latitude": 35.919716,
+      "longitude": 139.487564,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市久保町６番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "浪漫茶房 右門": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町1-6",
+      "latitude": 35.9220349,
+      "longitude": 139.4826769,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:幸町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "浪漫茶房 右門, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "浪漫茶房 右門, 一番街, 元町一丁目, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+      "distance_from_kawagoe_center_km": 0.442,
+      "verified_at": "2026-11-18"
+    },
+    "郷土ぐるめ 開運亭": {
+      "category": "gourmet",
+      "address": "350-0063 埼玉県川越市幸町2-11 白石商店2F",
+      "latitude": 35.9220686,
+      "longitude": 139.4828538,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 455,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:幸町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "郷土ぐるめ 開運亭, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "郷土ぐるめ開運亭, 一番街, 元町一丁目, 幸町, 川越市, 埼玉県, 350-0063, 日本",
+      "distance_from_kawagoe_center_km": 0.429,
+      "verified_at": "2026-11-18"
+    },
+    "HATSUNEYA GARDEN": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町1-9-8",
+      "latitude": 35.9244703,
+      "longitude": 139.4843905,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 355,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "住所一致:川越市",
+        "住所一致:元町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "HATSUNEYA GARDEN, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "Hatsuneya Garden, 稲荷小路, 元町一丁目, 神明町, 川越市, 埼玉県, 350-0062, 日本",
+      "distance_from_kawagoe_center_km": 0.145,
+      "verified_at": "2026-11-18"
+    },
+    "料亭 山屋": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町11-2",
+      "latitude": 35.92231,
+      "longitude": 139.48201,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町１１番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "すぺいん亭": {
+      "category": "gourmet",
+      "address": "350-1105 埼玉県川越市今成4-11-4",
+      "latitude": 35.9176459,
+      "longitude": 139.4666883,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:今成"
+      ],
+      "geocode_query": "すぺいん亭, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "すぺいん亭, 4, 今成四丁目, 野田, 川越市, 埼玉県, 350-1106, 日本",
+      "distance_from_kawagoe_center_km": 1.91,
+      "verified_at": "2026-11-18"
+    },
+    "太陽軒": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町1-1-23",
+      "latitude": 35.9240816,
+      "longitude": 139.4847668,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:元町"
+      ],
+      "geocode_query": "太陽軒, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "太陽軒, 川越上尾線, 元町一丁目, 大手町, 川越市, 埼玉県, 350-0057, 日本",
+      "distance_from_kawagoe_center_km": 0.147,
+      "verified_at": "2026-11-18"
+    },
+    "吉寅": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町1-9-3",
+      "latitude": 35.9246038,
+      "longitude": 139.4846749,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:元町"
+      ],
+      "geocode_query": "吉寅, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "すき亭 吉寅, 本町通り, 元町一丁目, 神明町, 川越市, 埼玉県, 350-0057, 日本",
+      "distance_from_kawagoe_center_km": 0.115,
+      "verified_at": "2026-11-18"
+    },
+    "頑者 本店": {
+      "category": "gourmet",
+      "address": "埼玉県川越市新富町1-1-8",
+      "latitude": 35.915218,
+      "longitude": 139.482788,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市新富町一丁目１番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "ミオ・カザロ 川越 蔵のまち店": {
+      "category": "gourmet",
+      "address": "埼玉県川越市元町1-15-3",
+      "latitude": 35.924648,
+      "longitude": 139.483246,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市元町一丁目１５番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "glin coffee 元町1号店": {
+      "category": "gourmet",
+      "address": "埼玉県川越市元町1-1-20",
+      "latitude": 35.924339,
+      "longitude": 139.484955,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市元町一丁目１番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "une brise": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町3-8",
+      "latitude": 35.922565,
+      "longitude": 139.482513,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町３番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "あぶり珈琲": {
+      "category": "gourmet",
+      "address": "350-0057 埼玉県川越市大手町15-8",
+      "latitude": 35.9238355,
+      "longitude": 139.4842404,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 405,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "施設名完全包含",
+        "住所一致:川越市",
+        "住所一致:大手町"
+      ],
+      "geocode_query": "あぶり珈琲, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "あぶり珈琲, 鐘つき通り, 大手町, 川越市, 埼玉県, 350-0063, 日本",
+      "distance_from_kawagoe_center_km": 0.199,
+      "verified_at": "2026-11-18"
+    },
+    "1901 TEA SALON": {
+      "category": "gourmet",
+      "address": "埼玉県川越市連雀町13-4",
+      "latitude": 35.919849,
+      "longitude": 139.483322,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市連雀町１３番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "川越ベーカリー楽楽": {
+      "category": "gourmet",
+      "address": "350-0062 埼玉県川越市元町2-10-13",
+      "latitude": 35.9245354,
+      "longitude": 139.4817024,
+      "coordinate_source": "OpenStreetMap Nominatim verified v2",
+      "verification_score": 355,
+      "verification_reasons": [
+        "川越市一致",
+        "addressdetails川越一致",
+        "住所一致:川越市",
+        "住所一致:元町",
+        "郵便番号一致"
+      ],
+      "geocode_query": "川越ベーカリー楽楽, 川越市, 埼玉県, 日本",
+      "geocode_display_name": "川越ベーカリー 樂樂 (イートイン), 菓子屋横町, 元町二丁目, 神明町, 川越市, 埼玉県, 350-0062, 日本",
+      "distance_from_kawagoe_center_km": 0.374,
+      "verified_at": "2026-11-18"
+    },
+    "うんとん処 春夏秋冬": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町10-5",
+      "latitude": 35.924236,
+      "longitude": 139.483459,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町１０番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "海鮮料理 近長魚店": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町6-11",
+      "latitude": 35.9231,
+      "longitude": 139.483139,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町６番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "甘味茶房 かすが": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町6-1",
+      "latitude": 35.9231,
+      "longitude": 139.483139,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町６番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "Te’PAN Le OMUS": {
+      "category": "gourmet",
+      "address": "埼玉県川越市幸町8-11",
+      "latitude": 35.923859,
+      "longitude": 139.483383,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市幸町８番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "日本料理 美鈴": {
+      "category": "gourmet",
+      "address": "埼玉県川越市仲町5-2",
+      "latitude": 35.920719,
+      "longitude": 139.482422,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市仲町５番",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    },
+    "和創菜と四季のすし 風凛": {
+      "category": "gourmet",
+      "address": "埼玉県川越市仲町6-4",
+      "latitude": 35.921387,
+      "longitude": 139.482529,
+      "coordinate_source": "Geospatial Information Authority of Japan AddressSearch",
+      "geocode_display_name": "埼玉県川越市仲町６番地",
+      "verification_method": "official_or_master_address_to_fixed_coordinate",
+      "verified_at": "2026-11-18"
+    }
+  }
+}

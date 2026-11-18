@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ region_name }}旅行プランナー | 準備中</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f4f1e9;color:#20352d}
+a{color:inherit;text-decoration:none}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 7vw;background:#fff;border-bottom:1px solid #e0dbd0}
+.brand{font-family:Georgia,serif;font-size:18px;letter-spacing:.08em;color:#173c31}
+.back{font-size:12px;color:#7d725f}
+.hero{padding:78px 7vw 58px;background:#fff;border-bottom:1px solid #e0dbd0}
+.eyebrow{margin:0 0 14px;color:#a27e47;font-size:11px;letter-spacing:.24em}
+.hero h1{margin:0;font-family:Georgia,"Yu Mincho",serif;font-size:clamp(38px,5vw,62px);font-weight:400;color:#173c31}
+.hero p{max-width:760px;margin:22px 0 0;color:#6f7773;line-height:1.9;font-size:14px}
+.status{display:inline-block;margin-top:22px;padding:8px 11px;border:1px solid #d8cfbf;background:#faf8f3;color:#8d7651;font-size:10px;letter-spacing:.12em}
+.content{width:min(1050px,calc(100% - 48px));margin:0 auto;padding:58px 0 100px}
+.section{margin-bottom:48px;padding-bottom:42px;border-bottom:1px solid #ddd7cb}
+.section-title{display:flex;align-items:center;gap:18px;margin-bottom:24px}
+.number{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;background:#173c31;color:#fff;font-size:12px}
+.section-title small{display:block;margin-bottom:5px;color:#a27e47;font-size:10px;letter-spacing:.18em}
+.section-title h2{margin:0;font-family:Georgia,"Yu Mincho",serif;font-weight:400;font-size:28px;color:#173c31}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.field{padding:18px;background:#fff;border:1px solid #ddd7cb}
+.field label{display:block;margin-bottom:9px;color:#6e756f;font-size:11px;letter-spacing:.06em}
+.field input,.field select{width:100%;min-height:46px;padding:0 12px;border:1px solid #d6d0c5;background:#faf9f5;color:#6f746f;font-size:13px}
+.field input:disabled,.field select:disabled{opacity:.72;cursor:not-allowed}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.tag{padding:7px 10px;border:1px solid #ddd7cb;background:#fff;color:#796d58;font-size:10px}
+.coming{padding:26px;background:#fff;border:1px solid #ddd7cb}
+.coming strong{display:block;margin-bottom:10px;color:#173c31}
+.coming p{margin:0;color:#737b77;line-height:1.9;font-size:13px}
+.footer-action{display:flex;justify-content:space-between;gap:14px;margin-top:36px}
+.button{min-height:50px;display:inline-flex;align-items:center;justify-content:center;padding:0 20px;border:1px solid #173c31;background:#173c31;color:#fff;font-size:12px}
+.button.secondary{background:#fff;color:#173c31}
+@media(max-width:720px){.grid{grid-template-columns:1fr}.footer-action{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+<div class="brand">{{ region_name_en }} TRIP PLANNER</div>
+<a class="back" href="{{ url_for('start') }}">← 地域選択へ戻る</a>
+</header>
+
+<section class="hero">
+<p class="eyebrow">REGION INPUT PAGE</p>
+<h1>{{ region_name }}旅行プランナー</h1>
+<p>{{ intro }}</p>
+<span class="status">データ準備中</span>
+<div class="tags">
+{% for tag in feature_tags %}
+<span class="tag">{{ tag }}</span>
+{% endfor %}
+</div>
+</section>
+
+<main class="content">
+
+<div class="coming">
+<strong>現在は入力ページの形だけ作成しています。</strong>
+<p>{{ region_name }}の観光地・宿泊施設・飲食店・ルートデータを追加すると、秩父と同じ旅行プラン作成機能へ接続できる構成にしています。</p>
+</div>
+
+<section class="section">
+<div class="section-title"><div class="number">01</div><div><small>TRIP BASIC</small><h2>旅行の基本条件</h2></div></div>
+<div class="grid">
+<div class="field"><label>旅行日数</label><select disabled><option>1泊2日</option><option>2泊3日</option></select></div>
+<div class="field"><label>人数</label><select disabled><option>1人</option><option>2人</option><option>3人以上</option></select></div>
+<div class="field"><label>旅行メンバー</label><select disabled><option>ひとり</option><option>家族</option><option>友人</option><option>カップル</option></select></div>
+<div class="field"><label>予算</label><select disabled><option>予算を選択</option></select></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-title"><div class="number">02</div><div><small>TRAVEL STYLE</small><h2>旅行スタイル</h2></div></div>
+<div class="grid">
+<div class="field"><label>旅行目的</label><select disabled><option>おまかせ</option></select></div>
+<div class="field"><label>旅行ペース</label><select disabled><option>ふつう</option><option>ゆっくり</option><option>たくさん回る</option></select></div>
+<div class="field"><label>移動手段</label><select disabled><option>車</option><option>公共交通</option></select></div>
+<div class="field"><label>旅行日</label><input type="date" disabled></div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-title"><div class="number">03</div><div><small>MUST VISIT</small><h2>行きたい場所</h2></div></div>
+<div class="coming">
+<strong>観光地データ追加後に選択できるようになります。</strong>
+<p>秩父と同様に「ここだけは行きたい」という場所を先に指定し、残りをシステムが提案する形を予定しています。</p>
+</div>
+</section>
+
+<div class="footer-action">
+<a class="button secondary" href="{{ url_for('start') }}">地域選択へ戻る</a>
+<span class="button">データ準備後に利用可能</span>
+</div>
+
+</main>
+</body>
+</html>

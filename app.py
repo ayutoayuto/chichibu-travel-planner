@@ -2,12 +2,14 @@ from flask import Flask, render_template, request, jsonify
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote, urlencode
 import hashlib
+import itertools
 import urllib.error
 import urllib.request
 import json
 import os
 import random
 import re
+import time
 
 try:
     import psycopg
@@ -18,9 +20,70 @@ app = Flask(__name__)
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
+ARRIVAL_METHOD_LABELS = {
+    "花園IC": "車（関越道・花園IC）",
+    "芦ヶ久保駅": "車（国道299号・芦ヶ久保）"
+}
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESTAURANT_FILE = os.path.join(BASE_DIR, "data", "restaurants.json")
 FACILITY_MASTER_FILE = os.path.join(BASE_DIR, "data", "facilities_master.json")
+ROUTE_LOCATION_FILE = os.path.join(BASE_DIR, "data", "route_locations.json")
+ROUTE_MATRIX_FILE = os.path.join(BASE_DIR, "data", "route_matrix.json")
+
+KAWAGOE_RESTAURANT_FILE = os.path.join(BASE_DIR, "data", "kawagoe_restaurants.json")
+KAWAGOE_FACILITY_MASTER_FILE = os.path.join(BASE_DIR, "data", "kawagoe_facilities_master.json")
+KAWAGOE_ROUTE_LOCATION_FILE = os.path.join(BASE_DIR, "data", "kawagoe_route_locations.json")
+KAWAGOE_ROUTE_MATRIX_FILE = os.path.join(BASE_DIR, "data", "kawagoe_route_matrix.json")
+
+ACTIVE_REGION_CODE = "chichibu"
+ACTIVE_REGION_NAME = "秩父"
+ACTIVE_REGION_NAME_EN = "CHICHIBU"
+ACTIVE_WEATHER_LATITUDE = 35.991681
+ACTIVE_WEATHER_LONGITUDE = 139.085475
+
+
+# =========================================================
+# 車用ローカル事前計算ルート
+# =========================================================
+
+try:
+    with open(
+        ROUTE_MATRIX_FILE,
+        "r",
+        encoding="utf-8"
+    ) as f:
+        route_matrix_data = json.load(f)
+
+    route_matrix_routes = route_matrix_data.get(
+        "routes",
+        {}
+    )
+
+    if not isinstance(route_matrix_routes, dict):
+        route_matrix_routes = {}
+
+    print(
+        "[LOCAL ROUTE MATRIX]",
+        "locations =",
+        route_matrix_data.get("location_count"),
+        "| pairs =",
+        route_matrix_data.get("pair_count"),
+        "| available =",
+        route_matrix_data.get("available_pair_count")
+    )
+
+except (
+    OSError,
+    json.JSONDecodeError,
+    TypeError
+) as exc:
+    print(
+        "[LOCAL ROUTE MATRIX ERROR]",
+        exc
+    )
+    route_matrix_data = {}
+    route_matrix_routes = {}
 
 
 with open(RESTAURANT_FILE, "r", encoding="utf-8") as f:
@@ -63,6 +126,34 @@ except (
 ):
 
     facility_master = {}
+
+
+# =========================================================
+# ルート計算専用の到着地点データ
+# =========================================================
+
+try:
+    with open(
+        ROUTE_LOCATION_FILE,
+        "r",
+        encoding="utf-8"
+    ) as f:
+        route_location_data = json.load(f)
+
+    route_locations = route_location_data.get(
+        "route_locations",
+        {}
+    )
+
+    if not isinstance(route_locations, dict):
+        route_locations = {}
+
+except (
+    OSError,
+    json.JSONDecodeError,
+    TypeError
+):
+    route_locations = {}
 
 
 
@@ -1273,7 +1364,7 @@ hotels = [
 
         'description':
             '西武秩父駅から近く、'
-            '公共交通機関を利用した旅行に便利なホテルです。',
+            '秩父市街の観光拠点として便利なホテルです。',
 
         'quality':
             4,
@@ -1502,10 +1593,177 @@ hotels = [
 # 旅行タイプ判定
 # =========================================================
 
-def get_trip_style(member, purpose, age):
-    purpose_set = set(purpose)
 
-    # 1人旅
+
+def format_parking_for_display(value):
+    """
+    駐車場情報を必ず人間向け文字列へ変換する。
+
+    dict:
+      {"available": True, "capacity": "50台", "fee": "無料", "notes": ""}
+      -> "あり／50台／無料"
+
+    「公式情報なし」が複数項目に重複する場合は1回だけ表示。
+    """
+    if value is None:
+        return "情報なし"
+
+    if isinstance(value, str):
+        text = value.strip()
+        return text if text else "情報なし"
+
+    if isinstance(value, bool):
+        return "あり" if value else "なし"
+
+    if isinstance(value, dict):
+        parts = []
+
+        available = value.get("available")
+        capacity = value.get("capacity")
+        fee = value.get("fee")
+        notes = value.get("notes")
+
+        def add_text(raw):
+            if raw is None:
+                return
+
+            if isinstance(raw, bool):
+                text = "あり" if raw else "なし"
+            else:
+                text = str(raw).strip()
+
+            if not text:
+                return
+
+            # Python辞書文字列の混入を防ぐ
+            if text.startswith("{") and text.endswith("}"):
+                return
+
+            if text not in parts:
+                parts.append(text)
+
+        add_text(available)
+        add_text(capacity)
+        add_text(fee)
+        add_text(notes)
+
+        # 「あり／公式情報なし」のような不自然表示を整理
+        if "公式情報なし" in parts:
+            useful = [
+                p for p in parts
+                if p not in {
+                    "公式情報なし",
+                    "情報なし"
+                }
+            ]
+
+            if useful == ["あり"]:
+                return "あり（詳細情報なし）"
+
+            if useful:
+                return "／".join(useful)
+
+            return "公式情報なし"
+
+        if parts:
+            return "／".join(parts)
+
+        return "情報なし"
+
+    if isinstance(value, (list, tuple, set)):
+        parts = []
+        for raw in value:
+            text = str(raw).strip()
+            if text and text not in parts:
+                parts.append(text)
+
+        return "／".join(parts) if parts else "情報なし"
+
+    text = str(value).strip()
+    return text if text else "情報なし"
+
+
+def normalize_place_for_display(item):
+    """
+    結果表示に使う施設dictを正規化。
+    parkingは必ず文字列になる。
+    """
+    if not isinstance(item, dict):
+        return item
+
+    normalized = dict(item)
+
+    normalized["parking"] = (
+        format_parking_for_display(
+            normalized.get("parking")
+        )
+    )
+
+    return normalized
+
+
+def get_trip_style(member, purpose, age):
+    purpose_set = set(
+        purpose
+        or []
+    )
+
+    if ACTIVE_REGION_CODE == "kawagoe":
+
+        if member == "一人":
+            if "小江戸・町並み" in purpose_set:
+                return "ひとりで巡る小江戸街歩き"
+            if "歴史・文化" in purpose_set:
+                return "ひとりでじっくり巡る歴史文化旅"
+            if "食べ歩き・グルメ" in purpose_set:
+                return "ひとり川越食べ歩き旅"
+            if "自然・散策" in purpose_set:
+                return "のんびり川越散策旅"
+            return "自分のペースで楽しむ川越旅"
+
+        if member == "デート":
+            if "小江戸・町並み" in purpose_set:
+                return "小江戸の町並みを巡る川越デート"
+            if "食べ歩き・グルメ" in purpose_set:
+                return "食べ歩きも楽しむ川越デート"
+            if "歴史・文化" in purpose_set:
+                return "歴史と文化を巡る川越デート"
+            if "自然・散策" in purpose_set:
+                return "のんびり歩く川越デート"
+            return "小江戸を楽しむ川越デート"
+
+        if member == "家族":
+            if "歴史・文化" in purpose_set:
+                return "家族で学んで楽しむ川越歴史旅"
+            if "食べ歩き・グルメ" in purpose_set:
+                return "家族で楽しむ川越グルメ旅"
+            if "小江戸・町並み" in purpose_set:
+                return "家族で巡る小江戸川越旅"
+            if "自然・散策" in purpose_set:
+                return "家族でのんびり川越散策"
+            return "家族みんなで楽しむ川越旅"
+
+        if member == "友人":
+            if "食べ歩き・グルメ" in purpose_set:
+                return "友達と楽しむ川越食べ歩き旅"
+            if "小江戸・町並み" in purpose_set:
+                return "友達と巡る小江戸街歩き"
+            if "歴史・文化" in purpose_set:
+                return "友達と巡る川越歴史文化旅"
+            if "自然・散策" in purpose_set:
+                return "友達とのんびり川越散策"
+            return "友達と楽しむ川越満喫旅"
+
+        if age <= 20:
+            return "学生向け小江戸川越旅"
+        if age <= 30:
+            return "街歩きで楽しむ川越旅"
+        if age <= 40:
+            return "大人の小江戸川越旅"
+
+        return "ゆったり楽しむ川越旅"
+
+    # 秩父は既存仕様を維持
     if member == "一人":
         if "自然" in purpose_set:
             return "ひとりで楽しむ自然旅"
@@ -1552,10 +1810,8 @@ def get_trip_style(member, purpose, age):
 
     if age <= 20:
         return "学生向け秩父旅"
-
     if age <= 30:
         return "若者向け秩父旅"
-
     if age <= 40:
         return "大人の秩父旅"
 
@@ -1628,6 +1884,30 @@ def attach_master_season_data(items):
             master.get("longitude")
         )
 
+        copied["walking_difficulty"] = (
+            copied.get("walking_difficulty")
+            or
+            master.get("walking_difficulty")
+        )
+
+        copied["car_free_score"] = (
+            copied.get("car_free_score")
+            if copied.get("car_free_score") is not None
+            else master.get("car_free_score")
+        )
+
+        copied["parking"] = (
+            copied.get("parking")
+            or
+            master.get("parking")
+        )
+
+        copied["access"] = (
+            copied.get("access")
+            or
+            master.get("access")
+        )
+
         enriched.append(
             copied
         )
@@ -1642,6 +1922,1742 @@ spots = attach_master_season_data(
 hotels = attach_master_season_data(
     hotels
 )
+
+
+# =========================================================
+# 地域切替（秩父 / 川越）
+# =========================================================
+
+CHICHIBU_DATASET = {
+    "spots": spots,
+    "hotels": hotels,
+    "restaurants": restaurants,
+    "facility_master": facility_master,
+    "route_locations": route_locations,
+    "route_matrix_data": route_matrix_data,
+    "route_matrix_routes": route_matrix_routes,
+}
+
+
+def _safe_load_json(path):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            value = json.load(f)
+        return value if isinstance(value, dict) else {}
+    except (OSError, json.JSONDecodeError, TypeError) as exc:
+        print("[REGION DATA ERROR]", path, exc)
+        return {}
+
+
+KAWAGOE_SPOT_RECOMMENDATION_TAGS = {
+    "時の鐘": [
+        "小江戸・町並み", "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "蔵造りの町並み": [
+        "小江戸・町並み", "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "菓子屋横丁": [
+        "小江戸・町並み", "食べ歩き・グルメ",
+        "デート", "家族", "友人"
+    ],
+    "川越まつり会館": [
+        "歴史・文化",
+        "家族", "友人", "デート"
+    ],
+    "旧山崎家別邸": [
+        "小江戸・町並み", "歴史・文化", "自然・散策",
+        "デート", "家族", "友人"
+    ],
+    "小江戸蔵里": [
+        "小江戸・町並み", "歴史・文化", "食べ歩き・グルメ",
+        "デート", "家族", "友人"
+    ],
+    "蓮馨寺": [
+        "歴史・文化", "小江戸・町並み",
+        "デート", "家族", "友人"
+    ],
+    "大正浪漫夢通り": [
+        "小江戸・町並み", "食べ歩き・グルメ",
+        "デート", "家族", "友人"
+    ],
+    "川越熊野神社": [
+        "歴史・文化", "小江戸・町並み",
+        "デート", "家族", "友人"
+    ],
+    "川越城本丸御殿": [
+        "歴史・文化",
+        "家族", "友人", "デート"
+    ],
+    "川越市立博物館": [
+        "歴史・文化",
+        "家族", "友人"
+    ],
+    "川越市立美術館": [
+        "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "三芳野神社": [
+        "歴史・文化",
+        "家族", "友人", "デート"
+    ],
+    "川越氷川神社": [
+        "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "川越城中ノ門堀跡": [
+        "歴史・文化",
+        "家族", "友人"
+    ],
+    "喜多院": [
+        "歴史・文化", "自然・散策",
+        "デート", "家族", "友人"
+    ],
+    "仙波東照宮": [
+        "歴史・文化", "自然・散策",
+        "デート", "家族", "友人"
+    ],
+    "中院": [
+        "歴史・文化", "自然・散策",
+        "デート", "家族", "友人"
+    ],
+    "成田山川越別院": [
+        "歴史・文化",
+        "家族", "友人"
+    ],
+    "川越八幡宮": [
+        "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "伊佐沼": [
+        "自然・散策",
+        "デート", "家族", "友人"
+    ],
+    "国指定史跡 河越館跡": [
+        "歴史・文化", "自然・散策",
+        "家族", "友人"
+    ],
+}
+
+
+
+# =========================================================
+# 秩父30観光地 100点満点の推薦評価基準
+#
+# 川越と同じ6項目・100点満点へ統一する。
+#
+# 旅行目的             30点
+# 旅行メンバー         20点
+# 秩父らしさ           20点
+# アクセス             10点
+# 旅行日程への適合     10点
+# 季節・旅行時期       10点
+# 合計                100点
+#
+# 「施設そのものの価値」ではなく、
+# 今回の旅行条件との相性を表す。
+# =========================================================
+
+CHICHIBU_LOCALNESS_SCORE = {
+    "長瀞・岩畳": 20,
+    "長瀞ラインくだり": 20,
+    "宝登山": 18,
+    "寶登山神社": 18,
+    "宝登山ロープウェイ": 17,
+    "埼玉県立自然の博物館": 14,
+    "月の石もみじ公園": 16,
+    "金石水管橋": 12,
+    "秩父神社": 20,
+    "三峯神社": 20,
+    "羊山公園": 20,
+    "秩父ミューズパーク": 18,
+    "旅立ちの丘": 15,
+    "美の山公園": 17,
+    "橋立鍾乳洞": 17,
+    "聖神社": 16,
+    "秩父まつり会館": 19,
+    "ほっとすぽっと秩父館": 15,
+    "ちちぶ銘仙館": 18,
+    "武甲山資料館": 17,
+    "秩父ふるさと館": 17,
+    "和銅遺跡": 18,
+    "清雲寺": 17,
+    "秩父華厳の滝": 17,
+    "三十槌の氷柱": 20,
+    "小松沢レジャー農園": 15,
+    "秩父フルーツファーム": 15,
+    "道の駅ちちぶ": 18,
+    "秩父温泉 満願の湯": 18,
+    "大滝温泉": 18,
+}
+
+
+def _chichibu_purpose_score(
+    spot,
+    purpose
+):
+    tags = set(
+        spot.get(
+            "tags",
+            []
+        )
+        or []
+    )
+
+    selected = [
+        str(value).strip()
+        for value in (purpose or [])
+        if str(value).strip()
+    ]
+
+    if not selected:
+        return (
+            15,
+            "旅行目的はおまかせのため中間点"
+        )
+
+    matched = [
+        value
+        for value in selected
+        if value in tags
+    ]
+
+    if matched:
+        if len(matched) >= 2:
+            return (
+                30,
+                "選択した複数の旅行目的と一致"
+            )
+
+        return (
+            27,
+            f"選択した「{matched[0]}」と高い相性"
+        )
+
+    # 直接一致しない場合もマイナス点にはしない。
+    # 施設種別が自然/歴史なら関連性のある最低点を与える。
+    spot_type = str(
+        spot.get(
+            "type",
+            ""
+        )
+    ).lower()
+
+    if (
+        "自然" in selected
+        and spot_type == "nature"
+    ):
+        return (
+            18,
+            "自然系施設として旅行目的と一定の相性"
+        )
+
+    if (
+        "歴史" in selected
+        and spot_type == "history"
+    ):
+        return (
+            18,
+            "歴史系施設として旅行目的と一定の相性"
+        )
+
+    return (
+        5,
+        "選択した旅行目的との直接的な一致は少ない"
+    )
+
+
+def _chichibu_member_score(
+    spot,
+    member
+):
+    tags = set(
+        spot.get(
+            "tags",
+            []
+        )
+        or []
+    )
+
+    if member == "一人":
+        if spot.get("time", 1) <= 2:
+            return (
+                18,
+                "1人でも自分のペースで立ち寄りやすい"
+            )
+
+        return (
+            15,
+            "1人でも利用できるが滞在時間はやや長め"
+        )
+
+    if member in tags:
+        return (
+            19,
+            f"{member}旅行との相性が高い"
+        )
+
+    return (
+        12,
+        f"{member}旅行でも利用できる"
+    )
+
+
+def _chichibu_access_score(
+    spot
+):
+    if spot.get("car") is True:
+        return (
+            10,
+            "車で立ち寄りやすく現在の旅行条件と相性が良い"
+        )
+
+    return (
+        7,
+        "車利用でも訪問可能だが専用駐車場等の条件は限定的"
+    )
+
+
+def _chichibu_itinerary_score(
+    spot,
+    days
+):
+    try:
+        stay_hours = float(
+            spot.get(
+                "time",
+                1
+            )
+            or 1
+        )
+    except (
+        TypeError,
+        ValueError
+    ):
+        stay_hours = 1.0
+
+    if days == "1泊2日":
+        if stay_hours <= 1:
+            return (
+                10,
+                "短時間で立ち寄りやすく1泊2日に組み込みやすい"
+            )
+        if stay_hours <= 2:
+            return (
+                9,
+                "1泊2日でも組み込みやすい滞在時間"
+            )
+        if stay_hours <= 3:
+            return (
+                7,
+                "半日程度を確保すれば1泊2日でも組み込み可能"
+            )
+        return (
+            5,
+            "滞在時間が長く1泊2日では時間確保が必要"
+        )
+
+    # 2泊3日
+    if stay_hours <= 2:
+        return (
+            10,
+            "2泊3日の旅程に非常に組み込みやすい"
+        )
+    if stay_hours <= 3:
+        return (
+            9,
+            "2泊3日なら余裕をもって組み込みやすい"
+        )
+
+    return (
+        8,
+        "2泊3日なら時間を確保して組み込みやすい"
+    )
+
+
+def _chichibu_season_score(
+    spot,
+    season,
+    travel_date
+):
+    (
+        raw_score,
+        raw_reasons,
+        unavailable
+    ) = calculate_season_effect(
+        spot,
+        season,
+        travel_date
+    )
+
+    if unavailable:
+        return (
+            0,
+            "旅行予定日が営業条件に合っていません",
+            True
+        )
+
+    if not travel_date:
+        return (
+            5,
+            "旅行日未指定のため季節評価は中間点",
+            False
+        )
+
+    if raw_score > 0:
+        reason = (
+            "旅行時期と施設の季節情報の相性が良い"
+        )
+
+        if raw_reasons:
+            normalized_reasons = [
+                str(value)
+                for value in raw_reasons
+                if str(value).strip()
+            ]
+
+            if normalized_reasons:
+                reason = "・".join(
+                    normalized_reasons
+                )
+
+        return (
+            10,
+            reason,
+            False
+        )
+
+    if raw_score < 0:
+        return (
+            4,
+            "旅行時期との相性はやや低め",
+            False
+        )
+
+    return (
+        7,
+        "通年利用または季節による大きな差がない",
+        False
+    )
+
+
+def calculate_chichibu_spot_score(
+    spot,
+    member,
+    purpose,
+    car,
+    age,
+    people,
+    days,
+    budget,
+    gender,
+    walking_amount="普通",
+    travel_pace="普通",
+    season=None,
+    travel_date=""
+):
+    name = str(
+        spot.get(
+            "name",
+            ""
+        )
+    ).strip()
+
+    (
+        purpose_score,
+        purpose_reason
+    ) = _chichibu_purpose_score(
+        spot,
+        purpose
+    )
+
+    (
+        member_score,
+        member_reason
+    ) = _chichibu_member_score(
+        spot,
+        member
+    )
+
+    chichibu_score = int(
+        CHICHIBU_LOCALNESS_SCORE.get(
+            name,
+            14
+        )
+    )
+
+    if chichibu_score >= 19:
+        chichibu_reason = (
+            "秩父を代表する観光資源として地域性が非常に強い"
+        )
+    elif chichibu_score >= 16:
+        chichibu_reason = (
+            "秩父らしい自然・文化・観光資源を感じやすい"
+        )
+    else:
+        chichibu_reason = (
+            "秩父旅行の一要素として組み込みやすい"
+        )
+
+    (
+        access_score,
+        access_reason
+    ) = _chichibu_access_score(
+        spot
+    )
+
+    (
+        itinerary_score,
+        itinerary_reason
+    ) = _chichibu_itinerary_score(
+        spot,
+        days
+    )
+
+    (
+        season_score,
+        season_reason,
+        unavailable
+    ) = _chichibu_season_score(
+        spot,
+        season,
+        travel_date
+    )
+
+    if unavailable:
+        return (
+            -900,
+            [
+                "旅行予定日の営業条件に合わない"
+            ],
+            [
+                _score_item_with_max(
+                    "season",
+                    "季節・旅行時期",
+                    0,
+                    10,
+                    season_reason
+                )
+            ]
+        )
+
+    breakdown = [
+        _score_item_with_max(
+            "purpose",
+            "旅行目的との相性",
+            purpose_score,
+            30,
+            purpose_reason
+        ),
+        _score_item_with_max(
+            "member",
+            "旅行メンバーとの相性",
+            member_score,
+            20,
+            member_reason
+        ),
+        _score_item_with_max(
+            "chichibu",
+            "秩父らしさ",
+            chichibu_score,
+            20,
+            chichibu_reason
+        ),
+        _score_item_with_max(
+            "access",
+            "アクセス・移動",
+            access_score,
+            10,
+            access_reason
+        ),
+        _score_item_with_max(
+            "days",
+            "旅行日程への組み込みやすさ",
+            itinerary_score,
+            10,
+            itinerary_reason
+        ),
+        _score_item_with_max(
+            "season",
+            "季節・旅行時期",
+            season_score,
+            10,
+            season_reason
+        ),
+    ]
+
+    total_score = sum(
+        int(
+            item.get(
+                "score",
+                0
+            )
+        )
+        for item in breakdown
+    )
+
+    total_score = max(
+        0,
+        min(
+            100,
+            total_score
+        )
+    )
+
+    reasons = []
+
+    if purpose_score >= 25:
+        reasons.append(
+            "旅行目的との相性が高い"
+        )
+
+    if member_score >= 18:
+        reasons.append(
+            f"{member}旅行に向いている"
+        )
+
+    if chichibu_score >= 19:
+        reasons.append(
+            "秩父らしさを強く感じられる"
+        )
+
+    if access_score >= 9:
+        reasons.append(
+            "車で立ち寄りやすい"
+        )
+
+    # 既存関数との互換用。100点評価には直接使わない。
+    _ = car
+    _ = age
+    _ = people
+    _ = budget
+    _ = gender
+    _ = walking_amount
+    _ = travel_pace
+
+    return (
+        total_score,
+        reasons,
+        breakdown
+    )
+
+
+# =========================================================
+# 川越22観光地 100点満点の推薦評価基準
+#
+# 旅行目的             30点
+# 旅行メンバー         20点
+# 川越らしさ           20点
+# アクセス             10点
+# 旅行日程への適合     10点
+# 季節・旅行時期       10点
+# 合計                100点
+#
+# 数値は「施設の優劣」ではなく、
+# 今回の旅行条件との相性を比較するための
+# システム内評価値として扱う。
+# =========================================================
+
+KAWAGOE_SPOT_SCORE_PROFILES = {
+    "時の鐘": {
+        "purpose": {
+            "小江戸・町並み": 30,
+            "歴史・文化": 25,
+            "食べ歩き・グルメ": 8,
+            "自然・散策": 5,
+        },
+        "member": {
+            "一人": 18, "デート": 19, "家族": 18, "友人": 18,
+        },
+        "kawagoe": 20,
+        "access": 8,
+    },
+    "蔵造りの町並み": {
+        "purpose": {
+            "小江戸・町並み": 30,
+            "歴史・文化": 25,
+            "食べ歩き・グルメ": 15,
+            "自然・散策": 8,
+        },
+        "member": {
+            "一人": 18, "デート": 20, "家族": 18, "友人": 20,
+        },
+        "kawagoe": 20,
+        "access": 8,
+    },
+    "菓子屋横丁": {
+        "purpose": {
+            "小江戸・町並み": 24,
+            "歴史・文化": 10,
+            "食べ歩き・グルメ": 30,
+            "自然・散策": 5,
+        },
+        "member": {
+            "一人": 15, "デート": 19, "家族": 20, "友人": 20,
+        },
+        "kawagoe": 20,
+        "access": 8,
+    },
+    "川越まつり会館": {
+        "purpose": {
+            "小江戸・町並み": 18,
+            "歴史・文化": 30,
+            "食べ歩き・グルメ": 4,
+            "自然・散策": 3,
+        },
+        "member": {
+            "一人": 17, "デート": 15, "家族": 19, "友人": 17,
+        },
+        "kawagoe": 19,
+        "access": 8,
+    },
+    "旧山崎家別邸": {
+        "purpose": {
+            "小江戸・町並み": 24,
+            "歴史・文化": 28,
+            "食べ歩き・グルメ": 3,
+            "自然・散策": 18,
+        },
+        "member": {
+            "一人": 18, "デート": 20, "家族": 16, "友人": 16,
+        },
+        "kawagoe": 18,
+        "access": 8,
+    },
+    "小江戸蔵里": {
+        "purpose": {
+            "小江戸・町並み": 24,
+            "歴史・文化": 20,
+            "食べ歩き・グルメ": 28,
+            "自然・散策": 4,
+        },
+        "member": {
+            "一人": 17, "デート": 18, "家族": 19, "友人": 20,
+        },
+        "kawagoe": 18,
+        "access": 9,
+    },
+    "蓮馨寺": {
+        "purpose": {
+            "小江戸・町並み": 20,
+            "歴史・文化": 27,
+            "食べ歩き・グルメ": 5,
+            "自然・散策": 8,
+        },
+        "member": {
+            "一人": 18, "デート": 16, "家族": 17, "友人": 16,
+        },
+        "kawagoe": 16,
+        "access": 9,
+    },
+    "大正浪漫夢通り": {
+        "purpose": {
+            "小江戸・町並み": 28,
+            "歴史・文化": 15,
+            "食べ歩き・グルメ": 22,
+            "自然・散策": 8,
+        },
+        "member": {
+            "一人": 17, "デート": 20, "家族": 17, "友人": 20,
+        },
+        "kawagoe": 18,
+        "access": 9,
+    },
+    "川越熊野神社": {
+        "purpose": {
+            "小江戸・町並み": 20,
+            "歴史・文化": 27,
+            "食べ歩き・グルメ": 4,
+            "自然・散策": 8,
+        },
+        "member": {
+            "一人": 18, "デート": 18, "家族": 18, "友人": 17,
+        },
+        "kawagoe": 16,
+        "access": 9,
+    },
+    "川越城本丸御殿": {
+        "purpose": {
+            "小江戸・町並み": 12,
+            "歴史・文化": 30,
+            "食べ歩き・グルメ": 2,
+            "自然・散策": 7,
+        },
+        "member": {
+            "一人": 18, "デート": 14, "家族": 19, "友人": 17,
+        },
+        "kawagoe": 19,
+        "access": 8,
+    },
+    "川越市立博物館": {
+        "purpose": {
+            "小江戸・町並み": 10,
+            "歴史・文化": 30,
+            "食べ歩き・グルメ": 1,
+            "自然・散策": 3,
+        },
+        "member": {
+            "一人": 18, "デート": 12, "家族": 20, "友人": 15,
+        },
+        "kawagoe": 16,
+        "access": 8,
+    },
+    "川越市立美術館": {
+        "purpose": {
+            "小江戸・町並み": 8,
+            "歴史・文化": 27,
+            "食べ歩き・グルメ": 1,
+            "自然・散策": 4,
+        },
+        "member": {
+            "一人": 18, "デート": 18, "家族": 16, "友人": 16,
+        },
+        "kawagoe": 14,
+        "access": 8,
+    },
+    "三芳野神社": {
+        "purpose": {
+            "小江戸・町並み": 10,
+            "歴史・文化": 27,
+            "食べ歩き・グルメ": 1,
+            "自然・散策": 10,
+        },
+        "member": {
+            "一人": 18, "デート": 15, "家族": 17, "友人": 16,
+        },
+        "kawagoe": 15,
+        "access": 8,
+    },
+    "川越氷川神社": {
+        "purpose": {
+            "小江戸・町並み": 16,
+            "歴史・文化": 28,
+            "食べ歩き・グルメ": 3,
+            "自然・散策": 12,
+        },
+        "member": {
+            "一人": 17, "デート": 20, "家族": 19, "友人": 18,
+        },
+        "kawagoe": 19,
+        "access": 8,
+    },
+    "川越城中ノ門堀跡": {
+        "purpose": {
+            "小江戸・町並み": 8,
+            "歴史・文化": 28,
+            "食べ歩き・グルメ": 0,
+            "自然・散策": 10,
+        },
+        "member": {
+            "一人": 17, "デート": 11, "家族": 16, "友人": 14,
+        },
+        "kawagoe": 14,
+        "access": 8,
+    },
+    "喜多院": {
+        "purpose": {
+            "小江戸・町並み": 14,
+            "歴史・文化": 30,
+            "食べ歩き・グルメ": 2,
+            "自然・散策": 18,
+        },
+        "member": {
+            "一人": 19, "デート": 18, "家族": 20, "友人": 18,
+        },
+        "kawagoe": 19,
+        "access": 9,
+    },
+    "仙波東照宮": {
+        "purpose": {
+            "小江戸・町並み": 10,
+            "歴史・文化": 30,
+            "食べ歩き・グルメ": 0,
+            "自然・散策": 16,
+        },
+        "member": {
+            "一人": 18, "デート": 16, "家族": 17, "友人": 16,
+        },
+        "kawagoe": 17,
+        "access": 9,
+    },
+    "中院": {
+        "purpose": {
+            "小江戸・町並み": 10,
+            "歴史・文化": 26,
+            "食べ歩き・グルメ": 0,
+            "自然・散策": 20,
+        },
+        "member": {
+            "一人": 19, "デート": 19, "家族": 16, "友人": 15,
+        },
+        "kawagoe": 15,
+        "access": 9,
+    },
+    "成田山川越別院": {
+        "purpose": {
+            "小江戸・町並み": 8,
+            "歴史・文化": 25,
+            "食べ歩き・グルメ": 0,
+            "自然・散策": 7,
+        },
+        "member": {
+            "一人": 18, "デート": 13, "家族": 17, "友人": 15,
+        },
+        "kawagoe": 13,
+        "access": 9,
+    },
+    "川越八幡宮": {
+        "purpose": {
+            "小江戸・町並み": 10,
+            "歴史・文化": 25,
+            "食べ歩き・グルメ": 1,
+            "自然・散策": 8,
+        },
+        "member": {
+            "一人": 18, "デート": 18, "家族": 18, "友人": 17,
+        },
+        "kawagoe": 14,
+        "access": 10,
+    },
+    "伊佐沼": {
+        "purpose": {
+            "小江戸・町並み": 0,
+            "歴史・文化": 4,
+            "食べ歩き・グルメ": 0,
+            "自然・散策": 30,
+        },
+        "member": {
+            "一人": 17, "デート": 19, "家族": 20, "友人": 18,
+        },
+        "kawagoe": 14,
+        "access": 8,
+    },
+    "国指定史跡 河越館跡": {
+        "purpose": {
+            "小江戸・町並み": 5,
+            "歴史・文化": 30,
+            "食べ歩き・グルメ": 0,
+            "自然・散策": 16,
+        },
+        "member": {
+            "一人": 18, "デート": 11, "家族": 17, "友人": 15,
+        },
+        "kawagoe": 16,
+        "access": 7,
+    },
+}
+
+
+def _score_item_with_max(
+    key,
+    label,
+    score,
+    max_score,
+    reason=""
+):
+    return {
+        "key": str(key),
+        "label": str(label),
+        "score": int(max(0, min(score, max_score))),
+        "max_score": int(max_score),
+        "reason": str(reason or ""),
+    }
+
+
+def _kawagoe_purpose_score(
+    profile,
+    purpose
+):
+    purpose_scores = profile.get(
+        "purpose",
+        {}
+    )
+
+    selected = [
+        str(value).strip()
+        for value in (purpose or [])
+        if str(value).strip()
+    ]
+
+    if not selected:
+        return (
+            15,
+            "旅行目的はおまかせのため中間点"
+        )
+
+    matched = [
+        (
+            name,
+            int(
+                purpose_scores.get(
+                    name,
+                    0
+                )
+                or 0
+            )
+        )
+        for name in selected
+    ]
+
+    best_name, best_score = max(
+        matched,
+        key=lambda item: item[1]
+    )
+
+    if best_score >= 25:
+        reason = (
+            f"選択した「{best_name}」と非常に相性が良い"
+        )
+    elif best_score >= 15:
+        reason = (
+            f"選択した「{best_name}」と相性が良い"
+        )
+    elif best_score > 0:
+        reason = (
+            f"選択した「{best_name}」と一部相性がある"
+        )
+    else:
+        reason = (
+            "選択した旅行目的との直接的な一致は少ない"
+        )
+
+    return (
+        best_score,
+        reason
+    )
+
+
+def _kawagoe_member_score(
+    profile,
+    member
+):
+    member_scores = profile.get(
+        "member",
+        {}
+    )
+
+    score = int(
+        member_scores.get(
+            member,
+            12
+        )
+        or 0
+    )
+
+    if score >= 18:
+        reason = (
+            f"{member}旅行と特に相性が良い"
+        )
+    elif score >= 14:
+        reason = (
+            f"{member}旅行に組み込みやすい"
+        )
+    elif score > 0:
+        reason = (
+            f"{member}旅行でも利用可能"
+        )
+    else:
+        reason = (
+            f"{member}旅行との相性は低め"
+        )
+
+    return (
+        score,
+        reason
+    )
+
+
+def _kawagoe_itinerary_score(
+    spot,
+    days
+):
+    try:
+        stay_hours = float(
+            spot.get(
+                "time",
+                1
+            )
+            or 1
+        )
+    except (
+        TypeError,
+        ValueError
+    ):
+        stay_hours = 1.0
+
+    if days == "1泊2日":
+        if stay_hours <= 1:
+            return (
+                10,
+                "短時間で立ち寄りやすく1泊2日に組み込みやすい"
+            )
+        if stay_hours <= 2:
+            return (
+                8,
+                "1泊2日でも無理なく組み込みやすい"
+            )
+        return (
+            6,
+            "滞在時間が長めのため日程に余裕が必要"
+        )
+
+    if stay_hours <= 2:
+        return (
+            10,
+            "2泊3日の旅程に十分組み込みやすい"
+        )
+
+    return (
+        8,
+        "2泊3日なら時間を確保して組み込みやすい"
+    )
+
+
+def _kawagoe_season_score(
+    spot,
+    season,
+    travel_date
+):
+    (
+        raw_score,
+        raw_reasons,
+        unavailable
+    ) = calculate_season_effect(
+        spot,
+        season,
+        travel_date
+    )
+
+    if unavailable:
+        return (
+            0,
+            "旅行予定日が営業条件に合っていません",
+            True
+        )
+
+    if not travel_date:
+        return (
+            5,
+            "旅行日未指定のため季節評価は中間点",
+            False
+        )
+
+    if raw_score > 0:
+        reason = (
+            "旅行時期と施設の季節情報の相性が良い"
+        )
+        if raw_reasons:
+            reason = "・".join(
+                str(x)
+                for x in raw_reasons
+                if str(x).strip()
+            ) or reason
+
+        return (
+            10,
+            reason,
+            False
+        )
+
+    if raw_score < 0:
+        return (
+            4,
+            "旅行時期との相性はやや低め",
+            False
+        )
+
+    return (
+        7,
+        "通年利用または季節による大きな差がない",
+        False
+    )
+
+
+def calculate_kawagoe_spot_score(
+    spot,
+    member,
+    purpose,
+    car,
+    age,
+    people,
+    days,
+    budget,
+    gender,
+    walking_amount="普通",
+    travel_pace="普通",
+    season=None,
+    travel_date=""
+):
+    name = str(
+        spot.get(
+            "name",
+            ""
+        )
+    ).strip()
+
+    profile = (
+        KAWAGOE_SPOT_SCORE_PROFILES.get(
+            name,
+            {}
+        )
+    )
+
+    if not profile:
+        # 未登録施設が混ざった場合も100点制を壊さない。
+        profile = {
+            "purpose": {},
+            "member": {
+                "一人": 12,
+                "デート": 12,
+                "家族": 12,
+                "友人": 12,
+            },
+            "kawagoe": 10,
+            "access": 5,
+        }
+
+    purpose_score, purpose_reason = (
+        _kawagoe_purpose_score(
+            profile,
+            purpose
+        )
+    )
+
+    member_score, member_reason = (
+        _kawagoe_member_score(
+            profile,
+            member
+        )
+    )
+
+    kawagoe_score = int(
+        profile.get(
+            "kawagoe",
+            10
+        )
+        or 0
+    )
+
+    if kawagoe_score >= 18:
+        kawagoe_reason = (
+            "川越を代表する観光資源としての特色が強い"
+        )
+    elif kawagoe_score >= 14:
+        kawagoe_reason = (
+            "川越の歴史・文化・景観を感じやすい"
+        )
+    else:
+        kawagoe_reason = (
+            "川越観光の一要素として組み込みやすい"
+        )
+
+    access_score = int(
+        profile.get(
+            "access",
+            5
+        )
+        or 0
+    )
+
+    if access_score >= 9:
+        access_reason = (
+            "市街地や主要ルートから立ち寄りやすい"
+        )
+    elif access_score >= 7:
+        access_reason = (
+            "車移動の旅程に組み込みやすい"
+        )
+    else:
+        access_reason = (
+            "移動にはやや時間の確保が必要"
+        )
+
+    itinerary_score, itinerary_reason = (
+        _kawagoe_itinerary_score(
+            spot,
+            days
+        )
+    )
+
+    (
+        season_score,
+        season_reason,
+        unavailable
+    ) = _kawagoe_season_score(
+        spot,
+        season,
+        travel_date
+    )
+
+    if unavailable:
+        return (
+            -900,
+            [
+                "旅行予定日の営業条件に合わない"
+            ],
+            [
+                _score_item_with_max(
+                    "season",
+                    "季節・旅行時期",
+                    0,
+                    10,
+                    season_reason
+                )
+            ]
+        )
+
+    breakdown = [
+        _score_item_with_max(
+            "purpose",
+            "旅行目的との相性",
+            purpose_score,
+            30,
+            purpose_reason
+        ),
+        _score_item_with_max(
+            "member",
+            "旅行メンバーとの相性",
+            member_score,
+            20,
+            member_reason
+        ),
+        _score_item_with_max(
+            "kawagoe",
+            "川越らしさ",
+            kawagoe_score,
+            20,
+            kawagoe_reason
+        ),
+        _score_item_with_max(
+            "access",
+            "アクセス・移動",
+            access_score,
+            10,
+            access_reason
+        ),
+        _score_item_with_max(
+            "days",
+            "旅行日程への組み込みやすさ",
+            itinerary_score,
+            10,
+            itinerary_reason
+        ),
+        _score_item_with_max(
+            "season",
+            "季節・旅行時期",
+            season_score,
+            10,
+            season_reason
+        ),
+    ]
+
+    total_score = sum(
+        int(
+            item.get(
+                "score",
+                0
+            )
+        )
+        for item in breakdown
+    )
+
+    total_score = max(
+        0,
+        min(
+            100,
+            total_score
+        )
+    )
+
+    reasons = []
+
+    if purpose_score >= 25:
+        reasons.append(
+            "旅行目的との相性が高い"
+        )
+
+    if member_score >= 18:
+        reasons.append(
+            f"{member}旅行に向いている"
+        )
+
+    if kawagoe_score >= 18:
+        reasons.append(
+            "川越らしさを強く感じられる"
+        )
+
+    if access_score >= 9:
+        reasons.append(
+            "旅程に組み込みやすい立地"
+        )
+
+    # 既存関数との互換用。評価には使わない。
+    _ = car
+    _ = age
+    _ = people
+    _ = budget
+    _ = gender
+    _ = walking_amount
+    _ = travel_pace
+
+    return (
+        total_score,
+        reasons,
+        breakdown
+    )
+
+
+KAWAGOE_HOTEL_RECOMMENDATION_TAGS = {
+    "松村屋旅館": [
+        "小江戸・町並み", "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "川越ビジネスホテル": [
+        "友人"
+    ],
+    "川越東武ホテル": [
+        "デート", "家族", "友人"
+    ],
+    "川越第一ホテル": [
+        "友人"
+    ],
+    "川越プリンスホテル": [
+        "デート", "家族", "友人"
+    ],
+    "川越湯遊ランド・ホテル三光": [
+        "デート", "家族", "友人"
+    ],
+    "デイリーホテル小江戸川越店": [
+        "小江戸・町並み",
+        "家族", "友人"
+    ],
+    "UTILITY HOTEL cooju": [
+        "デート", "友人"
+    ],
+    "スーパーホテル埼玉・川越": [
+        "家族", "友人"
+    ],
+    "旅籠 小江戸や": [
+        "小江戸・町並み",
+        "家族", "友人"
+    ],
+    "泊まれるリラクゼーションサロン ゆきき": [
+        "デート", "家族"
+    ],
+    "ちゃぶだい Guesthouse, Cafe&Bar": [
+        "小江戸・町並み", "歴史・文化",
+        "デート", "友人"
+    ],
+    "小江戸川越おもてなしの家": [
+        "家族", "友人"
+    ],
+    "月の宿 KAGUYA": [
+        "デート", "友人"
+    ],
+    "WE HOME STAY 川越・的場": [
+        "歴史・文化",
+        "家族", "友人"
+    ],
+    "結家 -MUSUBIYA-": [
+        "歴史・文化",
+        "デート", "家族", "友人"
+    ],
+    "丹徳庭園": [
+        "歴史・文化", "自然・散策",
+        "デート", "家族"
+    ],
+    "ゲストハウスくく 川越店": [
+        "友人"
+    ],
+}
+
+
+def _kawagoe_objective_tags(facility):
+    """
+    川越22観光地の推薦タグ。
+    施設マスターの種別・説明と川越観光の性格に合わせて、
+    施設ごとに明示的に定義する。
+    """
+    name = str(facility.get("name") or "").strip()
+
+    return list(
+        KAWAGOE_SPOT_RECOMMENDATION_TAGS.get(
+            name,
+            []
+        )
+    )
+
+
+def _kawagoe_standard_stay_hours(facility):
+    """
+    公式値ではなく、旅程作成のためのシステム内標準滞在時間。
+    詳細マスターに公式値がある場合はそちらを優先する。
+    """
+    basic = facility.get("basic") if isinstance(facility.get("basic"), dict) else {}
+    raw = basic.get("stay_time_hours")
+    try:
+        if raw is not None:
+            return float(raw)
+    except (TypeError, ValueError):
+        pass
+
+    text = " ".join([
+        str(facility.get("name") or ""),
+        str(basic.get("type") or ""),
+    ])
+
+    if any(word in text for word in ("博物館", "美術館", "町並み", "横丁", "伊佐沼", "河越館跡")):
+        return 2
+    return 1
+
+
+def _kawagoe_facility_to_spot(facility):
+    basic = facility.get("basic") if isinstance(facility.get("basic"), dict) else {}
+    access = facility.get("access") if isinstance(facility.get("access"), dict) else {}
+
+    car_text = " ".join([
+        str(access.get("car") or ""),
+        str(facility.get("parking") or ""),
+    ])
+    has_confirmed_parking = (
+        "駐車" in car_text
+        and "確認できず" not in car_text
+        and "なし" not in car_text
+    )
+
+    return {
+        "name": str(facility.get("name") or ""),
+        "tags": _kawagoe_objective_tags(facility),
+        "car": bool(has_confirmed_parking),
+        "time": _kawagoe_standard_stay_hours(facility),
+        "area": str(basic.get("area") or "川越"),
+        "type": str(basic.get("type") or "観光"),
+        "description": str(facility.get("description") or facility.get("notes") or ""),
+        "difficulty": facility.get("walking_difficulty"),
+        "url": facility.get("official_url") or facility.get("source") or "",
+        "address": basic.get("address") or facility.get("address"),
+        "phone": basic.get("phone") or facility.get("phone"),
+        "season": facility.get("season"),
+        "best_season": facility.get("best_season"),
+        "seasonal_operation": facility.get("seasonal_operation"),
+        "closed": facility.get("closed"),
+        "status": facility.get("status"),
+        "planning_time_note": "滞在時間は旅程作成用のシステム内標準値",
+    }
+
+
+def _kawagoe_facility_to_hotel(facility):
+    basic = facility.get("basic") if isinstance(facility.get("basic"), dict) else {}
+    contact = facility.get("contact") if isinstance(facility.get("contact"), dict) else {}
+
+    name = str(
+        facility.get("name")
+        or ""
+    ).strip()
+
+    tags = list(
+        KAWAGOE_HOTEL_RECOMMENDATION_TAGS.get(
+            name,
+            []
+        )
+    )
+
+    return {
+        "name": name,
+        "tags": tags,
+        "price": None,
+        "quality": None,
+        "type": str(basic.get("type") or "宿泊施設"),
+        "description": str(facility.get("description") or facility.get("notes") or ""),
+        "url": facility.get("official_url") or facility.get("source") or "",
+        "address": basic.get("address") or contact.get("address") or facility.get("address"),
+        "phone": basic.get("phone") or contact.get("phone") or facility.get("phone"),
+        "season": facility.get("season"),
+        "best_season": facility.get("best_season"),
+        "seasonal_operation": facility.get("seasonal_operation"),
+        "closed": facility.get("closed"),
+        "status": facility.get("status"),
+        "price_note": "宿泊料金は日付・人数・部屋・プランで変動するため予約時確認",
+    }
+
+
+def _load_kawagoe_dataset():
+    master_data = _safe_load_json(KAWAGOE_FACILITY_MASTER_FILE)
+    restaurant_data_local = _safe_load_json(KAWAGOE_RESTAURANT_FILE)
+    route_location_data_local = _safe_load_json(KAWAGOE_ROUTE_LOCATION_FILE)
+    route_matrix_data_local = _safe_load_json(KAWAGOE_ROUTE_MATRIX_FILE)
+
+    facilities = master_data.get("facilities", [])
+    if not isinstance(facilities, list):
+        facilities = []
+
+    kawagoe_spots = [
+        _kawagoe_facility_to_spot(item)
+        for item in facilities
+        if isinstance(item, dict) and item.get("category") == "観光スポット"
+    ]
+
+    kawagoe_hotels = [
+        _kawagoe_facility_to_hotel(item)
+        for item in facilities
+        if isinstance(item, dict) and item.get("category") == "宿泊施設"
+    ]
+
+    kawagoe_restaurants = restaurant_data_local.get("restaurants", [])
+    if not isinstance(kawagoe_restaurants, list):
+        kawagoe_restaurants = []
+
+    # raw masterも名称辞書にして、既存の地図・季節処理と互換化
+    kawagoe_master = {}
+    for item in facilities:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if not name:
+            continue
+
+        copied = dict(item)
+        basic = copied.get("basic") if isinstance(copied.get("basic"), dict) else {}
+        contact = copied.get("contact") if isinstance(copied.get("contact"), dict) else {}
+
+        copied["address"] = (
+            basic.get("address")
+            or contact.get("address")
+            or copied.get("address")
+        )
+        copied["phone"] = (
+            basic.get("phone")
+            or contact.get("phone")
+            or copied.get("phone")
+        )
+        copied["type"] = basic.get("type") or copied.get("type")
+        copied["area"] = basic.get("area") or copied.get("area")
+
+        kawagoe_master[name] = copied
+
+    local_routes = route_matrix_data_local.get("routes", {})
+    if not isinstance(local_routes, dict):
+        local_routes = {}
+
+    local_locations = route_location_data_local.get("route_locations")
+    if not isinstance(local_locations, dict):
+        local_locations = (
+            route_location_data_local.get("locations")
+            if isinstance(route_location_data_local.get("locations"), dict)
+            else {}
+        )
+
+    return {
+        "spots": kawagoe_spots,
+        "hotels": kawagoe_hotels,
+        "restaurants": kawagoe_restaurants,
+        "facility_master": kawagoe_master,
+        "route_locations": local_locations,
+        "route_matrix_data": route_matrix_data_local,
+        "route_matrix_routes": local_routes,
+    }
+
+
+KAWAGOE_DATASET = _load_kawagoe_dataset()
+
+
+REGION_CONFIG = {
+    "chichibu": {
+        "name": "秩父",
+        "name_en": "CHICHIBU",
+        "weather_lat": 35.991681,
+        "weather_lon": 139.085475,
+        "arrival_labels": {
+            "花園IC": "関越道方面から（花園IC）",
+            "芦ヶ久保駅": "飯能方面から（国道299号・芦ヶ久保）",
+        },
+        "default_arrival": "花園IC",
+        "purpose_options": [
+            {"value": "自然", "label": "自然"},
+            {"value": "温泉", "label": "温泉"},
+            {"value": "グルメ", "label": "グルメ"},
+            {"value": "歴史", "label": "歴史"},
+        ],
+        "dataset": CHICHIBU_DATASET,
+    },
+    "kawagoe": {
+        "name": "川越",
+        "name_en": "KAWAGOE",
+        # 川越市中心部付近を7日間天気予報の代表座標として使用。
+        "weather_lat": 35.9251,
+        "weather_lon": 139.4858,
+        "arrival_labels": {
+            "川越IC": "関越道方面から（川越IC）",
+            "川越駅": "市街地方面から（川越駅周辺）",
+        },
+        "default_arrival": "川越IC",
+        "purpose_options": [
+            {
+                "value": "小江戸・町並み",
+                "label": "小江戸・町並み"
+            },
+            {
+                "value": "歴史・文化",
+                "label": "歴史・文化"
+            },
+            {
+                "value": "食べ歩き・グルメ",
+                "label": "食べ歩き・グルメ"
+            },
+            {
+                "value": "自然・散策",
+                "label": "自然・散策"
+            },
+        ],
+        "dataset": KAWAGOE_DATASET,
+    },
+}
+
+
+def activate_region(region_code):
+    global ACTIVE_REGION_CODE
+    global ACTIVE_REGION_NAME
+    global ACTIVE_REGION_NAME_EN
+    global ACTIVE_WEATHER_LATITUDE
+    global ACTIVE_WEATHER_LONGITUDE
+    global ARRIVAL_METHOD_LABELS
+    global START_POINT_OPTIONS
+    global spots
+    global hotels
+    global restaurants
+    global facility_master
+    global route_locations
+    global route_matrix_data
+    global route_matrix_routes
+    global _ROUTE_CACHE
+
+    config = REGION_CONFIG.get(region_code)
+    if not config:
+        config = REGION_CONFIG["chichibu"]
+        region_code = "chichibu"
+
+    data = config["dataset"]
+
+    ACTIVE_REGION_CODE = region_code
+    ACTIVE_REGION_NAME = config["name"]
+    ACTIVE_REGION_NAME_EN = config["name_en"]
+    ACTIVE_WEATHER_LATITUDE = config["weather_lat"]
+    ACTIVE_WEATHER_LONGITUDE = config["weather_lon"]
+    ARRIVAL_METHOD_LABELS = dict(config["arrival_labels"])
+    START_POINT_OPTIONS = set(ARRIVAL_METHOD_LABELS.keys())
+
+    spots = data["spots"]
+    hotels = data["hotels"]
+    restaurants = data["restaurants"]
+    facility_master = data["facility_master"]
+    route_locations = data["route_locations"]
+    route_matrix_data = data["route_matrix_data"]
+    route_matrix_routes = data["route_matrix_routes"]
+
+    _ROUTE_CACHE = {}
+
+    return config
 
 
 # =========================================================
@@ -1918,6 +3934,3299 @@ def attach_map_data(item):
 
 
     return copied
+
+
+def _route_coordinates_from_item(item):
+    """
+    施設の座標を取得する。
+
+    優先順位:
+    1. latitude / longitude
+    2. lat / lng
+    3. master_latitude / master_longitude
+
+    座標は [経度, 緯度] の順で返す。
+    """
+
+    if not isinstance(item, dict):
+        return None
+
+    lat = _valid_coordinate(
+        item.get("latitude")
+    )
+
+    lng = _valid_coordinate(
+        item.get("longitude")
+    )
+
+    if lat is None:
+        lat = _valid_coordinate(
+            item.get("lat")
+        )
+
+    if lng is None:
+        lng = _valid_coordinate(
+            item.get("lng")
+        )
+
+    if lat is None:
+        lat = _valid_coordinate(
+            item.get("master_latitude")
+        )
+
+    if lng is None:
+        lng = _valid_coordinate(
+            item.get("master_longitude")
+        )
+
+    if (
+        lat is None
+        or
+        lng is None
+    ):
+        return None
+
+    return [
+        float(lng),
+        float(lat)
+    ]
+
+
+def _route_coordinates(place):
+    """
+    登録済み地点の固定座標だけを取得する。
+
+    外部ジオコーディングは行わない。
+    route_locations.json または既存施設データに
+    座標がない場合は None を返す。
+    """
+
+    if isinstance(place, str):
+        name = str(place or "").strip()
+
+        matrix_location = (
+            route_matrix_data
+            .get("locations", {})
+            .get(name, {})
+        )
+
+        if isinstance(matrix_location, dict):
+            lat = _valid_coordinate(
+                matrix_location.get("latitude")
+            )
+            lng = _valid_coordinate(
+                matrix_location.get("longitude")
+            )
+
+            if lat is not None and lng is not None:
+                return [float(lng), float(lat)]
+
+        route_record = route_locations.get(name, {})
+
+        if isinstance(route_record, dict):
+            lat = _valid_coordinate(
+                route_record.get("latitude")
+            )
+            lng = _valid_coordinate(
+                route_record.get("longitude")
+            )
+
+            if lat is not None and lng is not None:
+                return [float(lng), float(lat)]
+
+        return None
+
+    if not isinstance(place, dict):
+        return None
+
+    name = str(
+        place.get("name")
+        or ""
+    ).strip()
+
+    if name:
+        matrix_location = (
+            route_matrix_data
+            .get("locations", {})
+            .get(name, {})
+        )
+
+        if isinstance(matrix_location, dict):
+            lat = _valid_coordinate(
+                matrix_location.get("latitude")
+            )
+            lng = _valid_coordinate(
+                matrix_location.get("longitude")
+            )
+
+            if lat is not None and lng is not None:
+                return [float(lng), float(lat)]
+
+        route_record = route_locations.get(name, {})
+
+        if isinstance(route_record, dict):
+            lat = _valid_coordinate(
+                route_record.get("latitude")
+            )
+            lng = _valid_coordinate(
+                route_record.get("longitude")
+            )
+
+            if lat is not None and lng is not None:
+                return [float(lng), float(lat)]
+
+    return _route_coordinates_from_item(place)
+
+
+def audit_route_location_coordinates():
+    """
+    観光地30件 + 宿泊11件の座標解決状況を確認する。
+    """
+
+    items = list(spots) + list(hotels)
+
+    ok = []
+    missing = []
+
+    for item in items:
+
+        name = str(
+            item.get("name")
+            or ""
+        ).strip()
+
+        coordinates = _route_coordinates(
+            item
+        )
+
+        record = {
+            "name": name,
+            "coordinates": coordinates
+        }
+
+        if coordinates:
+            ok.append(record)
+        else:
+            missing.append(record)
+
+    return {
+        "ok": ok,
+        "missing": missing
+    }
+
+
+def _format_distance(
+    meters
+):
+    """
+    距離を表示用文字列へ変換する。
+    """
+
+    if meters is None:
+        return None
+
+    try:
+        meters = int(
+            round(
+                float(meters)
+            )
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+        return None
+
+    if meters < 1000:
+        return (
+            f"{meters}m"
+        )
+
+    return (
+        f"{meters / 1000:.1f}km"
+    )
+
+
+def _format_duration(
+    seconds
+):
+    """
+    秒を表示用の所要時間へ変換する。
+    """
+
+    if seconds is None:
+        return None
+
+    try:
+        seconds = max(
+            0,
+            int(
+                round(
+                    float(seconds)
+                )
+            )
+        )
+
+    except (
+        ValueError,
+        TypeError
+    ):
+        return None
+
+    minutes = int(
+        round(
+            seconds
+            /
+            60
+        )
+    )
+
+    if minutes < 60:
+        return (
+            f"約{minutes}分"
+        )
+
+    hours = (
+        minutes
+        //
+        60
+    )
+
+    remaining = (
+        minutes
+        %
+        60
+    )
+
+    if remaining == 0:
+        return (
+            f"約{hours}時間"
+        )
+
+    return (
+        f"約{hours}時間{remaining}分"
+    )
+
+
+def _route_mode_label(
+    profile
+):
+    """車専用システムの移動手段表示。"""
+    _ = profile
+    return "車"
+
+
+def _google_maps_directions_url(
+    origin_text,
+    destination_text,
+    profile="driving-car"
+):
+    """
+    利用者が外部地図で確認できるよう、
+    Google Mapsの車ルート確認リンクを作る。
+
+    Google Maps APIキーは不要。
+    """
+
+    params = {
+        "api": "1",
+        "origin": origin_text,
+        "destination": destination_text,
+        "travelmode": "driving"
+    }
+
+    return (
+        "https://www.google.com/maps/dir/?"
+        +
+        urlencode(params)
+    )
+
+
+def _route_display_text(
+    place
+):
+    """
+    外部地図リンク表示用の地点名を作る。
+    """
+
+    if isinstance(
+        place,
+        str
+    ):
+        return place
+
+    if not isinstance(
+        place,
+        dict
+    ):
+        return ""
+
+    name = str(
+        place.get("name")
+        or ""
+    ).strip()
+
+    address = (
+        place.get("address")
+        or
+        place.get("master_address")
+    )
+
+    if isinstance(
+        address,
+        dict
+    ):
+        address = (
+            address.get("full")
+            or
+            address.get("text")
+            or
+            ""
+        )
+
+    address = str(
+        address
+        or ""
+    ).strip()
+
+    if name and address:
+        return (
+            f"{name} {address}"
+        )
+
+    return (
+        name
+        or
+        address
+    )
+
+
+_ROUTE_CACHE = {}
+
+
+# =========================================================
+# 観光プラン用 車移動時間補正
+# =========================================================
+#
+# OpenStreetMap / OSMnx の道路 travel_time は
+# 道路ネットワーク上の走行時間としては有用だが、
+# 観光時の信号待ち・市街地走行・駐車場への出入りなどを
+# 十分に表現しない区間がある。
+#
+# そこで表示・旅程計算では、
+#   1) 元のOSMnx所要時間
+#   2) 地域別の平均旅行速度から求める時間 + 2分
+# の長い方を採用する。
+#
+# 川越 : 25 km/h
+#   市街地・交差点が多い観光エリアを考慮。
+#
+# 秩父 : 30 km/h
+#   郊外・山間部を含むため川越より高めに設定。
+#
+# +2分 :
+#   駐車場・施設入口への進入、発進、乗降等の
+#   観光移動時の余裕時間。
+#
+# リアルタイム渋滞予測ではなく、
+# 旅行プラン作成用の安全側の目安。
+# =========================================================
+
+TOUR_DRIVING_SPEED_KMH = {
+    "chichibu": 30.0,
+    "kawagoe": 25.0,
+}
+
+TOUR_DRIVING_ACCESS_BUFFER_SECONDS = 120
+
+
+def _realistic_driving_duration_seconds(
+    distance_meters,
+    raw_duration_seconds
+):
+    """
+    観光プラン用に車移動時間を現実寄りへ補正する。
+
+    補正時間 =
+        距離 ÷ 地域別平均旅行速度
+        + 2分
+
+    元のOSMnx時間より短くしない。
+    最終的に1分単位で切り上げる。
+    """
+    try:
+        distance_meters = max(
+            0.0,
+            float(distance_meters)
+        )
+
+        raw_duration_seconds = max(
+            0.0,
+            float(raw_duration_seconds)
+        )
+
+    except (
+        TypeError,
+        ValueError
+    ):
+        return raw_duration_seconds
+
+    if distance_meters <= 0:
+        return int(
+            round(
+                raw_duration_seconds
+            )
+        )
+
+    average_speed_kmh = (
+        TOUR_DRIVING_SPEED_KMH.get(
+            ACTIVE_REGION_CODE,
+            30.0
+        )
+    )
+
+    speed_based_seconds = (
+        (
+            distance_meters
+            /
+            1000.0
+        )
+        /
+        average_speed_kmh
+        *
+        3600.0
+    )
+
+    corrected_seconds = max(
+        raw_duration_seconds,
+        (
+            speed_based_seconds
+            +
+            TOUR_DRIVING_ACCESS_BUFFER_SECONDS
+        )
+    )
+
+    # 表示が「約0分」にならないよう、
+    # 観光用の補正時間は1分単位で切り上げる。
+    corrected_seconds = int(
+        (
+            int(
+                corrected_seconds
+            )
+            +
+            59
+        )
+        //
+        60
+        *
+        60
+    )
+
+    return corrected_seconds
+
+
+def calculate_route_between(
+    origin,
+    destination,
+    car,
+    walking_amount
+):
+    """
+    2地点間の車ルートを
+    data/route_matrix.json から取得する。
+
+    システム実行中に外部ルートAPIへは接続しない。
+    """
+
+    origin_name = _segment_name(origin)
+    destination_name = _segment_name(destination)
+
+    if not origin_name or not destination_name:
+        return None
+
+    # 同一地点は移動なしとして扱う。
+    if origin_name == destination_name:
+        return {
+            "available": True,
+            "distance_meters": 0,
+            "distance_km": 0.0,
+            "distance_text": "0 m",
+            "duration_seconds": 0,
+            "duration_minutes": 0.0,
+            "duration_text": "0分",
+            "source": "OpenStreetMap + OSMnx local route matrix",
+            "calculation_method": "same_location",
+            "is_estimate": False,
+            "maps_url": _google_maps_directions_url(
+                _route_display_text(origin),
+                _route_display_text(destination),
+                "driving-car"
+            )
+        }
+
+    origin_routes = route_matrix_routes.get(
+        origin_name
+    )
+
+    if not isinstance(origin_routes, dict):
+        print(
+            "[LOCAL ROUTE ORIGIN NOT FOUND]",
+            origin_name
+        )
+        return None
+
+    matrix_route = origin_routes.get(
+        destination_name
+    )
+
+    if not isinstance(matrix_route, dict):
+        print(
+            "[LOCAL ROUTE DESTINATION NOT FOUND]",
+            origin_name,
+            "->",
+            destination_name
+        )
+        return None
+
+    if matrix_route.get("available") is not True:
+        print(
+            "[LOCAL ROUTE UNAVAILABLE]",
+            origin_name,
+            "->",
+            destination_name
+        )
+        return None
+
+    try:
+        distance_meters = int(
+            round(
+                float(
+                    matrix_route.get(
+                        "distance_meters",
+                        0
+                    )
+                )
+            )
+        )
+
+        raw_duration_seconds = int(
+            round(
+                float(
+                    matrix_route.get(
+                        "duration_seconds",
+                        0
+                    )
+                )
+            )
+        )
+
+        duration_seconds = (
+            _realistic_driving_duration_seconds(
+                distance_meters,
+                raw_duration_seconds
+            )
+        )
+
+    except (TypeError, ValueError):
+        return None
+
+    route_data = {
+        "available": True,
+        "distance_meters": distance_meters,
+        "distance_km": round(
+            distance_meters / 1000,
+            2
+        ),
+        "distance_text": _format_distance(
+            distance_meters
+        ),
+        "duration_seconds": duration_seconds,
+        "raw_duration_seconds": raw_duration_seconds,
+        "duration_adjusted": (
+            duration_seconds
+            >
+            raw_duration_seconds
+        ),
+        "duration_adjustment_method": (
+            "tourism_realistic_driving_time"
+        ),
+        "duration_minutes": round(
+            duration_seconds / 60,
+            1
+        ),
+        "duration_text": _format_duration(
+            duration_seconds
+        ),
+        "source": "OpenStreetMap + OSMnx local route matrix",
+        "calculation_method": matrix_route.get(
+            "calculation_method",
+            "road_network"
+        ),
+        "is_estimate": False,
+        "maps_url": _google_maps_directions_url(
+            _route_display_text(origin),
+            _route_display_text(destination),
+            "driving-car"
+        )
+    }
+
+    print(
+        "[LOCAL ROUTE]",
+        origin_name,
+        "->",
+        destination_name,
+        "|",
+        route_data["distance_text"],
+        "|",
+        route_data["duration_text"]
+    )
+
+    # 現在は車ルート固定。既存関数シグネチャ維持のため受け取る。
+    _ = car
+    _ = walking_amount
+
+    return route_data
+
+
+def _segment_name(
+    place
+):
+    if isinstance(
+        place,
+        str
+    ):
+        return place
+
+    if isinstance(
+        place,
+        dict
+    ):
+        return str(
+            place.get(
+                "name",
+                ""
+            )
+        )
+
+    return ""
+
+
+def build_route_segment(
+    origin,
+    destination,
+    car,
+    walking_amount
+):
+    """
+    結果画面・履歴保存用の1区間データを作る。
+    """
+
+    route = (
+        calculate_route_between(
+            origin,
+            destination,
+            car,
+            walking_amount
+        )
+    )
+
+    segment = {
+        "origin":
+            _segment_name(
+                origin
+            ),
+        "destination":
+            _segment_name(
+                destination
+            ),
+        "available":
+            bool(route)
+    }
+
+    if not route:
+        return segment
+
+    segment.update(
+        route
+    )
+
+    return segment
+
+
+def _route_total_seconds(
+    segments
+):
+    total = 0
+
+    for segment in (
+        segments
+        or
+        []
+    ):
+        seconds = (
+            segment.get(
+                "duration_seconds"
+            )
+        )
+
+        if isinstance(
+            seconds,
+            int
+        ):
+            total += seconds
+
+    return total
+
+
+def _route_total_distance(
+    segments
+):
+    total = 0
+
+    for segment in (
+        segments
+        or
+        []
+    ):
+        meters = (
+            segment.get(
+                "distance_meters"
+            )
+        )
+
+        if isinstance(
+            meters,
+            int
+        ):
+            total += meters
+
+    return total
+
+
+def _route_candidate_segments(
+    origin,
+    spots_for_day,
+    destination,
+    car,
+    walking_amount
+):
+    """
+    1日の観光地順序候補から移動区間を作る。
+    """
+
+    segments = []
+
+    current = origin
+
+    for spot in (
+        spots_for_day
+        or
+        []
+    ):
+        segments.append(
+            build_route_segment(
+                current,
+                spot,
+                car,
+                walking_amount
+            )
+        )
+
+        current = spot
+
+    if destination is not None:
+        segments.append(
+            build_route_segment(
+                current,
+                destination,
+                car,
+                walking_amount
+            )
+        )
+
+    return segments
+
+
+def _s1_stay_minutes(spot):
+    """
+    S1で使う観光地の滞在時間（分）。
+    現段階では既存の time（時間）を利用する。
+    S11導入後は plan_extra.json の stay_hours を優先する。
+    """
+    master_stay_hours = None
+
+    spot_name = str(
+        spot.get(
+            "name",
+            ""
+        )
+        or ""
+    )
+
+    master = (
+        facility_master.get(
+            spot_name,
+            {}
+        )
+        if spot_name
+        else {}
+    )
+
+    if isinstance(
+        master,
+        dict
+    ):
+
+        basic = (
+            master.get(
+                "basic"
+            )
+            if isinstance(
+                master.get(
+                    "basic"
+                ),
+                dict
+            )
+            else {}
+        )
+
+        master_stay_hours = (
+            master.get(
+                "stay_hours"
+            )
+            or
+            basic.get(
+                "stay_time_hours"
+            )
+        )
+
+    raw_hours = (
+        master_stay_hours
+        if master_stay_hours
+        is not None
+        else
+        spot.get(
+            "time",
+            1.5
+        )
+    )
+
+    try:
+        hours = float(
+            raw_hours
+            or 1.5
+        )
+    except (
+        TypeError,
+        ValueError
+    ):
+        hours = 1.5
+
+    hours = max(
+        0.5,
+        hours
+    )
+
+    return int(
+        round(
+            hours * 60
+        )
+    )
+
+
+def _s1_day_settings(
+    days,
+    age
+):
+    """
+    解決策S1の時間上限・件数上限。
+    """
+    try:
+        age_value = int(age)
+    except (
+        TypeError,
+        ValueError
+    ):
+        age_value = 20
+
+    age_reduction = (
+        60
+        if age_value >= 50
+        else 0
+    )
+
+    if days == "1泊2日":
+
+        base = [
+            {
+                "minutes": 360,
+                "max_spots": 2
+            },
+            {
+                "minutes": 330,
+                "max_spots": 2
+            }
+        ]
+
+    else:
+
+        base = [
+            {
+                "minutes": 360,
+                "max_spots": 2
+            },
+            {
+                "minutes": 480,
+                "max_spots": 3
+            },
+            {
+                "minutes": 330,
+                "max_spots": 2
+            }
+        ]
+
+    return [
+        {
+            "minutes":
+                max(
+                    180,
+                    item["minutes"]
+                    -
+                    age_reduction
+                ),
+            "max_spots":
+                item["max_spots"]
+        }
+        for item in base
+    ]
+
+
+
+def _fast_distance_km_between(
+    origin,
+    destination
+):
+    """
+    候補比較専用の高速距離推定。
+    ORSには通信せず、登録済み座標の直線距離を使う。
+    """
+    origin_coordinates = (
+        _route_coordinates(
+            origin
+        )
+    )
+
+    destination_coordinates = (
+        _route_coordinates(
+            destination
+        )
+    )
+
+    if (
+        not origin_coordinates
+        or
+        not destination_coordinates
+    ):
+        return None
+
+    try:
+        origin_lng = float(
+            origin_coordinates[0]
+        )
+        origin_lat = float(
+            origin_coordinates[1]
+        )
+        destination_lng = float(
+            destination_coordinates[0]
+        )
+        destination_lat = float(
+            destination_coordinates[1]
+        )
+    except (
+        TypeError,
+        ValueError,
+        IndexError
+    ):
+        return None
+
+    # Haversine
+    lat1 = math.radians(
+        origin_lat
+    )
+    lat2 = math.radians(
+        destination_lat
+    )
+
+    delta_lat = math.radians(
+        destination_lat
+        -
+        origin_lat
+    )
+
+    delta_lng = math.radians(
+        destination_lng
+        -
+        origin_lng
+    )
+
+    a = (
+        math.sin(
+            delta_lat / 2
+        )
+        ** 2
+        +
+        math.cos(
+            lat1
+        )
+        *
+        math.cos(
+            lat2
+        )
+        *
+        math.sin(
+            delta_lng / 2
+        )
+        ** 2
+    )
+
+    c = (
+        2
+        *
+        math.atan2(
+            math.sqrt(
+                a
+            ),
+            math.sqrt(
+                max(
+                    0,
+                    1 - a
+                )
+            )
+        )
+    )
+
+    return (
+        6371.0
+        *
+        c
+    )
+
+
+def _fast_route_seconds_between(
+    origin,
+    destination
+):
+    """
+    S1/S13候補比較専用の高速所要時間推定。
+
+    直線距離×1.30で道路距離を近似し、
+    最終表示と同じ地域別平均旅行速度を利用する。
+
+    川越 : 25 km/h
+    秩父 : 30 km/h
+
+    さらに観光移動の余裕として2分を加える。
+    """
+    distance_km = (
+        _fast_distance_km_between(
+            origin,
+            destination
+        )
+    )
+
+    if distance_km is None:
+        return None
+
+    estimated_road_km = (
+        distance_km
+        *
+        1.30
+    )
+
+    average_speed_kmh = (
+        TOUR_DRIVING_SPEED_KMH.get(
+            ACTIVE_REGION_CODE,
+            30.0
+        )
+    )
+
+    estimated_seconds = (
+        estimated_road_km
+        /
+        average_speed_kmh
+        *
+        3600.0
+        +
+        TOUR_DRIVING_ACCESS_BUFFER_SECONDS
+    )
+
+    estimated_seconds = max(
+        60,
+        int(
+            (
+                int(
+                    estimated_seconds
+                )
+                +
+                59
+            )
+            //
+            60
+            *
+            60
+        )
+    )
+
+    return estimated_seconds
+
+
+def _fast_candidate_segments(
+    origin,
+    spots_for_day,
+    destination
+):
+    """
+    S1比較用の擬似セグメント。
+    API通信を行わない。
+    """
+    points = [
+        origin
+    ]
+
+    points.extend(
+        list(
+            spots_for_day
+            or []
+        )
+    )
+
+    if destination is not None:
+        points.append(
+            destination
+        )
+
+    segments = []
+
+    for index in range(
+        len(points) - 1
+    ):
+
+        seconds = (
+            _fast_route_seconds_between(
+                points[index],
+                points[index + 1]
+            )
+        )
+
+        if seconds is None:
+
+            segments.append({
+                "available":
+                    False,
+                "duration_seconds":
+                    None
+            })
+
+        else:
+
+            segments.append({
+                "available":
+                    True,
+                "duration_seconds":
+                    seconds
+            })
+
+    return segments
+
+
+def _s1_shortest_day_route(
+    origin,
+    spots_for_day,
+    destination,
+    car,
+    walking_amount
+):
+    """
+    1日3件までを全順列で比較し、
+    実ルート所要時間が最短の順番を返す。
+    """
+    spots_for_day = list(
+        spots_for_day
+        or []
+    )
+
+    if not spots_for_day:
+
+        segments = []
+
+        if destination is not None:
+
+            segments = (
+                _route_candidate_segments(
+                    origin,
+                    [],
+                    destination,
+                    car,
+                    walking_amount
+                )
+            )
+
+        available = all(
+            segment.get(
+                "available"
+            )
+            for segment in segments
+        )
+
+        return (
+            [],
+            segments,
+            (
+                _route_total_seconds(
+                    segments
+                )
+                if available
+                else None
+            )
+        )
+
+    best_order = None
+    best_segments = None
+    best_seconds = None
+
+    for order_tuple in itertools.permutations(
+        spots_for_day
+    ):
+
+        order = list(
+            order_tuple
+        )
+
+        segments = (
+            _route_candidate_segments(
+                origin,
+                order,
+                destination,
+                car,
+                walking_amount
+            )
+        )
+
+        if not segments:
+            continue
+
+        if not all(
+            segment.get(
+                "available"
+            )
+            for segment in segments
+        ):
+            continue
+
+        seconds = (
+            _route_total_seconds(
+                segments
+            )
+        )
+
+        if (
+            best_seconds is None
+            or
+            seconds < best_seconds
+        ):
+
+            best_order = order
+            best_segments = segments
+            best_seconds = seconds
+
+    if best_order is None:
+
+        fallback_order = spots_for_day
+
+        fallback_segments = (
+            _route_candidate_segments(
+                origin,
+                fallback_order,
+                destination,
+                car,
+                walking_amount
+            )
+        )
+
+        return (
+            fallback_order,
+            fallback_segments,
+            None
+        )
+
+    return (
+        best_order,
+        best_segments,
+        best_seconds
+    )
+
+
+
+def _s1_day_total_minutes(
+    spots_for_day,
+    route_seconds
+):
+    """
+    移動 + 滞在 + 昼食60分。
+    """
+    stay_minutes = sum(
+        _s1_stay_minutes(
+            spot
+        )
+        for spot in (
+            spots_for_day
+            or []
+        )
+    )
+
+    travel_minutes = (
+        int(
+            round(
+                route_seconds
+                /
+                60
+            )
+        )
+        if route_seconds
+        is not None
+        else 0
+    )
+
+    lunch_minutes = (
+        60
+        if spots_for_day
+        else 0
+    )
+
+    return (
+        travel_minutes
+        +
+        stay_minutes
+        +
+        lunch_minutes
+    )
+
+
+def build_s1_route_aware_spot_plan(
+    spot_score_items,
+    recommended_hotel,
+    days,
+    age,
+    start_point,
+    car,
+    walking_amount,
+    must_visit_names=None
+):
+    """
+    S1前半。
+
+    行きたい場所を先に配置し、
+    残りは 推薦点 - 0.3×追加移動時間 で決める。
+    """
+    must_visit_names = list(
+        must_visit_names
+        or []
+    )
+
+    day_settings = (
+        _s1_day_settings(
+            days,
+            age
+        )
+    )
+
+    day_count = len(
+        day_settings
+    )
+
+    day_spots = [
+        []
+        for _ in range(
+            day_count
+        )
+    ]
+
+    score_by_name = {
+        str(
+            item.get(
+                "name",
+                ""
+            )
+        ):
+            item
+        for item in (
+            spot_score_items
+            or []
+        )
+    }
+
+    ranked_items = sorted(
+        spot_score_items
+        or [],
+        key=lambda item:
+            item.get(
+                "score",
+                0
+            ),
+        reverse=True
+    )
+
+    # リアルタイム応答を優先し、通常候補は上位8件まで。
+    # 行きたい場所は順位に関係なく必ず追加する。
+    # 最終候補だけ実道路ルートで比較することで、
+    # ORSへの大量リクエストを防ぐ。
+    candidate_items = list(
+        ranked_items[:8]
+    )
+
+    candidate_names = {
+        item.get(
+            "name",
+            ""
+        )
+        for item in
+        candidate_items
+    }
+
+    for must_name in must_visit_names:
+
+        item = score_by_name.get(
+            must_name
+        )
+
+        if (
+            item
+            and
+            must_name
+            not in candidate_names
+        ):
+
+            candidate_items.append(
+                item
+            )
+
+            candidate_names.add(
+                must_name
+            )
+
+    used_names = set()
+    unavailable_must_visit = []
+
+    def day_origin_destination(
+        day_index
+    ):
+
+        origin = (
+            start_point
+            if day_index == 0
+            else recommended_hotel
+        )
+
+        destination = (
+            start_point
+            if day_index
+            ==
+            day_count - 1
+            else recommended_hotel
+        )
+
+        return (
+            origin,
+            destination
+        )
+
+    def evaluate_day(
+        day_index,
+        candidate_spots
+    ):
+
+        (
+            origin,
+            destination
+        ) = day_origin_destination(
+            day_index
+        )
+
+        (
+            order,
+            segments,
+            route_seconds
+        ) = _s1_shortest_day_route(
+            origin,
+            candidate_spots,
+            destination,
+            car,
+            walking_amount
+        )
+
+        if route_seconds is None:
+            return None
+
+        total_minutes = (
+            _s1_day_total_minutes(
+                order,
+                route_seconds
+            )
+        )
+
+        return {
+            "order":
+                order,
+            "segments":
+                segments,
+            "route_seconds":
+                route_seconds,
+            "total_minutes":
+                total_minutes
+        }
+
+    # 行きたい場所を先に配置
+    for must_name in must_visit_names:
+
+        item = score_by_name.get(
+            must_name
+        )
+
+        if not item:
+
+            unavailable_must_visit.append(
+                must_name
+            )
+            continue
+
+        spot = item.get(
+            "spot"
+        )
+
+        best_choice = None
+
+        for day_index in range(
+            day_count
+        ):
+
+            setting = (
+                day_settings[
+                    day_index
+                ]
+            )
+
+            if (
+                len(
+                    day_spots[
+                        day_index
+                    ]
+                )
+                >=
+                setting[
+                    "max_spots"
+                ]
+            ):
+                continue
+
+            evaluation = (
+                evaluate_day(
+                    day_index,
+                    day_spots[
+                        day_index
+                    ]
+                    +
+                    [
+                        spot
+                    ]
+                )
+            )
+
+            if not evaluation:
+                continue
+
+            if (
+                evaluation[
+                    "total_minutes"
+                ]
+                >
+                setting[
+                    "minutes"
+                ]
+            ):
+                continue
+
+            choice_key = (
+                evaluation[
+                    "total_minutes"
+                ],
+                evaluation[
+                    "route_seconds"
+                ]
+            )
+
+            if (
+                best_choice is None
+                or
+                choice_key
+                <
+                best_choice[
+                    "choice_key"
+                ]
+            ):
+
+                best_choice = {
+                    "day_index":
+                        day_index,
+                    "evaluation":
+                        evaluation,
+                    "choice_key":
+                        choice_key
+                }
+
+        if best_choice is None:
+
+            unavailable_must_visit.append(
+                must_name
+            )
+            continue
+
+        target_day = (
+            best_choice[
+                "day_index"
+            ]
+        )
+
+        day_spots[
+            target_day
+        ] = (
+            best_choice[
+                "evaluation"
+            ][
+                "order"
+            ]
+        )
+
+        used_names.add(
+            must_name
+        )
+
+    # 残り時間を推薦点と追加移動時間で埋める
+    day_first_candidate_value = [
+        None
+        for _ in range(
+            day_count
+        )
+    ]
+
+    for day_index in range(
+        day_count
+    ):
+
+        setting = (
+            day_settings[
+                day_index
+            ]
+        )
+
+        while (
+            len(
+                day_spots[
+                    day_index
+                ]
+            )
+            <
+            setting[
+                "max_spots"
+            ]
+        ):
+
+            current_eval = (
+                evaluate_day(
+                    day_index,
+                    day_spots[
+                        day_index
+                    ]
+                )
+            )
+
+            current_route_minutes = (
+                (
+                    current_eval[
+                        "route_seconds"
+                    ]
+                    /
+                    60
+                )
+                if current_eval
+                else 0
+            )
+
+            best_candidate = None
+
+            for item in candidate_items:
+
+                name = str(
+                    item.get(
+                        "name",
+                        ""
+                    )
+                )
+
+                if (
+                    not name
+                    or
+                    name in used_names
+                ):
+                    continue
+
+                spot = item.get(
+                    "spot"
+                )
+
+                evaluation = (
+                    evaluate_day(
+                        day_index,
+                        day_spots[
+                            day_index
+                        ]
+                        +
+                        [
+                            spot
+                        ]
+                    )
+                )
+
+                if not evaluation:
+                    continue
+
+                if (
+                    evaluation[
+                        "total_minutes"
+                    ]
+                    >
+                    setting[
+                        "minutes"
+                    ]
+                ):
+                    continue
+
+                new_route_minutes = (
+                    evaluation[
+                        "route_seconds"
+                    ]
+                    /
+                    60
+                )
+
+                added_travel_minutes = max(
+                    0,
+                    new_route_minutes
+                    -
+                    current_route_minutes
+                )
+
+                candidate_value = (
+                    float(
+                        item.get(
+                            "score",
+                            0
+                        )
+                    )
+                    -
+                    0.3
+                    *
+                    added_travel_minutes
+                )
+
+                first_value = (
+                    day_first_candidate_value[
+                        day_index
+                    ]
+                )
+
+                if (
+                    first_value is not None
+                    and
+                    candidate_value
+                    <
+                    first_value
+                    *
+                    0.9
+                ):
+                    continue
+
+                if (
+                    best_candidate is None
+                    or
+                    candidate_value
+                    >
+                    best_candidate[
+                        "candidate_value"
+                    ]
+                ):
+
+                    best_candidate = {
+                        "item":
+                            item,
+                        "evaluation":
+                            evaluation,
+                        "candidate_value":
+                            candidate_value
+                    }
+
+            if best_candidate is None:
+                break
+
+            selected_item = (
+                best_candidate[
+                    "item"
+                ]
+            )
+
+            selected_name = str(
+                selected_item.get(
+                    "name",
+                    ""
+                )
+            )
+
+            if (
+                day_first_candidate_value[
+                    day_index
+                ]
+                is None
+            ):
+
+                day_first_candidate_value[
+                    day_index
+                ] = (
+                    best_candidate[
+                        "candidate_value"
+                    ]
+                )
+
+            day_spots[
+                day_index
+            ] = (
+                best_candidate[
+                    "evaluation"
+                ][
+                    "order"
+                ]
+            )
+
+            used_names.add(
+                selected_name
+            )
+
+    planned_names = [
+        str(
+            spot.get(
+                "name",
+                ""
+            )
+        )
+        for day in day_spots
+        for spot in day
+    ]
+
+    selected_score_items = [
+        score_by_name[
+            name
+        ]
+        for name in planned_names
+        if name in score_by_name
+    ]
+
+    return {
+        "day_spots":
+            day_spots,
+        "selected_score_items":
+            selected_score_items,
+        "unavailable_must_visit":
+            unavailable_must_visit,
+        "day_settings":
+            day_settings
+    }
+
+
+
+def _s1_plan_travel_minutes(
+    plan,
+    hotel,
+    start_point,
+    car,
+    walking_amount
+):
+    """S1旅程全体の純粋な移動時間（分）。"""
+    if not plan:
+        return None
+
+    day_spots = list(
+        plan.get("day_spots")
+        or []
+    )
+
+    total_seconds = 0
+
+    for day_index, spots_for_day in enumerate(day_spots):
+
+        origin = (
+            start_point
+            if day_index == 0
+            else hotel
+        )
+
+        destination = (
+            start_point
+            if day_index == len(day_spots) - 1
+            else hotel
+        )
+
+        (
+            _order,
+            _segments,
+            route_seconds
+        ) = _s1_shortest_day_route(
+            origin,
+            spots_for_day,
+            destination,
+            car,
+            walking_amount
+        )
+
+        if route_seconds is None:
+            return None
+
+        total_seconds += route_seconds
+
+    return int(
+        round(
+            total_seconds / 60
+        )
+    )
+
+
+def build_s1_best_hotel_plan(
+    hotel_score_items,
+    spot_score_items,
+    days,
+    age,
+    start_point,
+    car,
+    walking_amount,
+    must_visit_names=None,
+    max_hotels=5
+):
+    """
+    S1後半。
+
+    宿上位5軒ごとにS1旅程を作り、
+    観光地点数合計 - 0.3×移動時間 + 宿点数
+    が最大の旅行全体を採用する。
+
+    上位5軒のどれでも必須観光地を入れられない場合は、
+    残りの宿も試す。
+    """
+    ranked_hotels = sorted(
+        hotel_score_items or [],
+        key=lambda item:
+            float(
+                item.get(
+                    "score",
+                    0
+                )
+                or 0
+            ),
+        reverse=True
+    )
+
+    if not ranked_hotels:
+        return None
+
+    must_visit_names = list(
+        must_visit_names
+        or []
+    )
+
+    initial_candidates = (
+        ranked_hotels[
+            :max_hotels
+        ]
+    )
+
+    remaining_candidates = (
+        ranked_hotels[
+            max_hotels:
+        ]
+    )
+
+    def evaluate_candidates(
+        candidates
+    ):
+
+        evaluations = []
+
+        for hotel_item in candidates:
+
+            hotel = (
+                hotel_item.get(
+                    "hotel"
+                )
+            )
+
+            if not isinstance(
+                hotel,
+                dict
+            ):
+                continue
+
+            plan = (
+                build_s1_route_aware_spot_plan(
+
+                    spot_score_items=
+                        spot_score_items,
+
+                    recommended_hotel=
+                        hotel,
+
+                    days=
+                        days,
+
+                    age=
+                        age,
+
+                    start_point=
+                        start_point,
+
+                    car=
+                        car,
+
+                    walking_amount=
+                        walking_amount,
+
+                    must_visit_names=
+                        must_visit_names
+
+                )
+            )
+
+            if not plan:
+                continue
+
+            unavailable = list(
+                plan.get(
+                    "unavailable_must_visit"
+                )
+                or []
+            )
+
+            selected_items = list(
+                plan.get(
+                    "selected_score_items"
+                )
+                or []
+            )
+
+            travel_minutes = (
+                _s1_plan_travel_minutes(
+
+                    plan,
+                    hotel,
+                    start_point,
+                    car,
+                    walking_amount
+
+                )
+            )
+
+            if travel_minutes is None:
+                continue
+
+            spot_score_total = sum(
+                float(
+                    item.get(
+                        "score",
+                        0
+                    )
+                    or 0
+                )
+                for item in
+                selected_items
+            )
+
+            hotel_score = float(
+                hotel_item.get(
+                    "score",
+                    0
+                )
+                or 0
+            )
+
+            total_value = (
+                spot_score_total
+                -
+                0.3
+                *
+                travel_minutes
+                +
+                hotel_score
+            )
+
+            # 必須観光地を入れられない案は優先しない。
+            total_value -= (
+                1000
+                *
+                len(
+                    unavailable
+                )
+            )
+
+            evaluations.append({
+
+                "hotel_item":
+                    hotel_item,
+
+                "plan":
+                    plan,
+
+                "travel_minutes":
+                    travel_minutes,
+
+                "spot_score_total":
+                    spot_score_total,
+
+                "hotel_score":
+                    hotel_score,
+
+                "total_value":
+                    total_value,
+
+                "unavailable_must_visit":
+                    unavailable
+
+            })
+
+        return evaluations
+
+    evaluations = (
+        evaluate_candidates(
+            initial_candidates
+        )
+    )
+
+    # 上位5軒で必須観光地を満たせない場合のみ、
+    # 残りの宿も追加で比較する。
+    if (
+        must_visit_names
+        and
+        (
+            not evaluations
+            or
+            all(
+                item.get(
+                    "unavailable_must_visit"
+                )
+                for item in
+                evaluations
+            )
+        )
+        and
+        remaining_candidates
+    ):
+
+        evaluations.extend(
+            evaluate_candidates(
+                remaining_candidates
+            )
+        )
+
+    if not evaluations:
+        return None
+
+    evaluations.sort(
+        key=lambda item: (
+            len(
+                item.get(
+                    "unavailable_must_visit",
+                    []
+                )
+            ),
+            -float(
+                item.get(
+                    "total_value",
+                    -10**9
+                )
+            )
+        )
+    )
+
+    best = evaluations[0]
+
+    return {
+        **best,
+        "evaluated_hotel_count":
+            len(
+                evaluations
+            )
+    }
+
+
+def _decorate_hotel_from_score_item(
+    hotel_item,
+    age,
+    people,
+    member,
+    car,
+    days,
+    budget,
+    purpose,
+    travel_date,
+    season
+):
+    """hotel_scoresの項目を表示用宿データへ変換する。"""
+    hotel = (
+        attach_map_data(
+            hotel_item[
+                "hotel"
+            ]
+        )
+    )
+
+    hotel[
+        "score"
+    ] = hotel_item[
+        "score"
+    ]
+
+    hotel[
+        "reasons"
+    ] = hotel_item[
+        "reasons"
+    ]
+
+    hotel = (
+        attach_score_visualization(
+
+            hotel,
+
+            hotel_item[
+                "breakdown"
+            ]
+
+        )
+    )
+
+    hotel[
+        "recommendation_reason"
+    ] = (
+
+        build_recommendation_reason(
+
+            hotel,
+
+            hotel_item[
+                "reasons"
+            ],
+
+            age,
+            people,
+            member,
+            car,
+            days,
+            budget,
+            purpose,
+            travel_date,
+            season,
+
+            category=
+                "hotel"
+
+        )
+
+    )
+
+    return normalize_place_for_display(hotel)
+def _decorate_restaurant_from_score_item(
+    restaurant_item
+):
+    """restaurant_scoresの項目を表示用飲食店データへ変換する。"""
+    restaurant = (
+        attach_map_data(
+            restaurant_item[
+                "restaurant"
+            ]
+        )
+    )
+
+    restaurant[
+        "score"
+    ] = restaurant_item[
+        "score"
+    ]
+
+    restaurant[
+        "reasons"
+    ] = restaurant_item[
+        "reasons"
+    ]
+
+    restaurant = (
+        attach_score_visualization(
+
+            restaurant,
+
+            restaurant_item[
+                "breakdown"
+            ]
+
+        )
+    )
+
+    return normalize_place_for_display(restaurant)
+def _route_minutes_between_places(
+    origin,
+    destination,
+    car,
+    walking_amount
+):
+    """2地点間のルート時間（分）。取得できない場合はNone。"""
+    if (
+        origin is None
+        or
+        destination is None
+    ):
+        return None
+
+    route = (
+        calculate_route_between(
+
+            origin,
+            destination,
+            car,
+            walking_amount
+
+        )
+    )
+
+    if not route:
+        return None
+
+    try:
+
+        return (
+            float(
+                route.get(
+                    "duration_seconds",
+                    0
+                )
+            )
+            /
+            60
+        )
+
+    except (
+        TypeError,
+        ValueError
+    ):
+
+        return None
+
+
+
+def _hotel_dinner_available(
+    hotel
+):
+    """
+    S13の夕食判定。
+    plan_extra.jsonをまだ直接読んでいない環境でも、
+    既存フィールドと確認済み宿名で判定する。
+    """
+    if not isinstance(
+        hotel,
+        dict
+    ):
+        return False
+
+    dinner = hotel.get(
+        "dinner"
+    )
+
+    if isinstance(
+        dinner,
+        bool
+    ):
+        return dinner
+
+    dinner_text = str(
+        dinner
+        or ""
+    ).strip().lower()
+
+    if dinner_text in {
+        "あり",
+        "有",
+        "true",
+        "yes",
+        "1",
+        "夕食あり",
+        "夕朝食あり"
+    }:
+        return True
+
+    if dinner_text in {
+        "なし",
+        "無",
+        "false",
+        "no",
+        "0",
+        "夕食なし"
+    }:
+        return False
+
+    name = str(
+        hotel.get(
+            "name"
+        )
+        or ""
+    )
+
+    confirmed_with_dinner = {
+        "和どう",
+        "新木鉱泉",
+        "NIPPONIA 秩父 門前町",
+        "NIPPONIA秩父 門前町",
+        "ホテルルートインGrand秩父",
+        "ホテル美やま",
+        "はなのや",
+        "PICA秩父",
+        "御宿 竹取物語"
+    }
+
+    return any(
+        key in name
+        for key in
+        confirmed_with_dinner
+    )
+
+
+def _s13_best_restaurant_between(
+    restaurant_score_items,
+    previous_place,
+    next_place,
+    used_names,
+    car,
+    walking_amount,
+    candidate_limit=4
+):
+    """
+    前地点→店→次地点の寄り道が少ない昼食店を選ぶ。
+    店の値 = S6点数 - 0.3×寄り道時間。
+    """
+    direct_minutes = (
+        _route_minutes_between_places(
+
+            previous_place,
+            next_place,
+            car,
+            walking_amount
+
+        )
+    )
+
+    best = None
+
+    for item in sorted(
+        restaurant_score_items or [],
+        key=lambda x:
+            float(
+                x.get(
+                    "score",
+                    0
+                )
+                or 0
+            ),
+        reverse=True
+    )[:candidate_limit]:
+
+        restaurant = (
+            item.get(
+                "restaurant"
+            )
+        )
+
+        if not isinstance(
+            restaurant,
+            dict
+        ):
+            continue
+
+        name = str(
+            restaurant.get(
+                "name"
+            )
+            or ""
+        )
+
+        if (
+            not name
+            or
+            name in used_names
+        ):
+            continue
+
+        first_minutes = (
+            _route_minutes_between_places(
+
+                previous_place,
+                restaurant,
+                car,
+                walking_amount
+
+            )
+        )
+
+        second_minutes = (
+            _route_minutes_between_places(
+
+                restaurant,
+                next_place,
+                car,
+                walking_amount
+
+            )
+        )
+
+        if (
+            first_minutes is None
+            or
+            second_minutes is None
+        ):
+            continue
+
+        if direct_minutes is None:
+
+            detour_minutes = (
+                first_minutes
+                +
+                second_minutes
+            )
+
+        else:
+
+            detour_minutes = max(
+                0,
+                first_minutes
+                +
+                second_minutes
+                -
+                direct_minutes
+            )
+
+        value = (
+            float(
+                item.get(
+                    "score",
+                    0
+                )
+                or 0
+            )
+            -
+            0.3
+            *
+            detour_minutes
+        )
+
+        if (
+            best is None
+            or
+            value
+            >
+            best[
+                "value"
+            ]
+        ):
+
+            best = {
+
+                "item":
+                    item,
+
+                "detour_minutes":
+                    round(
+                        detour_minutes,
+                        1
+                    ),
+
+                "value":
+                    value
+
+            }
+
+    return best
+
+
+
+def _s13_best_restaurant_near_hotel(
+    restaurant_score_items,
+    hotel,
+    used_names,
+    car,
+    walking_amount,
+    candidate_limit=4
+):
+    """夕食なし宿の場合に、宿から近い店を選ぶ。"""
+    best = None
+
+    for item in sorted(
+        restaurant_score_items or [],
+        key=lambda x:
+            float(
+                x.get(
+                    "score",
+                    0
+                )
+                or 0
+            ),
+        reverse=True
+    )[:candidate_limit]:
+
+        restaurant = (
+            item.get(
+                "restaurant"
+            )
+        )
+
+        if not isinstance(
+            restaurant,
+            dict
+        ):
+            continue
+
+        name = str(
+            restaurant.get(
+                "name"
+            )
+            or ""
+        )
+
+        if (
+            not name
+            or
+            name in used_names
+        ):
+            continue
+
+        minutes = (
+            _route_minutes_between_places(
+
+                hotel,
+                restaurant,
+                car,
+                walking_amount
+
+            )
+        )
+
+        if minutes is None:
+            continue
+
+        value = (
+            float(
+                item.get(
+                    "score",
+                    0
+                )
+                or 0
+            )
+            -
+            0.3
+            *
+            minutes
+        )
+
+        if (
+            best is None
+            or
+            value
+            >
+            best[
+                "value"
+            ]
+        ):
+
+            best = {
+
+                "item":
+                    item,
+
+                "distance_minutes":
+                    round(
+                        minutes,
+                        1
+                    ),
+
+                "value":
+                    value
+
+            }
+
+    return best
+
+
+
+def build_s13_meal_schedule(
+    restaurant_score_items,
+    day_spots,
+    hotel,
+    start_point,
+    car,
+    walking_amount
+):
+    """
+    S13 食事組み込み。
+
+    ・昼食は1件目の観光地と次地点の間
+    ・夕食なし宿の宿泊日のみ夕食候補
+    ・同じ飲食店は重複させない
+    """
+    day_spots = list(
+        day_spots
+        or []
+    )
+
+    used_names = set()
+    meals = []
+    day_count = len(
+        day_spots
+    )
+
+    for day_index, spots_for_day in enumerate(
+        day_spots
+    ):
+
+        spots_for_day = list(
+            spots_for_day
+            or []
+        )
+
+        if not spots_for_day:
+            continue
+
+        previous_place = (
+            spots_for_day[
+                0
+            ]
+        )
+
+        if len(
+            spots_for_day
+        ) >= 2:
+
+            next_place = (
+                spots_for_day[
+                    1
+                ]
+            )
+
+        else:
+
+            next_place = (
+                start_point
+                if day_index
+                ==
+                day_count - 1
+                else hotel
+            )
+
+        lunch = (
+            _s13_best_restaurant_between(
+
+                restaurant_score_items,
+                previous_place,
+                next_place,
+                used_names,
+                car,
+                walking_amount
+
+            )
+        )
+
+        if lunch:
+
+            item = lunch[
+                "item"
+            ]
+
+            name = str(
+                item.get(
+                    "name"
+                )
+                or ""
+            )
+
+            used_names.add(
+                name
+            )
+
+            meals.append({
+
+                "day":
+                    day_index + 1,
+
+                "meal_type":
+                    "昼食",
+
+                "restaurant_item":
+                    item,
+
+                "detour_minutes":
+                    lunch.get(
+                        "detour_minutes"
+                    ),
+
+                "distance_minutes":
+                    None,
+
+                "note":
+                    "観光ルート途中で寄り道が少ない店を優先"
+
+            })
+
+        # 最終日は宿泊しないため夕食を組まない。
+        if (
+            day_index
+            >=
+            day_count - 1
+        ):
+            continue
+
+        # 宿で夕食が出る場合は外食夕食を出さない。
+        if _hotel_dinner_available(
+            hotel
+        ):
+            continue
+
+        dinner = (
+            _s13_best_restaurant_near_hotel(
+
+                restaurant_score_items,
+                hotel,
+                used_names,
+                car,
+                walking_amount
+
+            )
+        )
+
+        if dinner:
+
+            item = dinner[
+                "item"
+            ]
+
+            name = str(
+                item.get(
+                    "name"
+                )
+                or ""
+            )
+
+            used_names.add(
+                name
+            )
+
+            meals.append({
+
+                "day":
+                    day_index + 1,
+
+                "meal_type":
+                    "夕食",
+
+                "restaurant_item":
+                    item,
+
+                "detour_minutes":
+                    None,
+
+                "distance_minutes":
+                    dinner.get(
+                        "distance_minutes"
+                    ),
+
+                "note":
+                    "夕食なしの宿のため、宿から近い店を優先"
+
+            })
+
+    return meals
+
+
+def optimize_day_route(
+    origin,
+    spots_for_day,
+    destination,
+    car,
+    walking_amount
+):
+    """
+    1日最大3件までの観光地順序を全通り比較し、
+    実ルート時間が最短の順番を採用する。
+    """
+    spots_for_day = list(
+        spots_for_day
+        or []
+    )
+
+    if len(spots_for_day) <= 3:
+
+        (
+            order,
+            segments,
+            _
+        ) = _s1_shortest_day_route(
+            origin,
+            spots_for_day,
+            destination,
+            car,
+            walking_amount
+        )
+
+        return (
+            order,
+            segments
+        )
+
+    segments = (
+        _route_candidate_segments(
+            origin,
+            spots_for_day,
+            destination,
+            car,
+            walking_amount
+        )
+    )
+
+    return (
+        spots_for_day,
+        segments
+    )
+
+
+
+def distribute_spots_by_days(
+    recommended_spots,
+    days
+):
+    """
+    旅行ペースで件数が変わっても、
+    日ごとの件数が極端にならないよう均等に配分する。
+    """
+
+    spots_copy = list(
+        recommended_spots
+        or
+        []
+    )
+
+    day_count = (
+        2
+        if days == "1泊2日"
+        else 3
+    )
+
+    result = [
+        []
+        for _ in range(
+            day_count
+        )
+    ]
+
+    for index, spot in enumerate(
+        spots_copy
+    ):
+        result[
+            index
+            %
+            day_count
+        ].append(
+            spot
+        )
+
+    return result
+
+
+def build_trip_routes(
+    recommended_spots,
+    recommended_hotel,
+    days,
+    start_point,
+    car,
+    walking_amount,
+    preplanned_days=None
+):
+    """
+    旅行全体の移動区間を作る。
+
+    1日目:
+      開始地点 → 観光地 → 宿
+
+    中日:
+      宿 → 観光地 → 宿
+
+    最終日:
+      宿 → 観光地 → 開始地点
+
+    S1の日割りがある場合は維持し、
+    各日の最大3施設について最短順を再確認する。
+    """
+
+
+    # 車専用システムのため、常にローカル車ルートを作成する。
+    if preplanned_days is not None:
+
+        distributed = [
+            list(
+                day
+                or []
+            )
+            for day in
+            preplanned_days
+        ]
+
+    else:
+
+        distributed = (
+            distribute_spots_by_days(
+                recommended_spots,
+                days
+            )
+        )
+
+    optimized_days = []
+    route_days = []
+
+    for index, day_spots in enumerate(
+        distributed
+    ):
+
+        is_first_day = (
+            index == 0
+        )
+
+        is_last_day = (
+            index
+            ==
+            len(distributed)
+            -
+            1
+        )
+
+        origin = (
+            start_point
+            if is_first_day
+            else recommended_hotel
+        )
+
+        destination = (
+            start_point
+            if is_last_day
+            else recommended_hotel
+        )
+
+        (
+            optimized_spots,
+            segments
+
+        ) = optimize_day_route(
+
+            origin,
+            day_spots,
+            destination,
+            car,
+            walking_amount
+
+        )
+
+        optimized_days.append(
+            optimized_spots
+        )
+
+        route_days.append({
+            "day":
+                index + 1,
+            "segments":
+                segments,
+            "total_duration_seconds":
+                _route_total_seconds(
+                    segments
+                ),
+            "total_duration_text":
+                (
+                    _format_duration(
+                        _route_total_seconds(
+                            segments
+                        )
+                    )
+                    if any(
+                        segment.get(
+                            "available"
+                        )
+                        for segment in
+                        segments
+                    )
+                    else None
+                ),
+            "total_distance_meters":
+                (
+                    _route_total_distance(
+                        segments
+                    )
+                    if any(
+                        segment.get(
+                            "available"
+                        )
+                        for segment in
+                        segments
+                    )
+                    else None
+                ),
+            "total_distance_text":
+                (
+                    _format_distance(
+                        _route_total_distance(
+                            segments
+                        )
+                    )
+                    if any(
+                        segment.get(
+                            "available"
+                        )
+                        for segment in
+                        segments
+                    )
+                    else None
+                ),
+            "all_routes_available":
+                all(
+                    segment.get(
+                        "available"
+                    )
+                    for segment in
+                    segments
+                )
+                if segments
+                else True
+        })
+
+    while len(optimized_days) < 3:
+        optimized_days.append(
+            []
+        )
+
+    all_segments = [
+        segment
+
+        for route_day in route_days
+
+        for segment in
+            route_day.get(
+                "segments",
+                []
+            )
+    ]
+
+    available_segments = [
+        segment
+
+        for segment in all_segments
+
+        if segment.get(
+            "available"
+        )
+    ]
+
+    total_seconds = (
+        _route_total_seconds(
+            available_segments
+        )
+    )
+
+    total_distance = (
+        _route_total_distance(
+            available_segments
+        )
+    )
+
+    summary = {
+        "enabled":
+            bool(
+                route_matrix_routes
+            ),
+        "provider":
+            (
+                "OpenStreetMap + OSMnx local route matrix"
+                if route_matrix_routes
+                else None
+            ),
+        "total_duration_seconds":
+            total_seconds,
+        "total_duration_text":
+            (
+                _format_duration(
+                    total_seconds
+                )
+                if available_segments
+                else None
+            ),
+        "total_distance_meters":
+            total_distance,
+        "total_distance_text":
+            (
+                _format_distance(
+                    total_distance
+                )
+                if available_segments
+                else None
+            ),
+        "segment_count":
+            len(
+                all_segments
+            ),
+        "available_segment_count":
+            len(
+                available_segments
+            ),
+        "complete":
+            (
+                len(
+                    all_segments
+                )
+                ==
+                len(
+                    available_segments
+                )
+            )
+            if all_segments
+            else True,
+        "note":
+            (
+                "OpenStreetMap道路データを基に事前計算した車ルート値"
+                if route_matrix_routes
+                else
+                "ローカルルートデータを読み込めませんでした"
+            )
+    }
+
+    return (
+        optimized_days[0],
+        optimized_days[1],
+        optimized_days[2],
+        route_days,
+        summary
+    )
 
 
 def _favorite_catalog_item(
@@ -2404,6 +7713,235 @@ def get_season_from_date(
     return "秋"
 
 
+# =========================================================
+# 移動・旅行ペース設定（第1段階）
+# =========================================================
+
+WALKING_AMOUNT_OPTIONS = {
+    "少なめ",
+    "普通",
+    "多め"
+}
+
+TRAVEL_PACE_OPTIONS = {
+    "ゆっくり",
+    "普通",
+    "たくさん回りたい"
+}
+
+START_POINT_OPTIONS = {
+    "花園IC",
+    "芦ヶ久保駅"
+}
+
+
+def normalize_travel_preferences(
+    walking_amount,
+    travel_pace,
+    start_point
+):
+    """
+    新しい移動条件を安全な値に整える。
+
+    第1段階では推薦点数そのものはまだ変更せず、
+    後の距離・移動時間評価で利用する入力値として保持する。
+    """
+
+    walking_amount = str(
+        walking_amount or "普通"
+    ).strip()
+
+    travel_pace = str(
+        travel_pace or "普通"
+    ).strip()
+
+    default_start = (
+        REGION_CONFIG
+        .get(ACTIVE_REGION_CODE, REGION_CONFIG["chichibu"])
+        .get("default_arrival", "花園IC")
+    )
+
+    start_point = str(
+        start_point or default_start
+    ).strip()
+
+    if walking_amount not in WALKING_AMOUNT_OPTIONS:
+        walking_amount = "普通"
+
+    if travel_pace not in TRAVEL_PACE_OPTIONS:
+        travel_pace = "普通"
+
+    if start_point not in START_POINT_OPTIONS:
+        start_point = default_start
+
+    return (
+        walking_amount,
+        travel_pace,
+        start_point
+    )
+
+
+def normalize_walking_difficulty(value):
+    """
+    施設ごとに表現が異なる歩行負担を
+    low / medium / high の3段階へ正規化する。
+
+    情報がない場合は None とし、推測で補完しない。
+    """
+
+    if value is None:
+        return None
+
+    text = str(value).strip().lower()
+
+    low_values = {
+        "low",
+        "easy",
+        "低",
+        "少",
+        "少ない",
+        "低い",
+        "軽い",
+        "容易"
+    }
+
+    medium_values = {
+        "medium",
+        "normal",
+        "中",
+        "普通",
+        "中程度",
+        "標準"
+    }
+
+    high_values = {
+        "high",
+        "hard",
+        "高",
+        "多",
+        "多い",
+        "高い",
+        "重い",
+        "困難"
+    }
+
+    if text in low_values:
+        return "low"
+
+    if text in medium_values:
+        return "medium"
+
+    if text in high_values:
+        return "high"
+
+    return None
+
+
+def calculate_walking_preference_effect(
+    walking_amount,
+    difficulty_value
+):
+    """
+    利用者が自分で選んだ「歩く量」と、
+    施設側の歩行負担の組み合わせだけを評価する。
+
+    年齢から体力を推測しない。
+    施設側の歩行負担情報が不明な場合は0点とする。
+    """
+
+    difficulty = normalize_walking_difficulty(
+        difficulty_value
+    )
+
+    if difficulty is None:
+        return (
+            0,
+            "歩行負担データがないため加減点なし"
+        )
+
+    score_table = {
+        "少なめ": {
+            "low": 18,
+            "medium": -8,
+            "high": -22
+        },
+        "普通": {
+            "low": 10,
+            "medium": 8,
+            "high": -8
+        },
+        "多め": {
+            "low": 4,
+            "medium": 12,
+            "high": 15
+        }
+    }
+
+    reason_table = {
+        "少なめ": {
+            "low": "歩く量を少なめにした希望と合う",
+            "medium": "希望より歩行負担がやや大きい",
+            "high": "歩く量を少なめにした希望に対して負担が大きい"
+        },
+        "普通": {
+            "low": "無理なく立ち寄りやすい",
+            "medium": "標準的な歩行量の希望と合う",
+            "high": "標準的な希望より歩行負担が大きい"
+        },
+        "多め": {
+            "low": "歩行負担は小さい",
+            "medium": "歩くことを楽しみたい希望と合う",
+            "high": "歩く量を多めにした希望と合う"
+        }
+    }
+
+    selected = (
+        walking_amount
+        if walking_amount in score_table
+        else "普通"
+    )
+
+    return (
+        score_table[selected][difficulty],
+        reason_table[selected][difficulty]
+    )
+
+
+def get_spot_target_count(
+    days,
+    travel_pace
+):
+    """
+    旅行ペースは施設単体の好みではなく、
+    1日にどれくらい立ち寄るかへ反映する。
+
+    1泊2日:
+      ゆっくり 2件 / 普通 3件 / たくさん 4件
+
+    2泊3日:
+      ゆっくり 4件 / 普通 5件 / たくさん 6件
+    """
+
+    pace = (
+        travel_pace
+        if travel_pace in TRAVEL_PACE_OPTIONS
+        else "普通"
+    )
+
+    if days == "1泊2日":
+        return {
+            "ゆっくり": 2,
+            "普通": 3,
+            "たくさん回りたい": 4
+        }[pace]
+
+    return {
+        "ゆっくり": 4,
+        "普通": 5,
+        "たくさん回りたい": 6
+    }[pace]
+
+
 def make_recommendation_seed(
     age,
     gender,
@@ -2413,7 +7951,10 @@ def make_recommendation_seed(
     days,
     budget,
     purpose,
-    travel_date=""
+    travel_date="",
+    walking_amount="普通",
+    travel_pace="普通",
+    start_point="西武秩父駅"
 ):
 
     purpose_text = (
@@ -2445,7 +7986,10 @@ def make_recommendation_seed(
         f"{days}|"
         f"{budget}|"
         f"{purpose_text}|"
-        f"{travel_date}"
+        f"{travel_date}|"
+        f"{walking_amount}|"
+        f"{travel_pace}|"
+        f"{start_point}"
     )
 
 
@@ -3666,39 +9210,13 @@ def build_recommendation_reason(
         )
 
 
-    if (
-        car == "なし"
-        and
-        any(
-            (
-                "車なし"
-                in r
-                or
-                "公共交通"
-                in r
-            )
-            for r in reasons
+    if any(
+        (
+            "車" in r
+            or
+            "駐車" in r
         )
-    ):
-
-        paragraphs.append(
-            "車を使わない今回の旅行条件にも合わせやすい点を考慮しています"
-        )
-
-
-    elif (
-        car == "あり"
-        and
-        any(
-            (
-                "車"
-                in r
-                or
-                "駐車"
-                in r
-            )
-            for r in reasons
-        )
+        for r in reasons
     ):
 
         paragraphs.append(
@@ -3975,76 +9493,36 @@ def _summary_purpose_text(
 ):
 
     purpose = [
-
         str(p).strip()
-
-        for p in (
-            purpose
-            or
-            []
-        )
-
+        for p in (purpose or [])
         if str(p).strip()
-
     ]
 
-
     if not purpose:
+        return (
+            "川越らしい観光"
+            if ACTIVE_REGION_CODE == "kawagoe"
+            else "秩父観光"
+        )
 
-        return "秩父観光"
-
-
-    if len(purpose) == 1:
-
+    if ACTIVE_REGION_CODE == "kawagoe":
         mapping = {
-
-            "自然":
-                "自然",
-
-            "温泉":
-                "温泉での癒やし",
-
-            "グルメ":
-                "食",
-
-            "歴史":
-                "歴史や文化"
-
+            "小江戸・町並み": "小江戸の町並み",
+            "歴史・文化": "歴史・文化",
+            "食べ歩き・グルメ": "食べ歩き・グルメ",
+            "自然・散策": "自然・散策",
+        }
+    else:
+        mapping = {
+            "自然": "自然",
+            "温泉": "温泉",
+            "グルメ": "グルメ",
+            "歴史": "歴史・文化",
         }
 
-
-        return mapping.get(
-            purpose[0],
-            purpose[0]
-        )
-
-
-    mapping = {
-
-        "自然":
-            "自然",
-
-        "温泉":
-            "温泉",
-
-        "グルメ":
-            "グルメ",
-
-        "歴史":
-            "歴史・文化"
-
-    }
-
-
     return "・".join(
-
-        mapping.get(
-            p,
-            p
-        )
-
+        mapping.get(p, p)
         for p in purpose
-
     )
 
 
@@ -4054,76 +9532,91 @@ def _build_summary_concept(
 
     purpose_set = set(
         purpose
-        or
-        []
+        or []
     )
 
+    if ACTIVE_REGION_CODE == "kawagoe":
+
+        if {
+            "小江戸・町並み",
+            "食べ歩き・グルメ"
+        }.issubset(purpose_set):
+            return (
+                "蔵造りの町並みを歩きながら"
+                "川越らしい食べ歩きも楽しむ"
+            )
+
+        if {
+            "小江戸・町並み",
+            "歴史・文化"
+        }.issubset(purpose_set):
+            return (
+                "小江戸の町並みと"
+                "川越の歴史・文化をじっくり巡る"
+            )
+
+        if {
+            "歴史・文化",
+            "自然・散策"
+        }.issubset(purpose_set):
+            return (
+                "寺社や史跡と"
+                "落ち着いた散策を組み合わせて楽しむ"
+            )
+
+        if {
+            "食べ歩き・グルメ",
+            "歴史・文化"
+        }.issubset(purpose_set):
+            return (
+                "川越の歴史文化に触れながら"
+                "名物や食べ歩きも楽しむ"
+            )
+
+        if len(purpose_set) >= 3:
+            return (
+                f"{_summary_purpose_text(purpose)}"
+                f"をバランスよく楽しむ"
+            )
+
+        return (
+            f"{_summary_purpose_text(purpose)}"
+            f"を中心に楽しむ"
+        )
 
     if {
         "自然",
         "温泉"
-    }.issubset(
-        purpose_set
-    ):
-
-        return (
-            "自然と温泉を楽しみながら"
-        )
-
+    }.issubset(purpose_set):
+        return "自然と温泉を楽しみながら"
 
     if {
         "自然",
         "グルメ"
-    }.issubset(
-        purpose_set
-    ):
-
-        return (
-            "自然と秩父グルメを楽しみながら"
-        )
-
+    }.issubset(purpose_set):
+        return "自然と秩父グルメを楽しみながら"
 
     if {
         "歴史",
         "グルメ"
-    }.issubset(
-        purpose_set
-    ):
-
-        return (
-            "歴史や文化に触れながら秩父グルメも楽しむ"
-        )
-
+    }.issubset(purpose_set):
+        return "歴史や文化に触れながら秩父グルメも楽しむ"
 
     if {
         "歴史",
         "温泉"
-    }.issubset(
-        purpose_set
-    ):
+    }.issubset(purpose_set):
+        return "歴史や文化と温泉を楽しむ"
 
+    if len(purpose_set) >= 3:
         return (
-            "歴史や文化と温泉を楽しむ"
-        )
-
-
-    if len(
-        purpose_set
-    ) >= 3:
-
-        return (
-
             f"{_summary_purpose_text(purpose)}"
             f"をバランスよく楽しむ"
-
         )
 
-
     return (
-
         f"{_summary_purpose_text(purpose)}"
         f"を中心に楽しむ"
-
     )
 
 
@@ -4133,13 +9626,10 @@ def _format_summary_areas(
 
     areas = []
 
-
     for spot in (
         recommended_spots
-        or
-        []
+        or []
     ):
-
         area = str(
             spot.get(
                 "area",
@@ -4147,58 +9637,30 @@ def _format_summary_areas(
             )
         ).strip()
 
-
-        if (
-            area
-            and
-            area not in areas
-        ):
-
-            areas.append(
-                area
-            )
-
+        if area and area not in areas:
+            areas.append(area)
 
     if not areas:
-
-        return "秩父周辺"
-
+        return f"{ACTIVE_REGION_NAME}周辺"
 
     if len(areas) == 1:
+        return f"{areas[0]}エリア"
 
-        return (
-            f"{areas[0]}エリア"
-        )
+    if ACTIVE_REGION_CODE == "chichibu":
+        if (
+            "秩父" in areas
+            and "秩父市街" in areas
+        ):
+            areas = [
+                area
+                for area in areas
+                if area != "秩父"
+            ]
 
-
-    if (
-        "秩父"
-        in areas
-        and
-        "秩父市街"
-        in areas
-    ):
-
-        areas = [
-
-            area
-
-            for area in areas
-
-            if area != "秩父"
-
-        ]
-
-
-    shown = (
-        areas[:3]
-    )
-
+    shown = areas[:3]
 
     return (
-        "・".join(
-            shown
-        )
+        "・".join(shown)
         +
         (
             "など"
@@ -4206,8 +9668,6 @@ def _format_summary_areas(
             else ""
         )
     )
-
-
 
 
 # =========================================================
@@ -4228,55 +9688,67 @@ def _build_trip_summary(
     recommended_hotel,
     recommended_restaurants,
     sightseeing_time,
+    day1=None,
+    day2=None,
+    day3=None,
+    meal_schedule=None,
 ):
-
     """
-    TRIP SUMMARY用の旅行コンセプトを生成する。
+    旅行結果に合わせて400～500字前後のTRIP SUMMARYを生成する。
 
-    推薦順位そのものは決めず、
-    すでに選ばれた施設と入力条件だけを文章化する。
+    固定文を長くするのではなく、
+    ・地域
+    ・旅行目的
+    ・同行者
+    ・実際に選ばれた観光地
+    ・日別の流れ
+    ・飲食店
+    ・宿泊施設
+    ・移動方法
+    ・季節
+    ・予算
+    を使って内容を変える。
     """
 
-    purpose = (
-        purpose
-        or
-        []
+    purpose = purpose or []
+    recommended_spots = recommended_spots or []
+    recommended_restaurants = recommended_restaurants or []
+    meal_schedule = meal_schedule or []
+
+    day1 = day1 or []
+    day2 = day2 or []
+    day3 = day3 or []
+
+    areas = _format_summary_areas(
+        recommended_spots
     )
-
-
-    areas = (
-        _format_summary_areas(
-            recommended_spots
-        )
-    )
-
 
     spot_count = len(
         recommended_spots
-        or
-        []
     )
 
+    hotel = (
+        recommended_hotel
+        if isinstance(
+            recommended_hotel,
+            dict
+        )
+        else {}
+    )
 
     hotel_name = str(
-        (
-            recommended_hotel
-            or
-            {}
-        ).get(
+        hotel.get(
             "name",
             "宿泊施設"
         )
-    )
-
+        or
+        "宿泊施設"
+    ).strip()
 
     date_text = ""
 
-
     if travel_date:
-
         try:
-
             dt = datetime.strptime(
                 travel_date,
                 "%Y-%m-%d"
@@ -4292,214 +9764,313 @@ def _build_trip_summary(
             ValueError,
             TypeError
         ):
-
             date_text = ""
 
-
-    concept = (
-        _build_summary_concept(
-            purpose
-        )
+    concept = _build_summary_concept(
+        purpose
     )
-
 
     season_prefix = (
-
         f"{season}の"
-
         if season
-
         else ""
-
     )
-
-
-    first = (
-
-        f"今回は、"
-        f"{season_prefix}秩父で"
-        f"{concept}、"
-        f"{days}の旅行プランです。"
-
-    )
-
 
     if member == "デート":
-
         group_phrase = (
             f"{people}人でのデート旅行"
         )
-
-
     elif member == "家族":
-
         group_phrase = (
             f"家族{people}人での旅行"
         )
-
-
     elif member == "友人":
-
         group_phrase = (
             f"友人{people}人での旅行"
         )
-
-
     elif member == "一人":
-
         group_phrase = (
             "1人での旅行"
         )
-
-
     else:
-
         group_phrase = (
             f"{people}人での旅行"
         )
 
+    def _place_names(
+        places,
+        limit=3
+    ):
+        names = []
 
-    second = (
+        for place in (
+            places
+            or []
+        ):
+            if not isinstance(
+                place,
+                dict
+            ):
+                continue
 
-        f"{group_phrase}という条件を踏まえ、"
-        f"{areas}にある"
-        f"{spot_count}か所のスポットを組み合わせ、"
-        f"観光と移動のバランスを考えています。"
+            name = str(
+                place.get(
+                    "name",
+                    ""
+                )
+                or ""
+            ).strip()
 
+            if (
+                name
+                and
+                name not in names
+            ):
+                names.append(
+                    name
+                )
+
+            if len(names) >= limit:
+                break
+
+        return names
+
+    def _join_names(
+        names
+    ):
+        names = [
+            str(name).strip()
+            for name in (
+                names
+                or []
+            )
+            if str(name).strip()
+        ]
+
+        if not names:
+            return ""
+
+        if len(names) == 1:
+            return names[0]
+
+        if len(names) == 2:
+            return (
+                f"{names[0]}と{names[1]}"
+            )
+
+        return (
+            "、".join(
+                names[:-1]
+            )
+            +
+            f"、{names[-1]}"
+        )
+
+    spot_names = _place_names(
+        recommended_spots,
+        4
     )
 
+    day1_names = _place_names(
+        day1,
+        3
+    )
+
+    day2_names = _place_names(
+        day2,
+        3
+    )
+
+    day3_names = _place_names(
+        day3,
+        3
+    )
+
+    restaurant_names = _place_names(
+        recommended_restaurants,
+        2
+    )
+
+    # meal_schedule側に実際の日程採用店があれば優先する。
+    scheduled_restaurant_names = []
+
+    for meal in meal_schedule:
+        if not isinstance(
+            meal,
+            dict
+        ):
+            continue
+
+        restaurant = meal.get(
+            "restaurant"
+        )
+
+        if isinstance(
+            restaurant,
+            dict
+        ):
+            name = str(
+                restaurant.get(
+                    "name",
+                    ""
+                )
+                or ""
+            ).strip()
+
+            if (
+                name
+                and
+                name not in scheduled_restaurant_names
+            ):
+                scheduled_restaurant_names.append(
+                    name
+                )
+
+    if scheduled_restaurant_names:
+        restaurant_names = (
+            scheduled_restaurant_names[:2]
+        )
+
+    first = (
+        f"今回は、"
+        f"{season_prefix}{ACTIVE_REGION_NAME}で"
+        f"{concept}{days}の旅行プランです。"
+        f"{group_phrase}という条件をもとに、"
+        f"{areas}を中心として"
+        f"{spot_count}か所の観光スポットを組み合わせています。"
+    )
+
+    if spot_names:
+        second = (
+            f"観光地は"
+            f"{_join_names(spot_names)}"
+            f"などを選び、"
+        )
+    else:
+        second = (
+            "観光地は入力条件との相性を比較して選び、"
+        )
+
+    if ACTIVE_REGION_CODE == "kawagoe":
+        second += (
+            "小江戸らしい町並みや歴史文化、"
+            "街歩きの楽しさを感じられるように構成しています。"
+        )
+    else:
+        second += (
+            "自然・歴史・市街地観光など、"
+            "秩父らしい魅力を感じられるように構成しています。"
+        )
+
+    day_sentences = []
+
+    if day1_names:
+        day_sentences.append(
+            "1日目は"
+            +
+            _join_names(
+                day1_names
+            )
+            +
+            "を中心に巡ります"
+        )
+
+    if day2_names:
+        day_sentences.append(
+            "2日目は"
+            +
+            _join_names(
+                day2_names
+            )
+            +
+            "を組み合わせています"
+        )
 
     if (
-        date_text
+        days == "2泊3日"
         and
-        season
+        day3_names
     ):
-
-        seasonal_match = 0
-
-
-        for spot in (
-            recommended_spots
-            or
-            []
-        ):
-
-            season_text = " ".join(
-
-                str(
-                    spot.get(
-                        key,
-                        ""
-                    )
-                )
-
-                for key in (
-                    "season",
-                    "best_season",
-                    "seasonal_operation"
-                )
-
-                if spot.get(
-                    key
-                )
-
+        day_sentences.append(
+            "3日目は"
+            +
+            _join_names(
+                day3_names
             )
+            +
+            "を巡る流れです"
+        )
 
-
-            if season in season_text:
-
-                seasonal_match += 1
-
-
-        if seasonal_match > 0:
-
-            third = (
-
-                f"{date_text}の"
-                f"{season}旅行という時期も考慮し、"
-                f"選ばれた施設の季節情報を確認したうえで"
-                f"候補を組み込んでいます。"
-
+    if day_sentences:
+        third = (
+            "。".join(
+                day_sentences
             )
+            +
+            "。"
+        )
+    else:
+        third = (
+            f"約{sightseeing_time}時間の観光時間を目安に、"
+            "滞在時間と移動時間のバランスを見ながら日程を組んでいます。"
+        )
 
-
+    if car:
+        if ACTIVE_REGION_CODE == "kawagoe":
+            fourth = (
+                "車移動では川越IC・川越駅周辺を入口として、"
+                "完成済みの道路ルートデータを使い、"
+                "信号待ちや施設への出入りを考慮した補正時間も含めて"
+                "無理のない順番になるよう調整しています。"
+            )
         else:
+            fourth = (
+                "車移動では完成済みの秩父道路ルートデータを使い、"
+                "信号待ちや施設への出入りを考慮した補正時間も含めて、"
+                "観光地同士を効率よく巡れる順番になるよう調整しています。"
+            )
+    else:
+        fourth = (
+            "移動条件を踏まえ、"
+            "観光地同士の位置関係と滞在時間を考慮して順番を調整しています。"
+        )
 
-            third = (
+    if date_text and season:
+        fifth = (
+            f"旅行日は{date_text}で、"
+            f"{season}の旅行として各施設の季節情報も確認し、"
+            "旅行時期との相性を推薦結果へ反映しています。"
+        )
+    elif season:
+        fifth = (
+            f"{season}という旅行時期も考慮し、"
+            "季節との相性を推薦結果へ反映しています。"
+        )
+    else:
+        fifth = (
+            "旅行日が未指定のため、"
+            "季節条件による強い加減点は行わずに候補を選んでいます。"
+        )
 
-                f"{date_text}の"
-                f"{season}旅行という時期も条件に含め、"
-                f"旅行日に合わせて施設を選んでいます。"
+    food_sentence = ""
 
+    if restaurant_names:
+        if ACTIVE_REGION_CODE == "kawagoe":
+            food_sentence = (
+                f"食事では{_join_names(restaurant_names)}などを候補にし、"
+                "うなぎ・和食・甘味・軽食など、"
+                "川越の食文化や選択した旅行目的との相性も考えています。"
+            )
+        else:
+            food_sentence = (
+                f"食事では{_join_names(restaurant_names)}などを候補にし、"
+                "秩父名物や店舗ジャンル、"
+                "旅行目的との相性も考えています。"
             )
 
-
-    elif season:
-
-        third = (
-
-            f"今回の{season}旅行という季節条件も"
-            f"推薦結果に反映しています。"
-
-        )
-
-
-    else:
-
-        third = (
-
-            "旅行予定日が未入力のため、"
-            "季節条件は使わずに"
-            "プランを構成しています。"
-
-        )
-
-
-    if car == "なし":
-
-        fourth = (
-
-            "車を使わない条件を踏まえ、"
-            "公共交通機関で訪れやすい施設を評価し、"
-            "無理なく巡れるようにしています。"
-
-        )
-
-
-    elif car == "あり":
-
-        fourth = (
-
-            "車を利用できる条件を活かし、"
-            "移動の自由度を考慮しながら"
-            "複数のスポットを組み合わせています。"
-
-        )
-
-
-    else:
-
-        fourth = (
-
-            "移動条件も考慮し、"
-            "観光スポットを無理なく"
-            "組み合わせています。"
-
-        )
-
-
-    hotel_price = (
-
-        (
-            recommended_hotel
-            or
-            {}
-        ).get(
-            "price"
-        )
-
+    hotel_price = hotel.get(
+        "price"
     )
-
 
     if isinstance(
         hotel_price,
@@ -4508,232 +10079,150 @@ def _build_trip_summary(
             float
         )
     ):
+        hotel_sentence = (
+            f"宿泊には{hotel_name}を組み合わせ、"
+            f"1人あたり{budget:,}円の設定予算に対して"
+            f"参考宿泊費{int(hotel_price):,}円も確認しています。"
+        )
+    else:
+        hotel_sentence = (
+            f"宿泊には{hotel_name}を組み合わせています。"
+            "宿泊料金は日付・人数・客室・プランで変動するため"
+            "固定額を推測せず、"
+            f"1人あたり{budget:,}円の設定予算を旅行条件として扱っています。"
+        )
 
-        if (
-            hotel_price
-            <=
-            budget
-        ):
-
-            budget_sentence = (
-
-                f"宿泊には{hotel_name}を組み合わせ、"
-                f"1人あたり{budget:,}円の設定予算を基準に、"
-                f"参考宿泊費{hotel_price:,}円も確認しています。"
-
+    if ACTIVE_REGION_CODE == "kawagoe":
+        if "食べ歩き・グルメ" in purpose:
+            closing = (
+                "観光だけでなく食事や街歩きまで含めて、"
+                "小江戸川越らしさを1泊ごとの流れの中で楽しめるプランです。"
             )
-
-
+        elif "歴史・文化" in purpose:
+            closing = (
+                "寺社や史跡、歴史的な町並みをつなぎ、"
+                "城下町としての川越を感じやすいプランにしています。"
+            )
+        elif "自然・散策" in purpose:
+            closing = (
+                "市街地だけに偏らず、"
+                "散策や落ち着いて過ごせる場所も組み合わせたプランです。"
+            )
         else:
-
-            budget_sentence = (
-
-                f"宿泊には{hotel_name}を組み合わせ、"
-                f"1人あたり{budget:,}円の設定予算と"
-                f"参考宿泊費{hotel_price:,}円との差も"
-                f"確認しています。"
-
+            closing = (
+                "町並み・歴史・食・散策のバランスを取りながら、"
+                "川越らしさを感じられる旅行プランにしています。"
             )
-
-
     else:
-
-        budget_sentence = (
-
-            f"設定した1人あたり{budget:,}円の予算も"
-            f"条件の一つとして"
-            f"プランに反映しています。"
-
-        )
-
-
-    age_reason_text = " ".join(
-
-        str(
-            reason
-        )
-
-        for spot in (
-            recommended_spots
-            or
-            []
-        )
-
-        for reason in (
-            spot.get(
-                "reasons",
-                []
+        if "自然" in purpose:
+            closing = (
+                "自然景観と市街地観光のバランスを取り、"
+                "秩父らしい風景を楽しめる旅行プランにしています。"
             )
-        )
-
-    )
-
-
-    age_sentence = ""
-
-
-    if any(
-
-        word
-        in
-        age_reason_text
-
-        for word in (
-
-            "比較的歩きやすい",
-            "移動負担が大きくなりやすい",
-            "若い世代でも動きやすい",
-            "アクティブに楽しめる"
-
-        )
-
-    ):
-
-        age_sentence = (
-
-            f"{age}代という年齢条件も踏まえ、"
-            f"移動の負担やアクティブさとの"
-            f"バランスも考慮しています。"
-
-        )
-
-
-    if "グルメ" in purpose:
-
-        final = (
-
-            "観光だけで終わらず、"
-            "秩父の食も合わせて楽しめる、"
-            "旅行全体のバランスを意識した内容です。"
-
-        )
-
-
-    elif "温泉" in purpose:
-
-        final = (
-
-            "観光と休息のメリハリをつけながら、"
-            "秩父での滞在をゆったり楽しめる内容です。"
-
-        )
-
-
-    elif "自然" in purpose:
-
-        final = (
-
-            "観光地を巡るだけでなく、"
-            "秩父らしい自然を感じながら"
-            "過ごせる内容です。"
-
-        )
-
-
-    elif "歴史" in purpose:
-
-        final = (
-
-            "観光とあわせて"
-            "秩父の歴史や文化にも触れられる、"
-            "まとまりのある内容です。"
-
-        )
-
-
-    else:
-
-        final = (
-
-            "観光・食事・宿泊を組み合わせ、"
-            "限られた日程の中でも"
-            "楽しみやすい内容です。"
-
-        )
-
+        elif "温泉" in purpose:
+            closing = (
+                "観光と休息のメリハリをつけ、"
+                "温泉も含めてゆったり過ごせる旅行プランにしています。"
+            )
+        elif "グルメ" in purpose:
+            closing = (
+                "観光だけでなく秩父の食も楽しめるよう、"
+                "食事の立ち寄りまで含めて構成したプランです。"
+            )
+        elif "歴史" in purpose:
+            closing = (
+                "自然だけでなく寺社や文化施設も組み合わせ、"
+                "秩父の歴史に触れられる旅行プランにしています。"
+            )
+        else:
+            closing = (
+                "観光・移動・食事・宿泊をまとめて考え、"
+                "限られた日程でも秩父を楽しみやすい旅行プランにしています。"
+            )
 
     candidates = [
-
         first,
         second,
         third,
         fourth,
-        budget_sentence,
-        final
-
+        fifth,
+        food_sentence,
+        hotel_sentence,
+        closing,
     ]
-
-
-    if age_sentence:
-
-        candidates.insert(
-            4,
-            age_sentence
-        )
-
 
     selected = []
 
-
     for sentence in candidates:
+        if not sentence:
+            continue
 
         candidate = "".join(
             selected
             +
-            [
-                sentence
-            ]
+            [sentence]
         )
 
-
-        if len(candidate) <= 250:
-
+        if len(candidate) <= 500:
             selected.append(
                 sentence
             )
-
 
     text = "".join(
         selected
     )
 
+    # 400字未満の場合は、日程全体の説明を追加する。
+    if len(text) < 400:
+        extra_candidates = [
+            (
+                f"今回のプランでは総観光時間を約{sightseeing_time}時間の目安とし、"
+                "1か所に滞在しすぎないようにしながら、"
+                "移動時間も含めて現実的に回れる構成を意識しています。"
+            ),
+            (
+                "おすすめ度だけで決めるのではなく、"
+                "上位候補の中からエリアや施設の種類が偏りすぎないように調整しています。"
+            ),
+        ]
 
-    if len(text) < 150:
+        for sentence in extra_candidates:
+            if (
+                len(text)
+                +
+                len(sentence)
+                <=
+                500
+            ):
+                text += sentence
 
-        fallback = (
+            if len(text) >= 400:
+                break
 
-            f"今回のプランでは、"
-            f"{spot_count}か所の観光スポットを"
-            f"{days}の日程に組み込み、"
-            f"総観光時間の目安を"
-            f"約{sightseeing_time}時間としています。"
+    # 最後の保険。500字を超えた場合は文単位に近い位置で切る。
+    if len(text) > 500:
+        shortened = text[:497]
 
-        )
-
-
-        if (
-            len(text)
-            +
-            len(fallback)
-            <=
-            250
-        ):
-
-            text += fallback
-
-
-    if len(text) > 250:
-
-        text = (
-            text[:247]
-            .rsplit(
-                "。",
-                1
-            )[0]
-            +
+        last_period = shortened.rfind(
             "。"
         )
 
+        if last_period >= 380:
+            shortened = (
+                shortened[
+                    :last_period + 1
+                ]
+            )
+        else:
+            shortened = (
+                shortened.rstrip(
+                    "、"
+                )
+                +
+                "。"
+            )
+
+        text = shortened
 
     return text
 
@@ -4842,7 +10331,7 @@ def attach_score_visualization(
         )
 
 
-        cleaned.append({
+        cleaned_entry = {
 
             "key":
                 entry.get(
@@ -4865,7 +10354,22 @@ def attach_score_visualization(
                     ""
                 )
 
-        })
+        }
+
+        if entry.get("max_score") is not None:
+            try:
+                cleaned_entry["max_score"] = int(
+                    entry.get("max_score")
+                )
+            except (
+                TypeError,
+                ValueError
+            ):
+                pass
+
+        cleaned.append(
+            cleaned_entry
+        )
 
 
     positive_total = (
@@ -4908,6 +10412,20 @@ def attach_score_visualization(
         positive_total
     )
 
+    max_scores = [
+        int(entry.get("max_score"))
+        for entry in cleaned
+        if entry.get("max_score") is not None
+    ]
+
+    if (
+        max_scores
+        and
+        len(max_scores) == len(cleaned)
+    ):
+        copied["score_max"] = sum(
+            max_scores
+        )
 
     return copied
 
@@ -4926,9 +10444,49 @@ def calculate_spot_score(
     days,
     budget,
     gender,
+    walking_amount="普通",
+    travel_pace="普通",
     season=None,
     travel_date=""
 ):
+
+    if ACTIVE_REGION_CODE == "kawagoe":
+        return calculate_kawagoe_spot_score(
+            spot=spot,
+            member=member,
+            purpose=purpose,
+            car=car,
+            age=age,
+            people=people,
+            days=days,
+            budget=budget,
+            gender=gender,
+            walking_amount=walking_amount,
+            travel_pace=travel_pace,
+            season=season,
+            travel_date=travel_date
+        )
+
+    if ACTIVE_REGION_CODE == "chichibu":
+        return calculate_chichibu_spot_score(
+            spot=spot,
+            member=member,
+            purpose=purpose,
+            car=car,
+            age=age,
+            people=people,
+            days=days,
+            budget=budget,
+            gender=gender,
+            walking_amount=walking_amount,
+            travel_pace=travel_pace,
+            season=season,
+            travel_date=travel_date
+        )
+
+    difficulty = normalize_walking_difficulty(
+        spot.get("difficulty")
+    )
 
     score = 0
 
@@ -5128,6 +10686,15 @@ def calculate_spot_score(
         )
 
 
+    elif not any(
+        tag in spot.get("tags", [])
+        for tag in ("デート", "家族", "友人")
+    ):
+
+        member_reason = (
+            "同行者向けデータ未設定のため加減点なし"
+        )
+
     elif member in spot[
         "tags"
     ]:
@@ -5176,56 +10743,28 @@ def calculate_spot_score(
     car_score = 0
 
 
-    if car == "あり":
+    if spot[
+        "car"
+    ]:
 
-        if spot[
-            "car"
-        ]:
+        car_score += 25
 
-            car_score += 25
+        reasons.append(
+            "車でアクセスしやすい"
+        )
 
-            reasons.append(
-                "車でアクセスしやすい"
-            )
-
-            car_reason = (
-                "車を利用する条件と施設特性が一致"
-            )
-
-
-        else:
-
-            car_score += 4
-
-            car_reason = (
-                "車利用でも訪問可能"
-            )
+        car_reason = (
+            "車を利用する条件と施設特性が一致"
+        )
 
 
     else:
 
-        if not spot[
-            "car"
-        ]:
+        car_score += 4
 
-            car_score += 30
-
-            reasons.append(
-                "車なしでも訪れやすい"
-            )
-
-            car_reason = (
-                "車なしでも訪れやすい施設"
-            )
-
-
-        else:
-
-            car_score -= 18
-
-            car_reason = (
-                "車なしでは移動しにくい可能性"
-            )
+        car_reason = (
+            "車利用でも訪問可能"
+        )
 
 
     score += car_score
@@ -5245,143 +10784,9 @@ def calculate_spot_score(
     )
 
 
-    # -----------------------------------------------------
-    # 年齢・難易度
-    # -----------------------------------------------------
-
-    age_score = 0
-
-    difficulty = spot.get(
-        "difficulty",
-        ""
-    )
-
-
-    if age <= 20:
-
-        if difficulty == "easy":
-
-            age_score += 7
-
-            age_reason = (
-                "歩きやすい施設"
-            )
-
-
-        elif difficulty == "medium":
-
-            age_score += 12
-
-            reasons.append(
-                "若い世代でも動きやすい"
-            )
-
-            age_reason = (
-                "適度にアクティブな施設"
-            )
-
-
-        else:
-
-            age_score += 8
-
-            reasons.append(
-                "アクティブに楽しめる"
-            )
-
-            age_reason = (
-                "アクティブな観光と相性が良い"
-            )
-
-
-    elif age <= 30:
-
-        if difficulty == "easy":
-
-            age_score += 8
-
-        elif difficulty == "medium":
-
-            age_score += 7
-
-        else:
-
-            age_score += 3
-
-
-        age_reason = (
-            "年齢と施設の難易度を評価"
-        )
-
-
-    elif age <= 40:
-
-        if difficulty == "easy":
-
-            age_score += 8
-
-        elif difficulty == "medium":
-
-            age_score += 5
-
-
-        age_reason = (
-            "年齢と施設の難易度を評価"
-        )
-
-
-    else:
-
-        if difficulty == "easy":
-
-            age_score += 18
-
-            reasons.append(
-                "比較的歩きやすい"
-            )
-
-            age_reason = (
-                "移動負担が比較的少ない"
-            )
-
-
-        elif difficulty == "medium":
-
-            age_score += 5
-
-            age_reason = (
-                "中程度の移動負担"
-            )
-
-
-        else:
-
-            age_score -= 18
-
-            reasons.append(
-                "移動負担が大きくなりやすい"
-            )
-
-            age_reason = (
-                "移動負担が大きい可能性"
-            )
-
-
-    score += age_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "age",
-            "年齢・歩きやすさ",
-            age_score,
-            age_reason
-
-        )
-
-    )
+    # 年齢から歩行能力を推測する評価は行わない。
+    _ = age
+    _ = travel_pace
 
 
     # -----------------------------------------------------
@@ -5529,21 +10934,6 @@ def calculate_spot_score(
             )
 
 
-    # 車なし＋長時間施設の追加補正
-    if (
-        spot[
-            "time"
-        ] >= 4
-        and
-        car == "なし"
-    ):
-
-        days_score -= 12
-
-        days_reason += (
-            "／車なしで長時間移動の負担あり"
-        )
-
 
     score += days_score
 
@@ -5591,793 +10981,400 @@ def calculate_restaurant_score(
     budget,
     age,
     days,
-    gender
+    gender,
+    walking_amount="普通",
+    travel_pace="普通"
 ):
 
+    """
+    飲食店の推薦点（S6対応）。
+
+    最大80点:
+    ・秩父らしさ 30点
+    ・ジャンル相性 25点
+    ・行きやすさ 25点
+    """
+
     score = 0
-
     reasons = []
-
     breakdown = []
 
+    specialties = normalize_list(
+        restaurant.get("specialties")
+    )
+
+    genres = normalize_list(
+        restaurant.get("genre")
+    )
 
     # -----------------------------------------------------
-    # 旅行目的
+    # 地域らしさ
     # -----------------------------------------------------
 
-    purpose_score = 0
+    local_text = " ".join(
+        str(value)
+        for value in (specialties + genres)
+    )
+
+    local_score = 0
+
+    if ACTIVE_REGION_CODE == "chichibu":
+
+        local_keywords = [
+            "豚みそ丼", "豚味噌", "わらじかつ", "わらじカツ",
+            "秩父そば", "みそポテト", "味噌ポテト",
+            "郷土料理", "ホルモン"
+        ]
+
+        if any(keyword in local_text for keyword in local_keywords):
+            local_score = 30
+            local_reason = "秩父名物・郷土料理に該当"
+            reasons.append("秩父ならではの料理を楽しめる")
+        else:
+            local_reason = "秩父名物・郷土料理による加点なし"
+
+    else:
+        kawagoe_keywords = [
+            "うなぎ",
+            "鰻",
+            "さつまいも",
+            "さつま芋",
+            "芋",
+            "焼き芋",
+            "だんご",
+            "団子",
+            "せんべい",
+            "駄菓子",
+            "川越",
+            "小江戸",
+            "郷土料理"
+        ]
+
+        if any(
+            keyword in local_text
+            for keyword in kawagoe_keywords
+        ):
+            local_score = 30
+            local_reason = (
+                "川越の名物・食文化と関連する料理に該当"
+            )
+            reasons.append(
+                "川越らしい食を楽しめる"
+            )
+        else:
+            local_reason = (
+                "川越の名物・食文化による加点なし"
+            )
+
+    score += local_score
+
+    breakdown.append(
+        _score_item(
+            "local",
+            "地域らしさ",
+            local_score,
+            local_reason
+        )
+    )
 
 
-    if "グルメ" in purpose:
+    # -----------------------------------------------------
+    # ジャンル相性 25点
+    # -----------------------------------------------------
 
-        purpose_score += 55
+    genre_text = " ".join(
+        str(value)
+        for value in (
+            genres
+            +
+            specialties
+        )
+    )
 
+    selected_purpose = set(
+        str(value).strip()
+        for value in (purpose or [])
+        if str(value).strip()
+    )
+
+    genre_score = 0
+    genre_reasons = []
+
+    if ACTIVE_REGION_CODE == "kawagoe":
+
+        # 川越は「食べ歩き・グルメ」を旅行目的として
+        # 明示的に選べるため、同行者だけでなく旅行目的を主軸に評価する。
+        if "食べ歩き・グルメ" in selected_purpose:
+            genre_score += 12
+            genre_reasons.append(
+                "食べ歩き・グルメ目的と一致"
+            )
+
+        kawagoe_food_groups = {
+            "川越らしい和食": [
+                "うなぎ",
+                "鰻",
+                "和食",
+                "日本料理",
+                "割烹",
+                "懐石",
+                "郷土料理"
+            ],
+            "甘味・軽食": [
+                "甘味",
+                "和菓子",
+                "団子",
+                "だんご",
+                "芋",
+                "さつまいも",
+                "軽食",
+                "茶房",
+                "ティー",
+                "TEA"
+            ],
+            "カフェ・パン": [
+                "カフェ",
+                "珈琲",
+                "コーヒー",
+                "ベーカリー",
+                "パン"
+            ],
+            "麺・気軽な食事": [
+                "そば",
+                "蕎麦",
+                "うどん",
+                "ラーメン",
+                "定食"
+            ],
+            "洋食・特別な食事": [
+                "洋食",
+                "フレンチ",
+                "イタリアン",
+                "スペイン",
+                "鉄板",
+                "ステーキ"
+            ],
+        }
+
+        matched_group = None
+
+        for group_name, keywords in kawagoe_food_groups.items():
+            if any(
+                keyword.lower() in genre_text.lower()
+                for keyword in keywords
+            ):
+                matched_group = group_name
+                break
+
+        if matched_group:
+            genre_score += 8
+            genre_reasons.append(
+                f"{matched_group}として楽しみやすい"
+            )
+
+        # 同行者との相性は補助評価に留める。
+        if member == "デート":
+            if any(
+                keyword.lower() in genre_text.lower()
+                for keyword in [
+                    "カフェ",
+                    "甘味",
+                    "茶房",
+                    "フレンチ",
+                    "洋食",
+                    "日本料理",
+                    "うなぎ",
+                    "鰻"
+                ]
+            ):
+                genre_score += 5
+                genre_reasons.append(
+                    "デートでも選びやすいジャンル"
+                )
+
+        elif member == "家族":
+            if any(
+                keyword.lower() in genre_text.lower()
+                for keyword in [
+                    "和食",
+                    "うなぎ",
+                    "鰻",
+                    "そば",
+                    "うどん",
+                    "定食",
+                    "甘味",
+                    "軽食"
+                ]
+            ):
+                genre_score += 5
+                genre_reasons.append(
+                    "家族旅行でも選びやすいジャンル"
+                )
+
+        elif member == "友人":
+            # 友人旅行では特定ジャンルに限定しすぎない。
+            genre_score += 4
+            genre_reasons.append(
+                "友人旅行で利用しやすい"
+            )
+
+        elif member == "一人":
+            genre_score += 3
+            genre_reasons.append(
+                "一人旅でも立ち寄りやすい"
+            )
+
+    else:
+
+        # 秩父も「同行者に特定ジャンルが完全一致したときだけ25点」
+        # という旧方式をやめ、旅行目的と実際の料理ジャンルを合わせて評価する。
+        if "グルメ" in selected_purpose:
+            genre_score += 12
+            genre_reasons.append(
+                "グルメ目的と一致"
+            )
+
+        if any(
+            keyword in genre_text
+            for keyword in [
+                "そば",
+                "蕎麦",
+                "うどん",
+                "定食",
+                "和食",
+                "豚みそ",
+                "豚味噌",
+                "わらじ",
+                "ホルモン",
+                "郷土料理"
+            ]
+        ):
+            genre_score += 8
+            genre_reasons.append(
+                "秩父旅行で選びやすい食事ジャンル"
+            )
+
+        if member == "デート":
+            if any(
+                keyword in genre_text
+                for keyword in [
+                    "カフェ",
+                    "洋食",
+                    "イタリアン",
+                    "甘味"
+                ]
+            ):
+                genre_score += 5
+                genre_reasons.append(
+                    "デートで選びやすい"
+                )
+
+        elif member == "家族":
+            if any(
+                keyword in genre_text
+                for keyword in [
+                    "そば",
+                    "うどん",
+                    "定食",
+                    "和食"
+                ]
+            ):
+                genre_score += 5
+                genre_reasons.append(
+                    "家族旅行で選びやすい"
+                )
+
+        elif member == "友人":
+            genre_score += 4
+            genre_reasons.append(
+                "友人旅行で利用しやすい"
+            )
+
+        elif member == "一人":
+            genre_score += 3
+            genre_reasons.append(
+                "一人旅でも利用しやすい"
+            )
+
+    genre_score = min(
+        25,
+        genre_score
+    )
+
+    if genre_score > 0:
+        genre_reason = "・".join(
+            genre_reasons
+        )
         reasons.append(
-            "旅行目的に合う"
+            "旅行条件と店舗ジャンルの相性が良い"
         )
-
-        purpose_reason = (
-            "旅行目的にグルメが選択されている"
-        )
-
-
     else:
-
-        purpose_reason = (
-            "グルメ目的による追加加点なし"
+        genre_reason = (
+            "今回の旅行条件との強いジャンル一致はなし"
         )
 
-
-    score += purpose_score
-
+    score += genre_score
 
     breakdown.append(
-
         _score_item(
-
-            "purpose",
-            "旅行目的",
-            purpose_score,
-            purpose_reason
-
+            "genre",
+            "店舗ジャンル",
+            genre_score,
+            genre_reason
         )
-
     )
 
-
     # -----------------------------------------------------
-    # 同行者
-    # -----------------------------------------------------
-
-    member_score = 0
-
-    member_reason = (
-        "同行者による追加補正なし"
-    )
-
-
-    if member == "デート":
-
-        if restaurant.get(
-            "date_type_friendly"
-        ) is True:
-
-            member_score += 35
-
-            reasons.append(
-                "デート利用に向いている"
-            )
-
-            member_reason = (
-                "デート向け店舗として登録"
-            )
-
-
-        else:
-
-            member_score -= 8
-
-            member_reason = (
-                "デート向け条件との一致なし"
-            )
-
-
-    elif member == "家族":
-
-        if restaurant.get(
-            "family_friendly"
-        ) is True:
-
-            member_score += 35
-
-            reasons.append(
-                "家族で利用しやすい"
-            )
-
-            member_reason = (
-                "家族向け店舗として登録"
-            )
-
-
-        else:
-
-            member_score -= 8
-
-            member_reason = (
-                "家族向け条件との一致なし"
-            )
-
-
-    elif member == "友人":
-
-        if restaurant.get(
-            "group_friendly"
-        ) is True:
-
-            member_score += 35
-
-            reasons.append(
-                "友人・グループで利用しやすい"
-            )
-
-            member_reason = (
-                "グループ向け店舗として登録"
-            )
-
-
-        else:
-
-            member_score -= 5
-
-            member_reason = (
-                "グループ向け条件との一致なし"
-            )
-
-
-    elif member == "一人":
-
-        member_reason = (
-            "1人旅のため同行者条件による加減点なし"
-        )
-
-
-    score += member_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "member",
-            "旅行メンバー",
-            member_score,
-            member_reason
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 人数
-    # -----------------------------------------------------
-
-    people_score = 0
-
-    people_reason = (
-        "人数による追加補正なし"
-    )
-
-
-    if people <= 2:
-
-        if (
-            member == "デート"
-            and
-            restaurant.get(
-                "date_type_friendly"
-            ) is True
-        ):
-
-            people_score += 18
-
-            reasons.append(
-                "少人数で利用しやすい"
-            )
-
-            people_reason = (
-                "少人数・デート利用と相性が良い"
-            )
-
-
-    elif people <= 4:
-
-        if (
-            restaurant.get(
-                "family_friendly"
-            )
-            or
-            restaurant.get(
-                "group_friendly"
-            )
-        ):
-
-            people_score += 8
-
-            people_reason = (
-                "2～4人程度で利用しやすい"
-            )
-
-
-    else:
-
-        if restaurant.get(
-            "group_friendly"
-        ) is True:
-
-            people_score += 28
-
-            reasons.append(
-                "大人数で利用しやすい"
-            )
-
-            people_reason = (
-                "大人数・グループ利用に向いている"
-            )
-
-
-        else:
-
-            people_score -= 12
-
-            people_reason = (
-                "大人数利用には不向きな可能性"
-            )
-
-
-    score += people_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "people",
-            "人数",
-            people_score,
-            people_reason
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 車・アクセス
+    # 行きやすさ 25点
     # -----------------------------------------------------
 
     access_score = 0
 
+    parking = restaurant.get(
+        "parking",
+        {}
+    )
 
-    if car == "なし":
-
-        try:
-
-            car_free = float(
-                restaurant.get(
-                    "car_free_score",
-                    0
-                )
-            )
-
-        except (
-            ValueError,
-            TypeError
-        ):
-
-            car_free = 0
-
-
-        access_score += (
-            car_free
-            *
-            8
+    if (
+        isinstance(
+            parking,
+            dict
         )
+        and
+        parking.get("available") is True
+    ):
 
-
-        if car_free >= 4:
-
-            reasons.append(
-                "車なしでも利用しやすい"
-            )
-
-            access_reason = (
-                "公共交通・徒歩で利用しやすい"
-            )
-
-
-        elif car_free <= 2:
-
-            access_score -= 6
-
-            access_reason = (
-                "車なしではアクセスしにくい可能性"
-            )
-
-
-        else:
-
-            access_reason = (
-                "車なしでのアクセスを評価"
-            )
-
+        access_score = 25
+        access_reason = "駐車場あり"
+        reasons.append(
+            "車で立ち寄りやすい"
+        )
 
     else:
 
-        parking = (
-            restaurant.get(
-                "parking",
-                {}
-            )
-        )
-
-
-        if (
-            isinstance(
-                parking,
-                dict
-            )
-            and
-            parking.get(
-                "available"
-            ) is True
-        ):
-
-            access_score += 28
-
-            reasons.append(
-                "駐車場を利用しやすい"
-            )
-
-            access_reason = (
-                "駐車場あり"
-            )
-
-
-        else:
-
-            access_score -= 5
-
-            access_reason = (
-                "駐車場情報との一致なし"
-            )
-
+        access_score = 10
+        access_reason = "駐車場情報未確認のため標準点"
 
     score += access_score
 
-
     breakdown.append(
-
         _score_item(
-
-            "car",
-            "移動手段",
+            "access",
+            "行きやすさ",
             access_score,
             access_reason
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 営業時間帯
-    # -----------------------------------------------------
-
-    time_score = 0
-
-
-    if restaurant.get(
-        "lunch"
-    ) is True:
-
-        time_score += 8
-
-
-    if restaurant.get(
-        "dinner"
-    ) is True:
-
-        time_score += 8
-
-
-    if (
-        days == "2泊3日"
-        and
-        restaurant.get(
-            "lunch"
-        )
-        and
-        restaurant.get(
-            "dinner"
-        )
-    ):
-
-        time_score += 6
-
-
-    score += time_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "time",
-            "利用時間帯",
-            time_score,
-            "昼食・夕食への組み込みやすさ"
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 予算
-    # -----------------------------------------------------
-
-    budget_score = 0
-
-
-    restaurant_price = (
-        price_number(
-            restaurant.get(
-                "price"
-            )
         )
     )
 
-
-    if restaurant_price is not None:
-
-        if (
-            restaurant_price
-            <=
-            budget
-        ):
-
-            budget_score += 25
-
-            reasons.append(
-                "予算内で利用しやすい"
-            )
-
-            budget_reason = (
-                "設定予算以内"
-            )
-
-
-        elif (
-            restaurant_price
-            <=
-            budget
-            *
-            1.15
-        ):
-
-            budget_score += 5
-
-            budget_reason = (
-                "設定予算に近い価格帯"
-            )
-
-
-        else:
-
-            budget_score -= 25
-
-            budget_reason = (
-                "設定予算を超える可能性"
-            )
-
-
-    else:
-
-        budget_reason = (
-            "価格情報不足のため加減点なし"
-        )
-
-
-    score += budget_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "budget",
-            "予算",
-            budget_score,
-            budget_reason
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 秩父らしさ
-    # -----------------------------------------------------
-
-    local_score = 0
-
-
-    specialties = normalize_list(
-        restaurant.get(
-            "specialties"
-        )
-    )
-
-
-    chichibu_keywords = [
-
-        "豚みそ丼",
-        "わらじかつ",
-        "秩父そば",
-        "みそポテト",
-        "郷土料理",
-        "ホルモン"
-
-    ]
-
-
-    if any(
-
-        any(
-
-            word in str(
-                item
-            )
-
-            for word in
-            chichibu_keywords
-
-        )
-
-        for item in
-        specialties
-
-    ):
-
-        local_score += 18
-
-        reasons.append(
-            "秩父ならではの料理を楽しめる"
-        )
-
-        local_reason = (
-            "秩父名物・郷土料理あり"
-        )
-
-
-    else:
-
-        local_reason = (
-            "地域料理による追加加点なし"
-        )
-
-
-    score += local_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "local",
-            "秩父らしさ",
-            local_score,
-            local_reason
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 店舗ジャンルと旅行スタイル
-    # -----------------------------------------------------
-
-    genre_score = 0
-
-
-    genres = normalize_list(
-        restaurant.get(
-            "genre"
-        )
-    )
-
-
-    genre_text = " ".join(
-
-        str(
-            g
-        )
-
-        for g in genres
-
-    )
-
-
-    if (
-        member == "デート"
-        and
-        any(
-            word in genre_text
-
-            for word in [
-                "イタリアン",
-                "洋食",
-                "カフェ"
-            ]
-        )
-    ):
-
-        genre_score += 15
-
-        reasons.append(
-            "デートで選びやすいジャンル"
-        )
-
-
-    if (
-        member == "友人"
-        and
-        people >= 4
-        and
-        any(
-            word in genre_text
-
-            for word in [
-                "焼肉",
-                "ホルモン",
-                "居酒屋",
-                "定食"
-            ]
-        )
-    ):
-
-        genre_score += 15
-
-        reasons.append(
-            "友人同士で楽しみやすいジャンル"
-        )
-
-
-    if (
-        member == "家族"
-        and
-        any(
-            word in genre_text
-
-            for word in [
-                "そば",
-                "うどん",
-                "定食",
-                "和食"
-            ]
-        )
-    ):
-
-        genre_score += 12
-
-        reasons.append(
-            "家族で選びやすいジャンル"
-        )
-
-
-    score += genre_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "genre",
-            "店舗ジャンル",
-            genre_score,
-            (
-                "旅行スタイルと店舗ジャンルの相性"
-                if genre_score
-                else
-                "ジャンルによる追加補正なし"
-            )
-
-        )
-
-    )
-
-
-    # -----------------------------------------------------
-    # 年齢・移動負担
-    # -----------------------------------------------------
-
-    age_score = 0
-
-
-    walking = str(
-        restaurant.get(
-            "walking_difficulty",
-            ""
-        )
-    )
-
-
-    if (
-        age >= 50
-        and
-        walking in [
-            "低",
-            "少",
-            "少ない"
-        ]
-    ):
-
-        age_score += 12
-
-        reasons.append(
-            "移動負担が少ない"
-        )
-
-        age_reason = (
-            "歩行負担が少ない"
-        )
-
-
-    elif (
-        age <= 30
-        and
-        walking in [
-            "低",
-            "少",
-            "少ない"
-        ]
-    ):
-
-        age_score += 5
-
-        age_reason = (
-            "利用しやすい立地"
-        )
-
-
-    else:
-
-        age_reason = (
-            "年齢条件による追加補正なし"
-        )
-
-
-    score += age_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "age",
-            "年齢・移動負担",
-            age_score,
-            age_reason
-
-        )
-
-    )
-
-
+    # S6では以下は飲食店の順位付けに使わない。
+    _ = purpose
+    _ = people
+    _ = budget
+    _ = age
+    _ = days
     _ = gender
-
+    _ = walking_amount
+    _ = travel_pace
 
     return (
         score,
@@ -6400,6 +11397,8 @@ def calculate_hotel_score(
     car,
     days,
     gender,
+    walking_amount="普通",
+    travel_pace="普通",
     season=None,
     travel_date=""
 ):
@@ -6495,6 +11494,15 @@ def calculate_hotel_score(
             "1人旅のため同行者タグによる加減点なし"
         )
 
+
+    elif not any(
+        tag in hotel.get("tags", [])
+        for tag in ("デート", "家族", "友人")
+    ):
+
+        member_reason = (
+            "同行者向けデータ未設定のため加減点なし"
+        )
 
     elif member in hotel[
         "tags"
@@ -6606,85 +11614,44 @@ def calculate_hotel_score(
 
     budget_score = 0
 
+    hotel_price = hotel.get("price")
 
-    if hotel[
-        "price"
-    ] <= budget:
+    if isinstance(hotel_price, (int, float)):
 
-        budget_score += 45
+        if hotel_price <= budget:
 
-        reasons.append(
-            "予算内に収まりやすい宿"
-        )
+            budget_score += 45
+            reasons.append("予算内に収まりやすい宿")
 
+            if budget - hotel_price >= 5000:
+                budget_score += 5
 
-        if (
-            budget
-            -
-            hotel[
-                "price"
-            ]
-            >= 5000
-        ):
+            budget_reason = (
+                f"参考宿泊費{int(hotel_price):,}円が設定予算内"
+            )
 
-            budget_score += 5
+        else:
 
-
-        budget_reason = (
-
-            f"参考宿泊費"
-            f"{hotel['price']:,}円が"
-            f"設定予算内"
-
-        )
-
+            over = int(hotel_price - budget)
+            budget_score -= min(50, over // 500)
+            budget_reason = (
+                f"設定予算より{over:,}円高い"
+            )
 
     else:
-
-        over = (
-
-            hotel[
-                "price"
-            ]
-            -
-            budget
-
-        )
-
-
-        budget_score -= min(
-
-            50,
-
-            over
-            //
-            500
-
-        )
-
-
         budget_reason = (
-
-            f"設定予算より"
-            f"{over:,}円高い"
-
+            "宿泊料金は変動制のため予約時確認。予算による加減点なし"
         )
-
 
     score += budget_score
 
-
     breakdown.append(
-
         _score_item(
-
             "budget",
             "宿泊予算",
             budget_score,
             budget_reason
-
         )
-
     )
 
 
@@ -6758,72 +11725,9 @@ def calculate_hotel_score(
     )
 
 
-    # -----------------------------------------------------
-    # 年齢・宿のタイプ
-    # -----------------------------------------------------
-
-    age_score = 0
-
-
-    if (
-        age >= 50
-        and
-        hotel[
-            "quality"
-        ] >= 5
-    ):
-
-        age_score += 8
-
-        reasons.append(
-            "落ち着いて過ごしやすい宿"
-        )
-
-        age_reason = (
-            "高品質で落ち着いた宿"
-        )
-
-
-    elif (
-        age <= 30
-        and
-        hotel[
-            "type"
-        ] in [
-            "city",
-            "nature"
-        ]
-    ):
-
-        age_score += 5
-
-        age_reason = (
-            "旅行スタイルと宿タイプの相性"
-        )
-
-
-    else:
-
-        age_reason = (
-            "年齢条件による追加補正なし"
-        )
-
-
-    score += age_score
-
-
-    breakdown.append(
-
-        _score_item(
-
-            "age",
-            "年齢・宿タイプ",
-            age_score,
-            age_reason
-
-        )
-
-    )
+    # 年齢から宿の向き不向きを決める評価は行わない。
+    _ = age
+    _ = travel_pace
 
 
     # -----------------------------------------------------
@@ -6831,44 +11735,27 @@ def calculate_hotel_score(
     # -----------------------------------------------------
 
     days_score = 0
-
+    hotel_quality = hotel.get("quality")
 
     if (
         days == "2泊3日"
-        and
-        hotel[
-            "quality"
-        ] >= 5
+        and isinstance(hotel_quality, (int, float))
+        and hotel_quality >= 5
     ):
-
         days_score += 5
-
-        days_reason = (
-            "連泊でも過ごしやすい高品質宿"
-        )
-
-
+        days_reason = "連泊でも過ごしやすい高品質宿"
     else:
-
-        days_reason = (
-            "旅行日数による追加補正なし"
-        )
-
+        days_reason = "旅行日数による追加補正なし"
 
     score += days_score
 
-
     breakdown.append(
-
         _score_item(
-
             "days",
             "旅行日数",
             days_score,
             days_reason
-
         )
-
     )
 
 
@@ -6876,34 +11763,23 @@ def calculate_hotel_score(
     # 宿の品質
     # -----------------------------------------------------
 
-    quality_score = (
+    quality_score = 0
 
-        hotel[
-            "quality"
-        ]
-        *
-        2
-
-    )
-
+    if isinstance(hotel_quality, (int, float)):
+        quality_score = hotel_quality * 2
+        quality_reason = f"品質評価 {hotel_quality}/5"
+    else:
+        quality_reason = "共通基準の品質評価は未設定のため加減点なし"
 
     score += quality_score
 
-
     breakdown.append(
-
         _score_item(
-
             "quality",
             "宿の品質",
             quality_score,
-            (
-                f"品質評価 "
-                f"{hotel['quality']}/5"
-            )
-
+            quality_reason
         )
-
     )
 
 
@@ -6940,6 +11816,7 @@ WEATHER_CACHE_TTL = timedelta(
 
 
 _weather_cache = {
+    "region_code": None,
     "data": None,
     "expires_at": None,
 }
@@ -7140,82 +12017,302 @@ def _weather_jst_today():
 def _fetch_open_meteo(
     url
 ):
+    """
+    Open-MeteoのJSONを取得する。
 
-    request_obj = (
-        urllib.request.Request(
+    Windows環境でPythonのSSL証明書まわりが原因で
+    urllib通信に失敗するケースへ対応するため、
 
+    1. certifi CAを使ったurllib
+    2. 標準SSLのurllib
+    3. requests
+
+    の順でフォールバックする。
+
+    SSL検証は無効化しない。
+    """
+
+    last_error = None
+
+    # -----------------------------------------------------
+    # 1. certifi + urllib
+    # -----------------------------------------------------
+
+    try:
+        import ssl
+
+        ssl_context = None
+
+        try:
+            import certifi
+
+            ssl_context = ssl.create_default_context(
+                cafile=certifi.where()
+            )
+
+        except (
+            ImportError,
+            OSError
+        ):
+            ssl_context = ssl.create_default_context()
+
+        for attempt in range(
+            1,
+            3
+        ):
+
+            request_obj = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent":
+                        "SaitamaSouthwestTourismPlanner/1.0",
+                    "Accept":
+                        "application/json",
+                    "Connection":
+                        "close"
+                }
+            )
+
+            try:
+                with urllib.request.urlopen(
+                    request_obj,
+                    timeout=20,
+                    context=ssl_context
+                ) as response:
+
+                    status = getattr(
+                        response,
+                        "status",
+                        200
+                    )
+
+                    if status != 200:
+                        raise RuntimeError(
+                            f"Open-Meteo HTTP status: {status}"
+                        )
+
+                    payload = (
+                        response
+                        .read()
+                        .decode(
+                            "utf-8"
+                        )
+                    )
+
+                data = json.loads(
+                    payload
+                )
+
+                if (
+                    isinstance(
+                        data,
+                        dict
+                    )
+                    and
+                    data.get(
+                        "error"
+                    ) is True
+                ):
+                    raise RuntimeError(
+                        str(
+                            data.get(
+                                "reason"
+                            )
+                            or
+                            "Open-Meteo API error"
+                        )
+                    )
+
+                print(
+                    "[WEATHER FETCH]",
+                    "urllib/certifi",
+                    f"attempt={attempt}",
+                    "SUCCESS"
+                )
+
+                return data
+
+            except (
+                urllib.error.URLError,
+                TimeoutError,
+                OSError,
+                json.JSONDecodeError,
+                RuntimeError
+            ) as exc:
+
+                last_error = exc
+
+                print(
+                    "[WEATHER FETCH]",
+                    "urllib/certifi",
+                    f"attempt={attempt}/2",
+                    "FAILED",
+                    repr(exc)
+                )
+
+                if attempt < 2:
+                    time.sleep(
+                        0.8
+                    )
+
+    except Exception as exc:
+        last_error = exc
+
+        print(
+            "[WEATHER FETCH]",
+            "urllib/certifi setup FAILED",
+            repr(exc)
+        )
+
+
+    # -----------------------------------------------------
+    # 2. 標準urllib
+    # -----------------------------------------------------
+
+    try:
+        request_obj = urllib.request.Request(
             url,
-
             headers={
-
                 "User-Agent":
-                    "ChichibuTravelPlanner/1.0",
+                    "SaitamaSouthwestTourismPlanner/1.0",
+                "Accept":
+                    "application/json",
+                "Connection":
+                    "close"
+            }
+        )
 
+        with urllib.request.urlopen(
+            request_obj,
+            timeout=20
+        ) as response:
+
+            status = getattr(
+                response,
+                "status",
+                200
+            )
+
+            if status != 200:
+                raise RuntimeError(
+                    f"Open-Meteo HTTP status: {status}"
+                )
+
+            payload = (
+                response
+                .read()
+                .decode(
+                    "utf-8"
+                )
+            )
+
+        data = json.loads(
+            payload
+        )
+
+        if (
+            isinstance(
+                data,
+                dict
+            )
+            and
+            data.get(
+                "error"
+            ) is True
+        ):
+            raise RuntimeError(
+                str(
+                    data.get(
+                        "reason"
+                    )
+                    or
+                    "Open-Meteo API error"
+                )
+            )
+
+        print(
+            "[WEATHER FETCH]",
+            "urllib/default",
+            "SUCCESS"
+        )
+
+        return data
+
+    except Exception as exc:
+        last_error = exc
+
+        print(
+            "[WEATHER FETCH]",
+            "urllib/default",
+            "FAILED",
+            repr(exc)
+        )
+
+
+    # -----------------------------------------------------
+    # 3. requests
+    # -----------------------------------------------------
+
+    try:
+        import requests
+
+        response = requests.get(
+            url,
+            headers={
+                "User-Agent":
+                    "SaitamaSouthwestTourismPlanner/1.0",
                 "Accept":
                     "application/json"
-
-            }
-
+            },
+            timeout=20
         )
-    )
 
+        response.raise_for_status()
 
-    with urllib.request.urlopen(
-        request_obj,
-        timeout=8
-    ) as response:
+        data = response.json()
 
-        if getattr(
-            response,
-            "status",
-            200
-        ) != 200:
-
+        if (
+            isinstance(
+                data,
+                dict
+            )
+            and
+            data.get(
+                "error"
+            ) is True
+        ):
             raise RuntimeError(
-                f"Open-Meteo HTTP status: "
-                f"{response.status}"
-            )
-
-
-        payload = (
-            response
-            .read()
-            .decode(
-                "utf-8"
-            )
-        )
-
-
-    data = json.loads(
-        payload
-    )
-
-
-    if (
-        isinstance(
-            data,
-            dict
-        )
-        and
-        data.get(
-            "error"
-        ) is True
-    ):
-
-        raise RuntimeError(
-
-            str(
-                data.get(
-                    "reason"
+                str(
+                    data.get(
+                        "reason"
+                    )
+                    or
+                    "Open-Meteo API error"
                 )
-                or
-                "Open-Meteo API error"
             )
 
+        print(
+            "[WEATHER FETCH]",
+            "requests",
+            "SUCCESS"
+        )
+
+        return data
+
+    except Exception as exc:
+        last_error = exc
+
+        print(
+            "[WEATHER FETCH]",
+            "requests",
+            "FAILED",
+            repr(exc)
         )
 
 
-    return data
+    raise RuntimeError(
+        "Open-Meteo weather request failed with all secure methods"
+    ) from last_error
 
 
 def _build_weather_url(
@@ -7225,10 +12322,10 @@ def _build_weather_url(
     params = {
 
         "latitude":
-            CHICHIBU_LATITUDE,
+            ACTIVE_WEATHER_LATITUDE,
 
         "longitude":
-            CHICHIBU_LONGITUDE,
+            ACTIVE_WEATHER_LONGITUDE,
 
         "daily":
             (
@@ -7555,10 +12652,10 @@ def _normalize_weather_response(
             model_label,
 
         "latitude":
-            CHICHIBU_LATITUDE,
+            ACTIVE_WEATHER_LATITUDE,
 
         "longitude":
-            CHICHIBU_LONGITUDE,
+            ACTIVE_WEATHER_LONGITUDE,
 
         "updated_at":
             datetime.now(
@@ -7571,11 +12668,25 @@ def _normalize_weather_response(
 
 
 def get_weather_forecast():
+    """
+    現在選択中の地域の7日間天気予報をOpen-Meteoから取得する。
+
+    ・秩父を開いた場合は秩父座標
+    ・川越を開いた場合は川越座標
+
+    ルート計算とは独立した天気専用API。
+    APIキー不要。
+    30分キャッシュを利用し、画面表示の待ち時間を抑える。
+    """
 
     now = datetime.now(
         JST
     )
 
+    if _weather_cache.get("region_code") != ACTIVE_REGION_CODE:
+        _weather_cache["region_code"] = ACTIVE_REGION_CODE
+        _weather_cache["data"] = None
+        _weather_cache["expires_at"] = None
 
     cached_data = (
         _weather_cache.get(
@@ -7583,13 +12694,11 @@ def get_weather_forecast():
         )
     )
 
-
     expires_at = (
         _weather_cache.get(
             "expires_at"
         )
     )
-
 
     if (
         cached_data is not None
@@ -7598,127 +12707,73 @@ def get_weather_forecast():
         and
         now < expires_at
     ):
-
         return (
             cached_data,
             None
         )
 
-
     try:
-
-        jma_data = (
-            _fetch_open_meteo(
-
-                _build_weather_url(
-                    "jma_seamless"
-                )
-
-            )
+        # modelsを固定せず、Open-MeteoのBest Matchを利用する。
+        # 日本を含む各地点で適切な予報モデルを自動選択する。
+        weather_data = _fetch_open_meteo(
+            _build_weather_url()
         )
 
-
-        normalized = (
-            _normalize_weather_response(
-
-                jma_data,
-                "JMA Seamless"
-
-            )
+        normalized = _normalize_weather_response(
+            weather_data,
+            "Open-Meteo Best Match"
         )
 
-
-        _weather_cache[
-            "data"
-        ] = normalized
-
-
-        _weather_cache[
-            "expires_at"
-        ] = (
-
-            now
-            +
-            WEATHER_CACHE_TTL
-
+        _weather_cache["region_code"] = ACTIVE_REGION_CODE
+        _weather_cache["data"] = normalized
+        _weather_cache["expires_at"] = (
+            now + WEATHER_CACHE_TTL
         )
 
+        print(
+            "[WEATHER]",
+            ACTIVE_REGION_NAME,
+            "| Open-Meteo 7-day forecast loaded",
+            "| lat =",
+            ACTIVE_WEATHER_LATITUDE,
+            "| lon =",
+            ACTIVE_WEATHER_LONGITUDE
+        )
 
         return (
             normalized,
             None
         )
 
-
-    except Exception as jma_error:
-
-        last_error = (
-            jma_error
+    except Exception as weather_error:
+        print(
+            "[WEATHER ERROR]",
+            ACTIVE_REGION_NAME,
+            "|",
+            repr(weather_error)
         )
 
-
-    try:
-
-        fallback_data = (
-            _fetch_open_meteo(
-
-                _build_weather_url(
-                    "best_match"
-                )
-
+        # 一時的な通信失敗時、以前の取得結果があれば期限切れでも表示する。
+        if cached_data is not None:
+            print(
+                "[WEATHER]",
+                ACTIVE_REGION_NAME,
+                "| using stale cached forecast"
             )
-        )
 
-
-        normalized = (
-            _normalize_weather_response(
-
-                fallback_data,
-                "Open-Meteo Best Match"
-
+            return (
+                cached_data,
+                None
             )
-        )
-
-
-        _weather_cache[
-            "data"
-        ] = normalized
-
-
-        _weather_cache[
-            "expires_at"
-        ] = (
-
-            now
-            +
-            WEATHER_CACHE_TTL
-
-        )
-
 
         return (
-            normalized,
-            None
-        )
-
-
-    except Exception as fallback_error:
-
-        _ = last_error
-        _ = fallback_error
-
-
-        return (
-
             None,
-
             (
-                "現在、天気予報を取得できません。"
-                "時間をおいて再度お試しください。"
+                "現在、天気予報APIへ接続できません。"
+                "ページを再読み込みしてください。"
+                "取得失敗の詳細はターミナルの[WEATHER FETCH]で確認できます。"
             )
-
         )
-
 
 
 # =========================================================
@@ -8721,7 +13776,97 @@ def favorites():
 def start():
 
     return render_template(
-        "start.html"
+        "area_select.html"
+    )
+
+
+@app.route(
+    "/areas"
+)
+def area_select():
+
+    return render_template(
+        "area_select.html"
+    )
+
+
+def _render_region_input(region_code):
+    config = activate_region(region_code)
+
+    weather_data, weather_error = get_weather_forecast()
+
+    weather_forecast = (
+        weather_data.get("forecasts", [])
+        if weather_data
+        else []
+    )
+
+    weather_model = (
+        weather_data.get("model", "")
+        if weather_data
+        else ""
+    )
+
+    return render_template(
+        "index.html",
+        region_code=region_code,
+        region_name=config["name"],
+        region_name_en=config["name_en"],
+        purpose_options=config.get("purpose_options", []),
+        arrival_options=[
+            {
+                "value": value,
+                "label": label,
+                "selected": value == config["default_arrival"],
+            }
+            for value, label in config["arrival_labels"].items()
+        ],
+        weather_forecast=weather_forecast,
+        weather_error=weather_error,
+        weather_model=weather_model,
+        today_jst=_weather_jst_today(),
+        spot_options=[
+            {
+                "name": spot.get("name", ""),
+                "area": spot.get("area", "")
+            }
+            for spot in spots
+            if spot.get("name")
+        ]
+    )
+
+
+@app.route(
+    "/chichibu"
+)
+def chichibu():
+    return _render_region_input("chichibu")
+
+
+@app.route(
+    "/kawagoe"
+)
+def kawagoe():
+    return _render_region_input("kawagoe")
+
+
+@app.route(
+    "/hanno"
+)
+def hanno():
+    return render_template(
+        "regional_input.html",
+        region_name="飯能",
+        region_name_en="HANNO",
+        region_code="hanno",
+        available=False,
+        intro="森林・湖・アウトドアなど、自然を楽しむ旅行プランへ対応予定です。",
+        feature_tags=[
+            "森林",
+            "アウトドア",
+            "自然",
+            "宿泊"
+        ]
     )
 
 
@@ -8729,57 +13874,7 @@ def start():
     "/recommend"
 )
 def index():
-
-    weather_data, weather_error = (
-        get_weather_forecast()
-    )
-
-
-    weather_forecast = (
-
-        weather_data.get(
-            "forecasts",
-            []
-        )
-
-        if weather_data
-
-        else []
-
-    )
-
-
-    weather_model = (
-
-        weather_data.get(
-            "model",
-            ""
-        )
-
-        if weather_data
-
-        else ""
-
-    )
-
-
-    return render_template(
-
-        "index.html",
-
-        weather_forecast=
-            weather_forecast,
-
-        weather_error=
-            weather_error,
-
-        weather_model=
-            weather_model,
-
-        today_jst=
-            _weather_jst_today()
-
-    )
+    return _render_region_input("chichibu")
 
 
 @app.route(
@@ -8822,6 +13917,19 @@ def manual_plan_view():
 )
 def result():
 
+    region_code = str(
+        request.form.get("region_code") or "chichibu"
+    ).strip()
+
+    if region_code not in REGION_CONFIG:
+        return (
+            "地域指定に問題があります。"
+            "最初からやり直してください。",
+            400
+        )
+
+    region_config = activate_region(region_code)
+
     try:
 
         age = int(
@@ -8832,10 +13940,9 @@ def result():
         )
 
 
-        gender = request.form.get(
-            "gender",
-            "その他"
-        )
+        # 性別は推薦に利用していないため入力項目から削除。
+        # 既存処理との互換性のため内部では固定値を保持する。
+        gender = "未使用"
 
 
         people = int(
@@ -8852,15 +13959,24 @@ def result():
         )
 
 
-        car = request.form.get(
-            "car",
-            "なし"
-        )
+        # システム全体を車移動に固定する。
+        # フォームから異なる値が送信されても車扱いにする。
+        car = "あり"
 
 
         purpose = request.form.getlist(
             "purpose"
         )
+
+
+        must_visit_names = [
+            str(name).strip()
+            for name
+            in request.form.getlist(
+                "must_visit_spots"
+            )
+            if str(name).strip()
+        ]
 
 
         budget = int(
@@ -8886,6 +14002,43 @@ def result():
         )
 
 
+        # 「観光中の歩く量」は入力項目から廃止。
+        # 既存関数との互換性のため内部値だけ固定する。
+        walking_amount = "普通"
+
+
+        travel_pace = request.form.get(
+            "travel_pace",
+            "普通"
+        )
+
+
+        # 移動は車に統一。
+        travel_mode = "車"
+
+        arrival_detail = request.form.get(
+            "arrival_detail",
+            region_config["default_arrival"]
+        ).strip()
+
+        if arrival_detail not in set(
+            region_config["arrival_labels"].keys()
+        ):
+            arrival_detail = region_config["default_arrival"]
+
+        start_point = arrival_detail
+
+        (
+            walking_amount,
+            travel_pace,
+            start_point
+        ) = normalize_travel_preferences(
+            walking_amount,
+            travel_pace,
+            start_point
+        )
+
+
     except (
         ValueError,
         TypeError
@@ -8894,6 +14047,38 @@ def result():
         return (
             "入力内容に問題があります。"
             "最初からやり直してください。"
+        )
+
+
+    valid_spot_names = {
+        str(spot.get("name") or "").strip()
+        for spot in spots
+        if str(spot.get("name") or "").strip()
+    }
+
+    invalid_must_visit_names = [
+        name
+        for name in must_visit_names
+        if name not in valid_spot_names
+    ]
+
+    if invalid_must_visit_names:
+
+        return (
+            "行きたい場所の指定に問題があります。"
+            "画面を再読み込みして選び直してください。",
+            400
+        )
+
+    # 現行の1泊2日/2泊3日の旅程構成では、
+    # 6件以上を必須にすると表示・移動計算が過密になるため、
+    # S1の時間制約対応までは最大5件とする。
+    if len(must_visit_names) > 5:
+
+        return (
+            "行きたい場所は現在5か所まで指定できます。"
+            "S1の時間制約対応後に上限を見直します。",
+            400
         )
 
 
@@ -8919,11 +14104,28 @@ def result():
         )
 
 
+    # 目的未選択は「おまかせ」として扱う。
+    # 特定の目的に勝手に固定しない。
     if not purpose:
 
-        purpose = [
-            "自然"
-        ]
+        purpose = []
+
+
+    # =====================================================
+    # 車移動に統一
+    # =====================================================
+
+    travel_mode = "車"
+
+    route_start_point = start_point
+    start_point_display = start_point
+
+    arrival_method_label = (
+        ARRIVAL_METHOD_LABELS.get(
+            start_point,
+            start_point
+        )
+    )
 
 
     today_jst = (
@@ -8958,7 +14160,10 @@ def result():
             days,
             budget,
             purpose,
-            travel_date
+            travel_date,
+            walking_amount,
+            travel_pace,
+            start_point
 
         )
     )
@@ -8982,6 +14187,12 @@ def result():
             age
         )
     )
+
+    if ACTIVE_REGION_NAME != "秩父":
+        trip_style = str(trip_style).replace(
+            "秩父",
+            ACTIVE_REGION_NAME
+        )
 
 
     # =====================================================
@@ -9008,7 +14219,9 @@ def result():
             budget,
             age,
             days,
-            gender
+            gender,
+            walking_amount,
+            travel_pace
 
         )
 
@@ -9168,6 +14381,8 @@ def result():
             days,
             budget,
             gender,
+            walking_amount,
+            travel_pace,
 
             season=
                 season,
@@ -9176,6 +14391,13 @@ def result():
                 travel_date
 
         )
+
+
+        # 明確に営業期間外と判定された施設は、
+        # 推薦候補そのものから除外する。
+        if score <= -900:
+
+            continue
 
 
         spot_scores.append({
@@ -9241,16 +14463,10 @@ def result():
 
 
     spot_target = (
-
-        3
-
-        if days
-        ==
-        "1泊2日"
-
-        else
-        5
-
+        get_spot_target_count(
+            days,
+            travel_pace
+        )
     )
 
 
@@ -9259,7 +14475,10 @@ def result():
 
             spot_scores,
 
-            spot_target,
+            max(
+                spot_target,
+                len(must_visit_names)
+            ),
 
             recommendation_seed
             +
@@ -9278,6 +14497,79 @@ def result():
 
         )
     )
+
+
+    # =====================================================
+    # S21 行きたい場所を必ずプランに残す
+    # =====================================================
+
+    if must_visit_names:
+
+        spot_score_by_name = {
+            item.get("name", ""):
+                item
+            for item in spot_scores
+        }
+
+        forced_items = []
+
+        for must_name in must_visit_names:
+
+            source_item = (
+                spot_score_by_name.get(
+                    must_name
+                )
+            )
+
+            if not source_item:
+                continue
+
+            forced_item = dict(
+                source_item
+            )
+
+            forced_reasons = list(
+                forced_item.get(
+                    "reasons",
+                    []
+                )
+            )
+
+            forced_reasons.insert(
+                0,
+                "行きたい場所として指定"
+            )
+
+            forced_item[
+                "reasons"
+            ] = forced_reasons
+
+            forced_items.append(
+                forced_item
+            )
+
+        forced_names = {
+            item.get("name", "")
+            for item in forced_items
+        }
+
+        remaining_items = [
+            item
+            for item in selected_spots
+            if item.get("name", "")
+            not in forced_names
+        ]
+
+        selected_spots = (
+            forced_items
+            +
+            remaining_items
+        )[
+            :max(
+                spot_target,
+                len(forced_items)
+            )
+        ]
 
 
     recommended_spots = []
@@ -9381,6 +14673,8 @@ def result():
             car,
             days,
             gender,
+            walking_amount,
+            travel_pace,
 
             season=
                 season,
@@ -9420,34 +14714,64 @@ def result():
         })
 
 
-    selected_hotels = (
-        diverse_select(
+    # =====================================================
+    # S1完成：宿を複数試して旅行全体で最良を選ぶ
+    # =====================================================
 
-            hotel_scores,
+    s1_best = (
+        build_s1_best_hotel_plan(
 
-            1,
+            hotel_score_items=
+                hotel_scores,
 
-            recommendation_seed
-            +
-            303,
+            spot_score_items=
+                spot_scores,
 
-            key_name=
-                "name",
+            days=
+                days,
 
-            group_names=[
-                "type"
-            ],
+            age=
+                age,
 
-            request_nonce=
-                request_nonce
+            start_point=
+                route_start_point,
+
+            car=
+                car,
+
+            walking_amount=
+                walking_amount,
+
+            must_visit_names=
+                must_visit_names,
+
+            # ライブ画面では上位2軒を高速比較。
+            # 行きたい場所が入らない場合だけ残りも追加比較する。
+            max_hotels=
+                3
 
         )
     )
 
 
-    if not selected_hotels:
+    if s1_best:
 
-        selected_hotels = sorted(
+        chosen_hotel_item = (
+            s1_best[
+                "hotel_item"
+            ]
+        )
+
+        s1_plan = (
+            s1_best[
+                "plan"
+            ]
+        )
+
+    else:
+
+        # ルート最適化候補が作れない場合は、推薦点の高い宿を採用する。
+        ranked_hotel_items = sorted(
 
             hotel_scores,
 
@@ -9458,90 +14782,208 @@ def result():
 
             reverse=True
 
-        )[:1]
+        )
 
+        chosen_hotel_item = (
+            ranked_hotel_items[
+                0
+            ]
+        )
 
-    chosen_hotel_item = (
-        selected_hotels[
-            0
-        ]
-    )
+        s1_plan = None
 
 
     recommended_hotel = (
-        attach_map_data(
+        _decorate_hotel_from_score_item(
 
-            chosen_hotel_item[
-                "hotel"
-            ]
+            chosen_hotel_item,
+
+            age=
+                age,
+
+            people=
+                people,
+
+            member=
+                member,
+
+            car=
+                car,
+
+            days=
+                days,
+
+            budget=
+                budget,
+
+            purpose=
+                purpose,
+
+            travel_date=
+                travel_date,
+
+            season=
+                season
 
         )
     )
 
 
-    recommended_hotel[
-        "score"
-    ] = (
+    s1_unavailable_must_visit = []
 
-        chosen_hotel_item[
-            "score"
-        ]
-
-    )
+    preplanned_days = None
 
 
-    recommended_hotel[
-        "reasons"
-    ] = (
+    if s1_plan:
 
-        chosen_hotel_item[
-            "reasons"
-        ]
+        selected_spots = (
+            s1_plan.get(
+                "selected_score_items"
+            )
+            or []
+        )
 
-    )
+        s1_unavailable_must_visit = (
+            s1_plan.get(
+                "unavailable_must_visit"
+            )
+            or []
+        )
+
+        recommended_spots = []
 
 
-    recommended_hotel = (
-        attach_score_visualization(
+        for item in selected_spots:
 
-            recommended_hotel,
+            spot = (
+                attach_map_data(
+                    item[
+                        "spot"
+                    ]
+                )
+            )
 
-            chosen_hotel_item[
-                "breakdown"
+
+            spot[
+                "score"
+            ] = item[
+                "score"
             ]
 
-        )
-    )
 
-
-    recommended_hotel[
-        "recommendation_reason"
-    ] = (
-
-        build_recommendation_reason(
-
-            recommended_hotel,
-
-            chosen_hotel_item[
+            spot[
                 "reasons"
-            ],
+            ] = item[
+                "reasons"
+            ]
 
-            age,
-            people,
-            member,
-            car,
-            days,
-            budget,
-            purpose,
-            travel_date,
-            season,
 
-            category=
-                "hotel"
+            spot = (
+                attach_score_visualization(
 
-        )
+                    spot,
 
-    )
+                    item[
+                        "breakdown"
+                    ]
+
+                )
+            )
+
+            spot = (
+                normalize_place_for_display(
+                    spot
+                )
+            )
+
+
+            spot[
+                "recommendation_reason"
+            ] = (
+
+                build_recommendation_reason(
+
+                    spot,
+
+                    item[
+                        "reasons"
+                    ],
+
+                    age,
+                    people,
+                    member,
+                    car,
+                    days,
+                    budget,
+                    purpose,
+                    travel_date,
+                    season,
+
+                    category=
+                        "spot"
+
+                )
+
+            )
+
+
+            spot = (
+                normalize_place_for_display(
+                    spot
+                )
+            )
+
+            recommended_spots.append(
+                spot
+            )
+
+
+        display_spot_by_name = {
+            spot.get(
+                "name",
+                ""
+            ):
+                spot
+            for spot in
+            recommended_spots
+        }
+
+
+        preplanned_days = []
+
+
+        for raw_day in (
+            s1_plan.get(
+                "day_spots"
+            )
+            or []
+        ):
+
+            display_day = []
+
+
+            for raw_spot in raw_day:
+
+                display_spot = (
+                    display_spot_by_name.get(
+                        raw_spot.get(
+                            "name",
+                            ""
+                        )
+                    )
+                )
+
+
+                if display_spot:
+
+                    display_day.append(
+                        display_spot
+                    )
+
+
+            preplanned_days.append(
+                display_day
+            )
 
 
     other_hotels = []
@@ -9621,35 +15063,192 @@ def result():
 
 
     # =====================================================
-    # 日程作成
+    # 日程作成・実ルート計算
     # =====================================================
 
-    if days == "1泊2日":
+    (
+        day1,
+        day2,
+        day3,
+        route_days,
+        route_summary
 
-        day1 = (
-            recommended_spots[:2]
+    ) = build_trip_routes(
+
+        recommended_spots=
+            recommended_spots,
+
+        recommended_hotel=
+            recommended_hotel,
+
+        days=
+            days,
+
+        start_point=
+            route_start_point,
+
+        car=
+            car,
+
+        walking_amount=
+            walking_amount,
+
+        preplanned_days=
+            preplanned_days
+
+    )
+
+
+    # ルート最適化後の日程順におすすめ観光地も更新する。
+    recommended_spots = (
+        day1
+        +
+        day2
+        +
+        day3
+    )
+
+
+    # =====================================================
+    # S13：食事を旅行日程へ組み込む
+    # =====================================================
+
+    meal_schedule_raw = (
+        build_s13_meal_schedule(
+
+            restaurant_score_items=
+                restaurant_scores,
+
+            day_spots=
+                [
+                    day1,
+                    day2
+                ]
+                +
+                (
+                    [
+                        day3
+                    ]
+                    if days
+                    ==
+                    "2泊3日"
+                    else []
+                ),
+
+            hotel=
+                recommended_hotel,
+
+            start_point=
+                route_start_point,
+
+            car=
+                car,
+
+            walking_amount=
+                walking_amount
+
+        )
+    )
+
+
+    meal_schedule = []
+
+
+    for meal in meal_schedule_raw:
+
+        restaurant_item = (
+            meal.get(
+                "restaurant_item"
+            )
         )
 
-        day2 = (
-            recommended_spots[2:]
+
+        if not restaurant_item:
+            continue
+
+
+        display_meal = dict(
+            meal
         )
 
-        day3 = []
-
-
-    else:
-
-        day1 = (
-            recommended_spots[:2]
+        display_meal[
+            "restaurant"
+        ] = (
+            _decorate_restaurant_from_score_item(
+                restaurant_item
+            )
         )
 
-        day2 = (
-            recommended_spots[2:4]
+        display_meal.pop(
+            "restaurant_item",
+            None
         )
 
-        day3 = (
-            recommended_spots[4:]
+        meal_schedule.append(
+            display_meal
         )
+
+
+    # 日程に採用された飲食店をおすすめグルメの先頭へ。
+    if meal_schedule:
+
+        scheduled_names = []
+        scheduled_restaurants = []
+
+
+        for meal in meal_schedule:
+
+            restaurant = (
+                meal.get(
+                    "restaurant"
+                )
+            )
+
+            if not restaurant:
+                continue
+
+            name = (
+                restaurant.get(
+                    "name",
+                    ""
+                )
+            )
+
+            if (
+                name
+                and
+                name
+                not in scheduled_names
+            ):
+
+                scheduled_names.append(
+                    name
+                )
+
+                scheduled_restaurants.append(
+                    restaurant
+                )
+
+
+        remaining_restaurants = [
+            restaurant
+            for restaurant in
+            recommended_restaurants
+            if restaurant.get(
+                "name",
+                ""
+            )
+            not in scheduled_names
+        ]
+
+
+        recommended_restaurants = (
+            scheduled_restaurants
+            +
+            remaining_restaurants
+        )[
+            :restaurant_target
+        ]
 
 
     sightseeing_time = sum(
@@ -9683,16 +15282,15 @@ def result():
     )
 
 
-    total_hotel_price = (
-
-        recommended_hotel[
+    hotel_price = (
+        recommended_hotel.get(
             "price"
-        ]
-        *
-        people
-        *
-        nights
-
+        )
+        if isinstance(
+            recommended_hotel,
+            dict
+        )
+        else None
     )
 
 
@@ -9705,43 +15303,63 @@ def result():
     )
 
 
-    if total_budget > 0:
-
-        budget_ratio = round(
-
-            (
-                total_hotel_price
-                /
-                total_budget
-            )
-            *
-            100
-
+    if isinstance(
+        hotel_price,
+        (
+            int,
+            float
         )
-
-
-    else:
-
-        budget_ratio = 0
-
-
-    if (
-        recommended_hotel[
-            "price"
-        ]
-        <=
-        budget
     ):
 
-        budget_status = (
-            "予算内に収まりやすい宿です"
+        total_hotel_price = (
+            hotel_price
+            *
+            people
+            *
+            nights
         )
+
+
+        if total_budget > 0:
+
+            budget_ratio = round(
+
+                (
+                    total_hotel_price
+                    /
+                    total_budget
+                )
+                *
+                100
+
+            )
+
+        else:
+
+            budget_ratio = 0
+
+
+        if hotel_price <= budget:
+
+            budget_status = (
+                "予算内に収まりやすい宿です"
+            )
+
+        else:
+
+            budget_status = (
+                "予算を少し超える可能性があります"
+            )
 
 
     else:
 
+        # 川越など宿泊料金を固定値として確認していない場合は、
+        # 推測料金を作らず結果画面でも「予約時確認」とする。
+        total_hotel_price = None
+        budget_ratio = None
         budget_status = (
-            "予算を少し超える可能性があります"
+            "宿泊料金は日付・人数・客室・プランで変動するため予約時に確認してください"
         )
 
 
@@ -9751,46 +15369,72 @@ def result():
 
     feature_text = []
 
+    if ACTIVE_REGION_CODE == "kawagoe":
 
-    if "自然" in purpose:
+        if "小江戸・町並み" in purpose:
+            feature_text.append(
+                "小江戸の町並みを満喫"
+            )
 
-        feature_text.append(
-            "秩父の自然を満喫"
-        )
+        if "歴史・文化" in purpose:
+            feature_text.append(
+                "寺社・史跡・文化を巡る"
+            )
 
+        if "食べ歩き・グルメ" in purpose:
+            feature_text.append(
+                "川越グルメと食べ歩きを楽しむ"
+            )
 
-    if "温泉" in purpose:
-
-        feature_text.append(
-            "温泉でゆったり"
-        )
-
-
-    if "グルメ" in purpose:
-
-        feature_text.append(
-            "秩父グルメを堪能"
-        )
-
-
-    if "歴史" in purpose:
-
-        feature_text.append(
-            "歴史・文化を体験"
-        )
-
-
-    if car == "なし":
-
-        feature_text.append(
-            "公共交通機関を活用"
-        )
-
+        if "自然・散策" in purpose:
+            feature_text.append(
+                "庭園や伊佐沼などをのんびり散策"
+            )
 
     else:
 
+        if "自然" in purpose:
+            feature_text.append(
+                f"{ACTIVE_REGION_NAME}の自然を満喫"
+            )
+
+        if "温泉" in purpose:
+            feature_text.append(
+                "温泉でゆったり"
+            )
+
+        if "グルメ" in purpose:
+            feature_text.append(
+                f"{ACTIVE_REGION_NAME}のグルメを堪能"
+            )
+
+        if "歴史" in purpose:
+            feature_text.append(
+                "歴史・文化を体験"
+            )
+
+    if must_visit_names:
         feature_text.append(
-            "車移動で効率よく観光"
+            "行きたい場所を優先"
+        )
+
+    feature_text.append(
+        "車移動で効率よく観光"
+    )
+
+    if s1_plan:
+        feature_text.append(
+            "移動時間と滞在時間を考慮"
+        )
+
+    if s1_best:
+        feature_text.append(
+            "宿の位置まで比較して最適化"
+        )
+
+    if meal_schedule:
+        feature_text.append(
+            "食事の寄り道も考慮"
         )
 
 
@@ -9840,6 +15484,18 @@ def result():
 
             sightseeing_time=
                 sightseeing_time,
+
+            day1=
+                day1,
+
+            day2=
+                day2,
+
+            day3=
+                day3,
+
+            meal_schedule=
+                meal_schedule,
 
         )
 
@@ -9941,10 +15597,29 @@ def result():
     # 履歴保存用データ
     # =====================================================
 
+    safe_route_days_for_history = (
+        json.loads(
+            json.dumps(
+                route_days,
+                ensure_ascii=False
+            )
+        )
+    )
+
+
     history_payload = {
 
         "schemaVersion":
-            2,
+            3,
+
+        "region_code":
+            ACTIVE_REGION_CODE,
+
+        "region_name":
+            ACTIVE_REGION_NAME,
+
+        "region_name_en":
+            ACTIVE_REGION_NAME_EN,
 
         "age":
             age,
@@ -9997,6 +15672,44 @@ def result():
         "recommended_restaurants":
             recommended_restaurants,
 
+        "meal_schedule":
+            meal_schedule,
+
+        "s1_optimization":
+            (
+                {
+                    "evaluated_hotel_count":
+                        s1_best.get(
+                            "evaluated_hotel_count",
+                            0
+                        ),
+                    "travel_minutes":
+                        s1_best.get(
+                            "travel_minutes"
+                        ),
+                    "spot_score_total":
+                        s1_best.get(
+                            "spot_score_total"
+                        ),
+                    "hotel_score":
+                        s1_best.get(
+                            "hotel_score"
+                        ),
+                    "total_value":
+                        round(
+                            float(
+                                s1_best.get(
+                                    "total_value",
+                                    0
+                                )
+                            ),
+                            1
+                        )
+                }
+                if s1_best
+                else None
+            ),
+
         "hotel":
             recommended_hotel,
 
@@ -10022,7 +15735,35 @@ def result():
             trip_summary,
 
         "score_summary":
-            score_summary
+            score_summary,
+
+        "route_days":
+            safe_route_days_for_history,
+
+        "route_summary":
+            route_summary,
+
+        "walking_amount":
+            walking_amount,
+
+        "travel_pace":
+            travel_pace,
+
+        "start_point":
+            start_point_display,
+
+        "travel_mode":
+            travel_mode,
+
+        "arrival_detail":
+            arrival_detail,
+
+        "arrival_method_label":
+            arrival_method_label,
+
+        "must_visit_spots":
+            must_visit_names,
+
 
     }
 
@@ -10043,9 +15784,98 @@ def result():
     # 結果ページ表示
     # =====================================================
 
+
+    # =====================================================
+    # 結果画面用の表示データを最終正規化
+    # parking辞書がそのままHTMLへ出るのを完全に防ぐ
+    # =====================================================
+
+    recommended_spots = [
+        normalize_place_for_display(
+            item
+        )
+        for item in
+        (
+            recommended_spots
+            or []
+        )
+    ]
+
+    recommended_hotel = (
+        normalize_place_for_display(
+            recommended_hotel
+        )
+        if recommended_hotel
+        else recommended_hotel
+    )
+
+    recommended_restaurants = [
+        normalize_place_for_display(
+            item
+        )
+        for item in
+        (
+            recommended_restaurants
+            or []
+        )
+    ]
+
+    other_hotels = [
+        normalize_place_for_display(
+            item
+        )
+        for item in
+        (
+            other_hotels
+            or []
+        )
+    ]
+
+    if meal_schedule:
+
+        normalized_meals = []
+
+        for meal in meal_schedule:
+
+            meal_copy = dict(
+                meal
+            )
+
+            if meal_copy.get(
+                "restaurant"
+            ):
+
+                meal_copy[
+                    "restaurant"
+                ] = (
+                    normalize_place_for_display(
+                        meal_copy[
+                            "restaurant"
+                        ]
+                    )
+                )
+
+            normalized_meals.append(
+                meal_copy
+            )
+
+        meal_schedule = (
+            normalized_meals
+        )
+
+
     return render_template(
 
         "result.html",
+
+        region_code=
+            ACTIVE_REGION_CODE,
+
+        region_name=
+            ACTIVE_REGION_NAME,
+
+        region_name_en=
+            ACTIVE_REGION_NAME_EN,
 
         age=
             age,
@@ -10073,6 +15903,32 @@ def result():
 
         travel_date=
             travel_date,
+
+        walking_amount=
+            walking_amount,
+
+        travel_pace=
+            travel_pace,
+
+        start_point=
+            start_point_display,
+
+        travel_mode=
+            travel_mode,
+
+        arrival_detail=
+            arrival_detail,
+
+        arrival_method_label=
+            arrival_method_label,
+
+        must_visit_spots=
+            must_visit_names,
+
+        # 旧テンプレート互換用。自宅・任意住所機能は廃止済み。
+        custom_start_used=False,
+        home_route_option_label=None,
+        route_accuracy_notice=None,
 
         season=
             season,
@@ -10122,6 +15978,36 @@ def result():
         recommended_restaurants=
             recommended_restaurants,
 
+        meal_schedule=
+            meal_schedule,
+
+        s1_optimization=
+            (
+                {
+                    "evaluated_hotel_count":
+                        s1_best.get(
+                            "evaluated_hotel_count",
+                            0
+                        ),
+                    "travel_minutes":
+                        s1_best.get(
+                            "travel_minutes"
+                        ),
+                    "total_value":
+                        round(
+                            float(
+                                s1_best.get(
+                                    "total_value",
+                                    0
+                                )
+                            ),
+                            1
+                        )
+                }
+                if s1_best
+                else None
+            ),
+
         score_summary=
             score_summary,
 
@@ -10129,9 +16015,49 @@ def result():
             map_query,
 
         history_payload=
-            history_payload
+            history_payload,
+
+        route_days=
+            route_days,
+
+        route_summary=
+            route_summary,
+
+        s1_unavailable_must_visit=
+            s1_unavailable_must_visit,
+
+        routing_enabled=
+            bool(
+                route_matrix_routes
+            )
 
     )
+
+
+print(
+    "[KAWAGOE REGION DATA]",
+    "spots =", len(KAWAGOE_DATASET.get("spots", [])),
+    "| hotels =", len(KAWAGOE_DATASET.get("hotels", [])),
+    "| restaurants =", len(KAWAGOE_DATASET.get("restaurants", [])),
+    "| route locations =", KAWAGOE_DATASET.get("route_matrix_data", {}).get("location_count"),
+    "| route pairs =", KAWAGOE_DATASET.get("route_matrix_data", {}).get("available_pair_count")
+)
+
+
+print(
+    "[TOUR DRIVING TIME]",
+    "Chichibu = 30 km/h + 2 min",
+    "| Kawagoe = 25 km/h + 2 min",
+    "| raw OSM time is kept when longer"
+)
+
+
+print(
+    "[SPOT SCORE]",
+    "Chichibu = 100 points",
+    "| Kawagoe = 100 points",
+    "| purpose 30 + member 20 + localness 20 + access 10 + itinerary 10 + season 10"
+)
 
 
 # =========================================================
@@ -10141,5 +16067,7 @@ def result():
 if __name__ == "__main__":
 
     app.run(
+        host="127.0.0.1",
+        port=5001,
         debug=True
     )

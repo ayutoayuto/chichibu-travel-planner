@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "schema_version": 3,
+    "region": "川越",
+    "generated_at": "2026-11-18"
+  },
+  "review": {
+    "_summary": {
+      "expected_count": 70,
+      "resolved_count": 70,
+      "missing": [],
+      "extra": [],
+      "duplicate_coordinate_groups": {
+        "35.924339,139.484955": [
+          "松村屋旅館",
+          "glin coffee 元町1号店"
+        ],
+        "35.922565,139.482513": [
+          "寿庵 蔵のまち店",
+          "une brise"
+        ],
+        "35.9231,139.483139": [
+          "海鮮料理 近長魚店",
+          "甘味茶房 かすが"
+        ]
+      }
+    }
+  }
+}

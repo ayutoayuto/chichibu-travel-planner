@@ -1,0 +1,340 @@
+{
+  "route_locations": {
+    "長瀞・岩畳": {
+      "latitude": 36.094518,
+      "longitude": 139.115902,
+      "address": "埼玉県秩父郡長瀞町長瀞",
+      "route_point_type": "観光地点付近",
+      "source": "https://touring.2strokegoat.com/p/saitama-nagatoro-iwadatami/",
+      "note": "OpenStreetMap由来の岩畳位置。"
+    },
+    "宝登山": {
+      "latitude": 36.091106,
+      "longitude": 139.1022391,
+      "address": "埼玉県秩父郡長瀞町長瀞1766-1",
+      "route_point_type": "宝登山麓駅・登山/ロープウェイ到着地点",
+      "source": "https://mapfan.com/spots/SCH%2CJ%2CKX4",
+      "note": "山頂ではなく、旅行者が実際に到着する宝登山麓駅を使用。"
+    },
+    "寶登山神社": {
+      "latitude": 36.0924821,
+      "longitude": 139.1039652,
+      "address": "埼玉県秩父郡長瀞町長瀞1828",
+      "route_point_type": "神社",
+      "source": "https://mapfan.com/spots/SAYC%2CJ%2CS1EY0",
+      "note": "MapFan掲載位置。"
+    },
+    "宝登山ロープウェイ": {
+      "latitude": 36.091106,
+      "longitude": 139.1022391,
+      "address": "埼玉県秩父郡長瀞町長瀞1766-1",
+      "route_point_type": "宝登山麓駅",
+      "source": "https://mapfan.com/spots/SCH%2CJ%2CKX4",
+      "note": "乗車地点である山麓駅を使用。"
+    },
+    "月の石もみじ公園": {
+      "latitude": 36.088122,
+      "longitude": 139.117188,
+      "address": "埼玉県秩父郡長瀞町長瀞1417-1",
+      "route_point_type": "公園",
+      "source": "https://touring.2strokegoat.com/p/saitama-tsukinoishi-momiji-koen/",
+      "note": "OpenStreetMap由来位置。"
+    },
+    "金石水管橋": {
+      "latitude": 36.105139,
+      "longitude": 139.112889,
+      "address": "埼玉県秩父郡長瀞町",
+      "route_point_type": "橋",
+      "source": "https://ja.wikipedia.org/wiki/金石水管橋",
+      "note": "橋中央付近の公開座標。"
+    },
+    "秩父神社": {
+      "latitude": 35.997658,
+      "longitude": 139.084869,
+      "address": "埼玉県秩父市番場町1-3",
+      "route_point_type": "神社",
+      "source": "https://geoshape.ex.nii.ac.jp/nrct-poi/resource/11/110000202400.html",
+      "note": "CODH『日本歴史地名大系』施設・地点項目データセット。"
+    },
+    "三峯神社": {
+      "latitude": 35.9204269,
+      "longitude": 138.9336956,
+      "address": "埼玉県秩父市三峰298-1",
+      "route_point_type": "駐車場・バス停側の到着地点",
+      "source": "https://arealog.net/358825/",
+      "note": "車・バスで実際に到着する三峯神社バス停/駐車場付近。"
+    },
+    "羊山公園": {
+      "latitude": 35.985818,
+      "longitude": 139.088501,
+      "address": "埼玉県秩父市大宮6360",
+      "route_point_type": "公園",
+      "source": "https://www.navitime.co.jp/poi?spot=02301-3000256",
+      "note": "NAVITIME掲載位置。"
+    },
+    "旅立ちの丘": {
+      "latitude": 36.003525,
+      "longitude": 139.060333,
+      "address": "埼玉県秩父市久那 秩父ミューズパーク内",
+      "route_point_type": "展望スポット",
+      "source": "https://www.zekkei.info/detail/chichibutabidachi/",
+      "note": "現地スポット座標。"
+    },
+    "美の山公園": {
+      "latitude": 36.054783,
+      "longitude": 139.114955,
+      "address": "埼玉県秩父郡皆野町皆野",
+      "route_point_type": "公園駐車場",
+      "source": "https://tozanguchinavi.com/trailhead/trailhead-2120",
+      "note": "車で到着できる公園駐車場を使用。"
+    },
+    "橋立鍾乳洞": {
+      "latitude": 35.9604,
+      "longitude": 139.0609,
+      "address": "埼玉県秩父市上影森708",
+      "route_point_type": "鍾乳洞入口付近",
+      "source": "https://www.pref.saitama.lg.jp/documents/27121/saitamaken_bunkazai_r7.pdf",
+      "note": "埼玉県文化財資料掲載の所在地・座標。"
+    },
+    "聖神社": {
+      "latitude": 36.050126,
+      "longitude": 139.102579,
+      "address": "埼玉県秩父市黒谷2191",
+      "route_point_type": "神社",
+      "source": "https://geoshape.ex.nii.ac.jp/nrct-poi/resource/11/110000204600.html",
+      "note": "CODH『日本歴史地名大系』施設・地点項目データセット。"
+    },
+    "秩父まつり会館": {
+      "latitude": 35.997261,
+      "longitude": 139.085007,
+      "address": "埼玉県秩父市番場町2-8",
+      "route_point_type": "施設",
+      "source": "https://touring.2strokegoat.com/p/saitama-chichibu-matsuri-kaikan/",
+      "note": "OpenStreetMap由来位置。"
+    },
+    "ほっとすぽっと秩父館": {
+      "latitude": 35.9988075,
+      "longitude": 139.0833945,
+      "address": "埼玉県秩父市宮側町18-2",
+      "route_point_type": "施設",
+      "source": "https://mapfan.com/spots/SCAQC%2CJ%2C3RFUJ",
+      "note": "MapFan掲載位置。"
+    },
+    "ちちぶ銘仙館": {
+      "latitude": 35.990761,
+      "longitude": 139.087341,
+      "address": "埼玉県秩父市熊木町28-1",
+      "route_point_type": "施設",
+      "source": "https://touring.2strokegoat.com/p/saitama-chichibu-meisenkan/",
+      "note": "地理院検索由来位置。"
+    },
+    "武甲山資料館": {
+      "latitude": 35.990923,
+      "longitude": 139.091992,
+      "address": "埼玉県秩父市大宮6176",
+      "route_point_type": "施設",
+      "source": "https://arealog.net/25407/",
+      "note": "公開位置データ。"
+    },
+    "秩父ふるさと館": {
+      "latitude": 35.996979,
+      "longitude": 139.082703,
+      "address": "埼玉県秩父市本町3-1",
+      "route_point_type": "施設",
+      "source": "https://touring.2strokegoat.com/p/saitama-chichibu-furusatokan/",
+      "note": "地理院検索由来位置。"
+    },
+    "和銅遺跡": {
+      "latitude": 36.047861,
+      "longitude": 139.10722,
+      "address": "埼玉県秩父市黒谷",
+      "route_point_type": "遺跡",
+      "source": "https://ja.wikipedia.org/wiki/和銅遺跡",
+      "note": "和銅採掘遺跡の公開座標。"
+    },
+    "清雲寺": {
+      "latitude": 35.956025,
+      "longitude": 139.043104,
+      "address": "埼玉県秩父市荒川上田野690",
+      "route_point_type": "参拝者駐車場付近",
+      "source": "https://tozanguchinavi.com/trailhead/trailhead-1319",
+      "note": "車で到着できる参拝者用駐車場地点。"
+    },
+    "秩父華厳の滝": {
+      "latitude": 36.08339,
+      "longitude": 139.043067,
+      "address": "埼玉県秩父郡皆野町上日野沢3311-1付近",
+      "route_point_type": "滝入口駐車場",
+      "source": "https://tozanguchinavi.com/trailhead/trailhead-2290",
+      "note": "滝そのものではなく、旅行者が到着する無料駐車場/入口。"
+    },
+    "三十槌の氷柱": {
+      "latitude": 35.945001,
+      "longitude": 138.925159,
+      "address": "埼玉県秩父市大滝4066-2付近",
+      "route_point_type": "観光地点付近",
+      "source": "https://arealog.net/660597/",
+      "note": "公開観光地点座標。"
+    },
+    "小松沢レジャー農園": {
+      "latitude": null,
+      "longitude": null,
+      "address": "埼玉県秩父郡横瀬町大字横瀬1408",
+      "route_point_type": "公式住所",
+      "source": "https://www.komatsuzawa.co.jp/",
+      "note": "公式住所を複数検索候補として使用。座標を推測保存せずHeiGITで解決する。",
+      "aliases": [
+        "小松沢レジャー農園 埼玉県秩父郡横瀬町横瀬1408",
+        "小松沢レジャー農園 横瀬町横瀬1408"
+      ]
+    },
+    "秩父フルーツファーム": {
+      "latitude": 35.9787611,
+      "longitude": 139.0741144,
+      "address": "埼玉県秩父市下影森877-1",
+      "route_point_type": "農園",
+      "source": "https://mapfan.com/spots/SCCI3%2CJ%2CE9",
+      "note": "MapFan掲載位置。"
+    },
+    "道の駅ちちぶ": {
+      "latitude": 35.9976538,
+      "longitude": 139.0891351,
+      "address": "埼玉県秩父市大宮4625",
+      "route_point_type": "道の駅",
+      "source": "https://touring.2strokegoat.com/p/saitama-chichibu/",
+      "note": "OpenStreetMap由来位置。"
+    },
+    "秩父温泉 満願の湯": {
+      "latitude": 36.08162,
+      "longitude": 139.071791,
+      "address": "埼玉県秩父郡皆野町大字下日野沢4000",
+      "route_point_type": "施設隣接・町営ふれあい広場駐車場付近",
+      "source": "https://tozanguchinavi.com/trailhead/trailhead-2288",
+      "note": "満願の湯に隣接する実際の車到着地点を使用。"
+    },
+    "長瀞ラインくだり": {
+      "latitude": null,
+      "longitude": null,
+      "address": "埼玉県秩父郡長瀞町長瀞489-2",
+      "route_point_type": "ラインくだり本部・受付",
+      "source": "https://www.nagatoro.gr.jp/shisetsu/nagatoro-line/",
+      "aliases": [
+        "長瀞ラインくだり本部 埼玉県秩父郡長瀞町長瀞489-2",
+        "長瀞ラインくだり 長瀞駅"
+      ],
+      "note": "乗船受付の本部を到着地点として住所Geocodingする。"
+    },
+    "埼玉県立自然の博物館": {
+      "latitude": 36.08749,
+      "longitude": 139.115983,
+      "address": "埼玉県秩父郡長瀞町長瀞1417-1",
+      "route_point_type": "博物館",
+      "source": "https://touring.2strokegoat.com/p/saitama-shizen-no-hakubutsukan/",
+      "note": "OpenStreetMap由来の施設位置。"
+    },
+    "秩父ミューズパーク": {
+      "latitude": 36.000546,
+      "longitude": 139.062111,
+      "address": "埼玉県秩父市久那637-2周辺",
+      "route_point_type": "中央部・展望台/中央駐車場付近",
+      "source": "https://www.zekkei.info/detail/museparktenbou/",
+      "note": "広大な公園のため、中央駐車場に近い代表到着地点を使用。"
+    },
+    "大滝温泉": {
+      "latitude": 35.949937,
+      "longitude": 138.938215,
+      "address": "埼玉県秩父市大滝4277-2",
+      "route_point_type": "道の駅大滝温泉駐車場",
+      "source": "https://tozanguchinavi.com/trailhead/trailhead-1385",
+      "note": "旅行者が実際に到着する道の駅駐車場を使用。"
+    },
+    "和銅鉱泉 ゆの宿 和どう": {
+      "latitude": 35.999,
+      "longitude": 139.027,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "新木鉱泉旅館": {
+      "latitude": 35.9827,
+      "longitude": 139.0515,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "NIPPONIA 秩父 門前町": {
+      "latitude": 35.9968,
+      "longitude": 139.0858,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "ホテルルートインGrand秩父": {
+      "latitude": 35.9997,
+      "longitude": 139.086,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "ホテルルートイン西武秩父駅前": {
+      "latitude": 35.9897,
+      "longitude": 139.084,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "アパホテル〈埼玉秩父駅前〉": {
+      "latitude": 35.9977,
+      "longitude": 139.0862,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "ホテル美やま": {
+      "latitude": 35.9904,
+      "longitude": 139.0342,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "旅館 比与志": {
+      "latitude": 35.9869,
+      "longitude": 139.0794,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "ちちぶ温泉 はなのや": {
+      "latitude": 35.985,
+      "longitude": 139.0,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "PICA秩父": {
+      "latitude": 35.991,
+      "longitude": 139.019,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    },
+    "御宿 竹取物語": {
+      "latitude": 35.983,
+      "longitude": 139.017,
+      "address": null,
+      "route_point_type": "宿泊施設",
+      "source": "既存app.py宿泊施設座標",
+      "note": "既存システムで使用していた宿泊施設座標をルートDBへ統合。"
+    }
+  }
+}

@@ -91,32 +91,12 @@ header {
 
 
 header::before {
-    content: "";
-
-    position: absolute;
-
-    inset: 25px;
-
-    border: 1px solid rgba(255,255,255,.18);
-
-    pointer-events: none;
+    display: none;
 }
 
 
 header::after {
-    content: "";
-
-    position: absolute;
-
-    width: 500px;
-    height: 500px;
-
-    border-radius: 50%;
-
-    border: 1px solid rgba(214,196,143,.15);
-
-    right: -180px;
-    bottom: -220px;
+    display: none;
 }
 
 
@@ -1009,444 +989,529 @@ footer small {
 }
 
 /* =========================================================
-   LUXURY TYPOGRAPHY OVERRIDE
-   基本情報の文字・選択欄を大きく上質に
+   SIMPLE DESIGN - RESPONSIVE SAFETY GUARD
+   初期デザインを保ちながら表示崩れだけを防ぐ
 ========================================================= */
 
-.section-title { gap: 26px; margin-bottom: 42px; padding-bottom: 26px; }
-
-.section-number {
-    width: 62px;
-    height: 62px;
-    font-size: 17px;
-    background: linear-gradient(145deg, #eee4c8, #d2bf8b);
-    color: #69552f;
-    box-shadow: 0 8px 22px rgba(100,80,40,.15);
+img,
+iframe {
+    max-width: 100%;
 }
-
-.section-title h3 {
-    font-size: 30px;
-    font-weight: 600;
-    letter-spacing: .12em;
-    color: #1d352d;
-}
-
-.field {
-    padding: 34px 32px 32px;
-    min-height: 185px;
-    border: 1px solid #ddd6c7;
-    background: linear-gradient(145deg, #fffefa, #f7f4ec);
-    box-shadow: 0 8px 22px rgba(25,45,35,.045);
-    transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
-}
-
-.field:hover {
-    transform: translateY(-6px);
-    border-color: #b59a61;
-    box-shadow: 0 18px 42px rgba(31,52,43,.13);
-}
-
-.field label span {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 9px;
-    color: #a1844e;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 4px;
-}
-
-.field label span::after {
-    content: "";
-    width: 32px;
-    height: 1px;
-    background: #cbb98c;
-}
-
-.field label {
-    display: block;
-    margin-bottom: 18px;
-    color: #1e382f;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: .08em;
-}
-
-.field select {
-    width: 100%;
-    height: 64px;
-    padding: 0 55px 0 23px;
-    border: 1px solid #d5cfc2;
-    border-radius: 0;
-    background-color: #fff;
-    color: #263e34;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: .05em;
-    transition: border-color .3s ease, box-shadow .3s ease;
-}
-
-.field select:hover {
-    border-color: #aa925f;
-    box-shadow: 0 7px 18px rgba(40,55,45,.08);
-}
-
-.field select:focus {
-    border-color: #9a8252;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(154,130,82,.10), 0 8px 22px rgba(30,50,40,.08);
-}
-
-.fields { gap: 26px; }
 
 @media (max-width: 800px) {
-    .section-title h3 { font-size: 26px; }
-    .field { min-height: 175px; padding: 30px 26px; }
-    .field label { font-size: 20px; }
-    .field select { height: 60px; font-size: 17px; }
-}
+    body {
+        overflow-x: hidden;
+    }
 
-@media (max-width: 500px) {
-    .section-title { gap: 15px; }
-    .section-number { width: 50px; height: 50px; font-size: 14px; }
-    .section-title h3 { font-size: 23px; }
-    .field { padding: 27px 22px; }
-    .field label { font-size: 19px; }
-    .field label span { font-size: 10px; letter-spacing: 3px; }
-    .field select { height: 58px; font-size: 16px; }
-}
+    main {
+        width: 94%;
+    }
 
-/* =========================================================
-   TOURIST SPOT LINKS & MAP
-========================================================= */
-.spot-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 18px;
-}
+    .fields,
+    .condition-grid,
+    .hotel-list,
+    .gourmet-list,
+    .budget-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 
-.spot-buttons a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 42px;
-    padding: 0 16px;
-    border: 1px solid #cfc6b3;
-    border-radius: 2px;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: .5px;
-    transition: .3s ease;
-}
-
-.spot-buttons .site-button {
-    background: #1d3c30;
-    color: white;
-    border-color: #1d3c30;
-}
-
-.spot-buttons .site-button:hover {
-    background: #b0955d;
-    border-color: #b0955d;
-    transform: translateY(-2px);
-}
-
-.spot-buttons .map-button {
-    background: #fffdf8;
-    color: #29473c;
-}
-
-.spot-buttons .map-button:hover {
-    background: #f0ece2;
-    border-color: #a89465;
-    transform: translateY(-2px);
-}
-
-.spot-map {
-    width: 100%;
-    height: 240px;
-    margin-top: 18px;
-    overflow: hidden;
-    border: 1px solid #ddd8cc;
-    background: #eeeae1;
-}
-
-.spot-map iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-}
-
-@media (max-width: 500px) {
-    .spot-buttons {
-        display: grid;
+    .day-spot-card,
+    .hotel-layout {
         grid-template-columns: 1fr;
     }
 
-    .spot-buttons a {
-        width: 100%;
+    .day-spot-map,
+    .google-map,
+    .day-spot-map iframe,
+    .google-map iframe {
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 560px) {
+    .fields,
+    .condition-grid,
+    .hotel-list,
+    .gourmet-list,
+    .budget-grid,
+    .day-spot-details,
+    .hotel-detail-grid {
+        grid-template-columns: 1fr;
     }
 
-    .spot-map {
-        height: 210px;
+    .checkbox {
+        grid-template-columns: 1fr;
+    }
+
+    .result-top-nav,
+    .hero-top-nav {
+        flex-wrap: wrap;
+    }
+
+    .day-spot-info,
+    .hotel-info {
+        padding-left: 20px;
+        padding-right: 20px;
     }
 }
 
-/* =========================
-   GOURMET
-========================= */
-
-.gourmet-section{
-    margin-top:84px;
-}
-
-.gourmet-intro{
-    margin:-10px 0 28px;
-    color:#68746e;
-    font-size:13px;
-    line-height:1.9;
-}
-
-.gourmet-list{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:20px;
-}
-
-.gourmet-card{
-    background:#fff;
-    border-radius:16px;
-    padding:28px;
-
-    box-shadow:
-        0 10px 30px rgba(25,45,35,.06);
-
-    transition:.25s;
-}
-
-.gourmet-card:hover{
-    transform:translateY(-3px);
-
-    box-shadow:
-        0 16px 38px rgba(25,45,35,.10);
-}
-
-.gourmet-number{
-    color:#9a8252;
-    font-size:9px;
-    letter-spacing:3px;
-    font-weight:700;
-    margin-bottom:9px;
-}
-
-.gourmet-card h3{
-    margin:0 0 8px;
-    color:#18392f;
-    font-family:Georgia,serif;
-    font-size:24px;
-    font-weight:400;
-    line-height:1.4;
-}
-
-.gourmet-genre{
-    color:#9a8252;
-    font-size:11px;
-    margin-bottom:16px;
-}
-
-.gourmet-description{
-    margin:0 0 18px;
-    color:#68746e;
-    font-size:12px;
-    line-height:1.9;
-}
-
-.gourmet-specialties{
-    display:flex;
-    flex-wrap:wrap;
-    gap:7px;
-    margin-bottom:18px;
-}
-
-.gourmet-specialty{
-    padding:6px 10px;
-    background:#f5f2e9;
-    border-radius:999px;
-    color:#6d5c36;
-    font-size:10px;
-}
-
-.gourmet-info{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:9px;
-    margin-bottom:18px;
-}
-
-.gourmet-info-item{
-    background:#f7f5ef;
-    border-radius:8px;
-    padding:10px 11px;
-}
-
-.gourmet-info-item strong{
-    display:block;
-    margin-bottom:4px;
-    color:#9a8252;
-    font-size:8px;
-    letter-spacing:1.5px;
-}
-
-.gourmet-info-item span{
-    display:block;
-    color:#59665f;
-    font-size:10px;
-    line-height:1.65;
-}
-
-.gourmet-buttons{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-}
-
-.gourmet-button{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-
-    padding:10px 14px;
-
-    border-radius:8px;
-    text-decoration:none;
-
-    font-size:11px;
-    font-weight:700;
-
-    transition:.25s;
-}
-
-.gourmet-button.primary{
-    background:#18392f;
-    color:#fff;
-}
-
-.gourmet-button.primary:hover{
-    background:#9a8252;
-}
-
-.gourmet-button.secondary{
-    background:#fffdf8;
-    color:#18392f;
-    border:1px solid #d8cfbb;
-}
-
-.gourmet-button.secondary:hover{
-    background:#18392f;
-    color:#fff;
-}
-
-.gourmet-empty{
-    background:#fff;
-    border-radius:14px;
-    padding:25px;
-    color:#68746e;
-    font-size:12px;
-}
-
-@media(max-width:850px){
-
-    .gourmet-list{
-        grid-template-columns:1fr;
-    }
-
-}
-
-@media(max-width:560px){
-
-    .gourmet-info{
-        grid-template-columns:1fr;
-    }
-
-}
-
-/* Step 4: 長めの推薦理由。既存カードの色・余白に合わせた最小追加。 */
-.day-spot-recommendation{
-    margin:0 0 20px;
-    padding:16px 18px;
-    background:#f7f5ef;
-    border-left:3px solid #9a8252;
-    border-radius:9px;
-}
-.day-spot-recommendation-label,
-.hotel-long-reason-label{
-    margin-bottom:8px;
-    color:#9a8252;
-    font-size:9px;
-    font-weight:700;
-    letter-spacing:1.8px;
-}
-.day-spot-recommendation p,
-.hotel-long-reason p{
-    margin:0;
-    color:#53625b;
-    font-size:12px;
-    line-height:1.9;
-}
-.hotel-long-reason{
-    margin:0 0 18px;
-    padding:16px 18px;
-    background:#f7f5ef;
-    border-left:3px solid #9a8252;
-    border-radius:9px;
-}
 /* =========================================================
-   TRIP BOOK CREATE BUTTON
+   SECTION STEP NUMBER - FINAL FIX
+   01 / 02 / 03 を一般的な小さい丸番号に固定
 ========================================================= */
 
-.trip-book-create-area{
-    margin:24px auto 0;
-    text-align:center;
+.section-title {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: center !important;
+    column-gap: 16px !important;
+
+    width: 100% !important;
 }
 
-.trip-book-create-button{
-    width:auto;
-    min-width:280px;
-    max-width:100%;
-    height:auto;
-    margin-top:0;
-    border:none;
-    border-radius:14px;
-    padding:15px 24px;
-    background:linear-gradient(135deg,#21483c,#17372f);
-    color:#fff;
-    font-size:13px;
-    font-weight:700;
-    letter-spacing:.03em;
-    cursor:pointer;
-    box-shadow:0 12px 28px rgba(24,53,46,.18);
-    transition:.2s ease;
+.section-number {
+    width: 42px !important;
+    height: 42px !important;
+
+    min-width: 42px !important;
+    max-width: 42px !important;
+
+    min-height: 42px !important;
+    max-height: 42px !important;
+
+    aspect-ratio: 1 / 1 !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    justify-self: start !important;
+    align-self: center !important;
+
+    flex: 0 0 42px !important;
+
+    border: none !important;
+    border-radius: 50% !important;
+
+    background: #1d3c30 !important;
+    background-image: none !important;
+
+    color: #ffffff !important;
+
+    font-family:
+        "Yu Gothic",
+        "Hiragino Kaku Gothic ProN",
+        Meiryo,
+        sans-serif !important;
+
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    letter-spacing: 0 !important;
+
+    box-shadow: none !important;
+    transform: none !important;
+
+    overflow: hidden !important;
 }
 
-.trip-book-create-button:hover{
-    background:linear-gradient(135deg,#2b594b,#1b4036);
-    border-color:transparent;
-    transform:translateY(-2px);
-    box-shadow:0 18px 34px rgba(24,53,46,.24);
+.section-title > div:last-child {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
-.trip-book-create-button::before,
-.trip-book-create-button::after{
-    display:none;
+.section-title > div:last-child small {
+    display: block;
 }
 
-.trip-book-create-note{
-    margin:10px 0 0;
-    color:#777f7b;
-    font-size:10px;
-    line-height:1.7;
+@media (max-width: 500px) {
+    .section-title {
+        grid-template-columns: 38px minmax(0, 1fr) !important;
+        column-gap: 12px !important;
+    }
+
+    .section-number {
+        width: 38px !important;
+        height: 38px !important;
+
+        min-width: 38px !important;
+        max-width: 38px !important;
+
+        min-height: 38px !important;
+        max-height: 38px !important;
+
+        flex-basis: 38px !important;
+
+        font-size: 11px !important;
+    }
 }
+
+/* =========================================================
+   RESULT PAGE - READABILITY IMPROVEMENT
+   結果画面の文字を大きくして読みやすくする
+========================================================= */
+
+.day-title {
+    font-size: 38px !important;
+    line-height: 1.35 !important;
+}
+
+.day-route-text strong {
+    font-size: 18px !important;
+    line-height: 1.5 !important;
+}
+
+.day-route-text span {
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+}
+
+.day-route-button {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    min-height: 50px !important;
+    padding: 0 20px !important;
+}
+
+.day-route-stat {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+    padding: 9px 13px !important;
+}
+
+.route-segment {
+    min-height: 138px !important;
+    padding: 22px 20px !important;
+}
+
+.route-segment-place small {
+    font-size: 12px !important;
+    letter-spacing: .08em !important;
+    margin-bottom: 7px !important;
+}
+
+.route-segment-place strong {
+    font-size: 18px !important;
+    line-height: 1.6 !important;
+    font-weight: 700 !important;
+}
+
+.route-segment-center {
+    min-width: 180px !important;
+    padding: 15px 18px !important;
+}
+
+.route-segment-mode {
+    font-size: 16px !important;
+    line-height: 1.5 !important;
+}
+
+.route-segment-detail {
+    margin-top: 5px !important;
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+}
+
+.route-segment-link {
+    margin-top: 8px !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+.route-segment-unavailable {
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+}
+
+.section-title {
+    font-size: 34px !important;
+}
+
+.condition-card small,
+.route-summary-item small {
+    font-size: 13px !important;
+}
+
+.condition-card strong,
+.route-summary-item strong {
+    font-size: 18px !important;
+}
+
+.day-spot-number,
+.hotel-info-label {
+    font-size: 13px !important;
+}
+
+.day-spot-info h3,
+.hotel-info h3 {
+    font-size: 29px !important;
+    line-height: 1.45 !important;
+}
+
+.day-spot-area,
+.hotel-reference {
+    font-size: 14px !important;
+}
+
+.day-spot-description,
+.hotel-description {
+    font-size: 16px !important;
+    line-height: 1.9 !important;
+}
+
+.detail-item strong {
+    font-size: 13px !important;
+}
+
+.detail-item span {
+    font-size: 14px !important;
+    line-height: 1.7 !important;
+}
+
+.day-spot-recommendation-label,
+.hotel-long-reason-label {
+    font-size: 13px !important;
+}
+
+.day-spot-recommendation p,
+.hotel-long-reason p {
+    font-size: 15px !important;
+    line-height: 1.85 !important;
+}
+
+.recommend-score-label small {
+    font-size: 12px !important;
+}
+
+.recommend-score-label strong {
+    font-size: 17px !important;
+}
+
+.recommend-score-total {
+    font-size: 30px !important;
+}
+
+.summary-box p,
+.budget-note {
+    font-size: 15px !important;
+    line-height: 1.9 !important;
+}
+
+@media (max-width: 700px) {
+    .day-title {
+        font-size: 30px !important;
+    }
+
+    .route-segment {
+        min-height: 0 !important;
+        padding: 18px 16px !important;
+    }
+
+    .route-segment-place strong {
+        font-size: 17px !important;
+    }
+
+    .route-segment-center {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    .day-spot-info h3,
+    .hotel-info h3 {
+        font-size: 24px !important;
+    }
+}
+
+/* =========================================================
+   RESULT TITLE HORIZONTAL FIX
+   結果画面の見出しを横書きに戻す
+========================================================= */
+
+/* 入力フォームのセクション見出しだけ丸番号レイアウトを使用 */
+form .section-title {
+    display: grid !important;
+    grid-template-columns: 42px minmax(0, 1fr) !important;
+    align-items: center !important;
+    column-gap: 16px !important;
+}
+
+/* 結果画面の「この旅の特徴」などは通常の横書き */
+main > .section > .section-title,
+.result-page .section-title,
+section.section > h2.section-title {
+    display: block !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
+    white-space: normal !important;
+    word-break: keep-all !important;
+    overflow-wrap: normal !important;
+    writing-mode: horizontal-tb !important;
+}
+
+/* 結果画面の見出し文字サイズ */
+section.section > h2.section-title {
+    font-size: 34px !important;
+    line-height: 1.4 !important;
+}
+
+@media (max-width: 500px) {
+    form .section-title {
+        grid-template-columns: 38px minmax(0, 1fr) !important;
+        column-gap: 12px !important;
+    }
+
+    section.section > h2.section-title {
+        font-size: 27px !important;
+    }
+}
+
+/* =========================================================
+   ROUTE CENTER FONT SIZE UP
+   移動情報ボックスの文字を大きくする
+========================================================= */
+
+.route-segment-center {
+    min-width: 200px !important;
+    padding: 18px 20px !important;
+}
+
+.route-segment-mode {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}
+
+.route-segment-detail {
+    margin-top: 6px !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+}
+
+.route-segment-link {
+    margin-top: 9px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}
+
+@media (max-width: 700px) {
+    .route-segment-center {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 16px 18px !important;
+    }
+
+    .route-segment-mode {
+        font-size: 17px !important;
+    }
+
+    .route-segment-detail {
+        font-size: 15px !important;
+    }
+
+    .route-segment-link {
+        font-size: 14px !important;
+    }
+}
+
+/* =========================================================
+   HOME / CUSTOM ADDRESS INPUT
+========================================================= */
+
+.field input[type="text"] {
+    width: 100%;
+    height: 58px;
+    margin-top: 8px;
+    padding: 0 17px;
+    border: 1px solid #d8d3c8;
+    border-radius: 2px;
+    background: #fff;
+    color: #283d34;
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+}
+
+.field input[type="text"]:focus {
+    border-color: #8e7749;
+    box-shadow: 0 0 0 3px rgba(142,119,73,.10);
+}
+
+.field-help {
+    margin: 10px 0 0;
+    color: #68746e;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.home-route-notice {
+    grid-column: 1 / -1;
+    margin: 4px 0 18px;
+    padding: 18px 20px;
+    border: 1px solid #d8d3c8;
+    border-left: 4px solid #8e7749;
+    background: #fffdf8;
+    color: #344a40;
+}
+
+.home-route-notice strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.home-route-notice ul {
+    margin: 0;
+    padding-left: 1.4em;
+}
+
+.home-route-notice li {
+    margin: 4px 0;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.home-route-result-notice {
+    margin: 18px 20px 20px;
+    padding: 16px 18px;
+    border: 1px solid #ddd8ca;
+    border-left: 4px solid #8e7749;
+    background: #fffdf8;
+    color: #344a40;
+}
+
+.home-route-result-notice strong {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 16px;
+}
+
+.home-route-result-notice p {
+    margin: 5px 0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* 移動時間・距離を太字で読みやすくする */
+.route-segment-detail {
+    font-weight: 700 !important;
+}
+
+@media (max-width: 600px) {
+    .home-route-notice,
+    .home-route-result-notice {
+        padding: 15px;
+    }
+
+    .field input[type="text"] {
+        font-size: 16px;
+    }
+}
+

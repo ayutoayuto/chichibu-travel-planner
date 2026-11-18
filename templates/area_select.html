@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地域を選ぶ | 埼玉県南西部 宿泊観光プランナー</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;background:#f4f1e9;color:#20352d}
+a{color:inherit;text-decoration:none}
+.topbar{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 7vw;background:#fff;border-bottom:1px solid #e0dbd0}
+.brand{font-family:Georgia,"Times New Roman",serif;font-size:18px;letter-spacing:.08em;color:#173c31}
+.topbar-note{font-size:10px;letter-spacing:.20em;color:#a27e47}
+.hero{
+    padding:92px 7vw 70px;
+    background:#fff;
+    border-bottom:1px solid #e0dbd0;
+    position:relative;
+    overflow:hidden
+}
+.hero-copy{
+    position:relative;
+    z-index:3;
+    max-width:780px
+}
+
+/* ==============================
+   INTERACTIVE SAITAMA MAP
+   既存レイアウトの右上に独立配置
+============================== */
+.destination-map{
+    position:absolute;
+    z-index:2;
+    top:12px;
+    right:2vw;
+    width:min(47vw,720px);
+    pointer-events:none;
+    user-select:none;
+}
+
+.destination-map-inner{
+    position:relative;
+    width:100%;
+    padding:0;
+    border:0;
+    background:transparent;
+}
+
+.saitama-map{
+    display:block;
+    width:100%;
+    height:auto;
+    overflow:visible;
+}
+
+.map-prefecture{
+    fill:url(#gradient-prefecture);
+    stroke:#c9c3b7;
+    stroke-width:1.5;
+    vector-effect:non-scaling-stroke;
+}
+
+.map-region{
+    pointer-events:auto;
+    cursor:pointer;
+
+    stroke:rgba(255,255,255,.78);
+    stroke-width:1.6;
+    vector-effect:non-scaling-stroke;
+
+    opacity:.98;
+
+    transform-box:fill-box;
+    transform-origin:center;
+
+    transition:
+        transform .28s ease,
+        filter .28s ease,
+        opacity .28s ease;
+}
+
+.map-region[data-region="chichibu"]{
+    fill:url(#gradient-chichibu);
+}
+
+.map-region[data-region="kawagoe"]{
+    fill:url(#gradient-kawagoe);
+}
+
+.map-region[data-region="hanno"]{
+    fill:url(#gradient-hanno);
+}
+
+/* カードまたは地図上で触れた地域だけ少し浮く */
+.map-region.is-active,
+.map-region:hover{
+    transform:
+        translateY(-9px)
+        scale(1.016);
+
+    opacity:1;
+}
+
+.map-region[data-region="chichibu"].is-active,
+.map-region[data-region="chichibu"]:hover{
+    filter:
+        drop-shadow(
+            0 10px 10px
+            rgba(23,60,49,.38)
+        )
+        drop-shadow(
+            0 0 14px
+            rgba(49,86,72,.42)
+        )
+        drop-shadow(
+            0 0 26px
+            rgba(139,117,81,.22)
+        );
+}
+
+.map-region[data-region="kawagoe"].is-active,
+.map-region[data-region="kawagoe"]:hover{
+    filter:
+        drop-shadow(
+            0 10px 10px
+            rgba(117,100,79,.38)
+        )
+        drop-shadow(
+            0 0 14px
+            rgba(161,130,94,.44)
+        )
+        drop-shadow(
+            0 0 26px
+            rgba(211,196,168,.28)
+        );
+}
+
+.map-region[data-region="hanno"].is-active,
+.map-region[data-region="hanno"]:hover{
+    filter:
+        drop-shadow(
+            0 10px 10px
+            rgba(48,88,76,.38)
+        )
+        drop-shadow(
+            0 0 14px
+            rgba(95,120,99,.44)
+        )
+        drop-shadow(
+            0 0 26px
+            rgba(174,184,155,.28)
+        );
+}
+
+.area-card.is-map-active{
+    border-color:#bca77e;
+
+    box-shadow:
+        0 18px 38px
+        rgba(29,55,45,.10);
+
+    transform:
+        translateY(-4px);
+}
+
+.eyebrow{margin:0 0 18px;color:#a27e47;font-size:11px;letter-spacing:.28em}
+.hero h1{margin:0;max-width:900px;font-family:Georgia,"Yu Mincho",serif;font-size:clamp(38px,5.2vw,66px);font-weight:400;line-height:1.28;color:#173c31}
+.hero p{max-width:760px;margin:28px 0 0;color:#6f7773;font-size:14px;line-height:2}
+.content{width:min(1180px,calc(100% - 48px));margin:0 auto;padding:72px 0 100px}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:26px;margin-bottom:30px}
+.section-head h2{margin:0;font-family:Georgia,"Yu Mincho",serif;font-size:30px;font-weight:400;color:#173c31}
+.section-head p{margin:0;color:#7b817e;font-size:12px;line-height:1.8}
+.area-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.area-card{display:flex;flex-direction:column;min-height:500px;overflow:hidden;background:#fff;border:1px solid #ddd7cb;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.area-card:hover{transform:translateY(-4px);border-color:#bca77e;box-shadow:0 18px 38px rgba(29,55,45,.08)}
+.area-visual{position:relative;height:215px;display:flex;align-items:center;justify-content:center}
+.chichibu{background:linear-gradient(135deg,#173c31 0%,#315648 55%,#8b7551 100%)}
+.kawagoe{background:linear-gradient(135deg,#75644f 0%,#a1825e 55%,#d3c4a8 100%)}
+.hanno{background:linear-gradient(135deg,#30584c 0%,#5f7863 55%,#aeb89b 100%)}
+.area-number{position:absolute;top:20px;left:22px;color:rgba(255,255,255,.78);font-size:11px;letter-spacing:.18em}
+.area-symbol{color:rgba(255,255,255,.96);font-family:Georgia,"Times New Roman",serif;font-size:50px;letter-spacing:.08em}
+.status{position:absolute;right:18px;bottom:18px;padding:7px 11px;background:rgba(255,255,255,.92);color:#173c31;font-size:10px;letter-spacing:.12em}
+.area-body{display:flex;flex:1;flex-direction:column;padding:28px 28px 26px}
+.area-body small{color:#a27e47;font-size:10px;letter-spacing:.20em}
+.area-body h3{margin:8px 0 14px;font-family:Georgia,"Yu Mincho",serif;font-size:30px;font-weight:400;color:#173c31}
+.area-body p{margin:0;color:#757d79;font-size:13px;line-height:1.9}
+.tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+.tag{padding:7px 10px;border:1px solid #e0dbd0;background:#faf8f3;color:#736955;font-size:10px}
+.action{margin-top:auto;padding-top:26px}
+.area-button{width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border:1px solid #173c31;background:#173c31;color:#fff;font-size:13px;letter-spacing:.05em}
+.area-button.secondary{background:#fff;color:#173c31}
+.area-button .arrow{font-size:21px}
+.note{margin-top:48px;padding:28px 30px;background:#fff;border:1px solid #ddd7cb}
+.note small{display:block;margin-bottom:8px;color:#a27e47;font-size:10px;letter-spacing:.18em}
+.note strong{display:block;margin-bottom:10px;color:#173c31;font-size:16px}
+.note p{margin:0;color:#777f7b;font-size:12px;line-height:1.9}
+footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;color:#7b817e;font-size:11px}
+@media(max-width:1180px){
+    .destination-map{
+        opacity:.45;
+        width:420px;
+        right:3vw
+    }
+    .hero-copy{
+        max-width:690px
+    }
+}
+@media(max-width:980px){
+    .destination-map{display:none}
+    .hero-copy{max-width:none}
+}
+@media(max-width:900px){
+    .area-grid{grid-template-columns:1fr}
+    .section-head{flex-direction:column;align-items:flex-start}
+    .area-card{min-height:auto}
+}
+@media(max-width:560px){.topbar{padding:0 24px}.topbar-note{display:none}.hero{padding:68px 24px 48px}.content{width:calc(100% - 32px);padding-top:46px}.area-symbol{font-size:38px}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+<div class="brand">SAITAMA SOUTHWEST TRIP PLANNER</div>
+<div style="display:flex; align-items:center; gap:18px;">
+<a href="{{ url_for('trip_book') }}" style="font-size:12px; color:#173c31; text-decoration:none;">
+旅行のしおり
+</a>
+<div class="topbar-note">SELECT YOUR AREA</div>
+</div>
+</header>
+
+<section class="hero">
+<div class="hero-copy">
+<p class="eyebrow">SELECT YOUR DESTINATION</p>
+<h1>旅したい地域から、<br>プランをはじめる。</h1>
+<p>埼玉県南西部の地域ごとに、観光地・宿泊施設・食事・移動を考えた旅行プランを作成します。地域を選択して、旅行条件の入力へ進んでください。</p>
+
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:30px;">
+<a
+    href="{{ url_for('manual_plan') }}"
+    style="
+        min-height:50px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        padding:0 22px;
+        background:#173c31;
+        border:1px solid #173c31;
+        color:#fff;
+        font-size:13px;
+        text-decoration:none;
+    "
+>
+    自分でプランを作る
+</a>
+
+<a
+    href="{{ url_for('trip_book') }}"
+    style="
+        min-height:50px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        padding:0 22px;
+        background:#173c31;
+        border:1px solid #173c31;
+        color:#fff;
+        font-size:13px;
+        text-decoration:none;
+    "
+>
+    旅行のしおりを作る
+</a>
+
+<a
+    href="{{ url_for('favorites') }}"
+    style="
+        min-height:50px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        padding:0 22px;
+        background:#fff;
+        border:1px solid #173c31;
+        color:#173c31;
+        font-size:13px;
+        text-decoration:none;
+    "
+>
+    お気に入りを見る
+</a>
+
+<a
+    href="{{ url_for('history') }}"
+    style="
+        min-height:50px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        padding:0 22px;
+        background:#fff;
+        border:1px solid #173c31;
+        color:#173c31;
+        font-size:13px;
+        text-decoration:none;
+    "
+>
+    作成履歴を見る
+</a>
+</div>
+
+
+</div>
+
+<div class="destination-map" aria-hidden="true">
+    <div class="destination-map-inner">
+        <svg
+            class="saitama-map"
+            viewBox="35 2 1561 911"
+            role="img"
+            aria-label="埼玉県内の秩父市・飯能市・川越市"
+        >
+            <defs>
+                <linearGradient
+                    id="gradient-prefecture"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                >
+                    <stop offset="0%" stop-color="#f0ece3"></stop>
+                    <stop offset="100%" stop-color="#e4e0d6"></stop>
+                </linearGradient>
+
+                <linearGradient
+                    id="gradient-chichibu"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                >
+                    <stop offset="0%" stop-color="#173c31"></stop>
+                    <stop offset="55%" stop-color="#315648"></stop>
+                    <stop offset="100%" stop-color="#8b7551"></stop>
+                </linearGradient>
+
+                <linearGradient
+                    id="gradient-kawagoe"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                >
+                    <stop offset="0%" stop-color="#75644f"></stop>
+                    <stop offset="55%" stop-color="#a1825e"></stop>
+                    <stop offset="100%" stop-color="#d3c4a8"></stop>
+                </linearGradient>
+
+                <linearGradient
+                    id="gradient-hanno"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="100%"
+                >
+                    <stop offset="0%" stop-color="#30584c"></stop>
+                    <stop offset="55%" stop-color="#5f7863"></stop>
+                    <stop offset="100%" stop-color="#aeb89b"></stop>
+                </linearGradient>
+            </defs>
+
+            <path
+                class="map-prefecture"
+                d="M47.0,507.0 L50.0,537.0 L80.0,560.0 L80.0,571.0 L92.0,580.0 L92.0,597.0 L73.0,627.0 L77.0,635.0 L144.0,648.0 L151.0,678.0 L178.0,694.0 L233.0,691.0 L246.0,718.0 L269.0,728.0 L287.0,714.0 L325.0,714.0 L341.0,698.0 L346.0,675.0 L371.0,672.0 L385.0,659.0 L431.0,658.0 L443.0,643.0 L462.0,643.0 L500.0,694.0 L573.0,711.0 L586.0,747.0 L630.0,772.0 L657.0,756.0 L673.0,756.0 L693.0,769.0 L729.0,766.0 L761.0,781.0 L811.0,777.0 L810.0,806.0 L869.0,817.0 L872.0,840.0 L887.0,849.0 L894.0,868.0 L911.0,857.0 L927.0,857.0 L936.0,867.0 L952.0,869.0 L1012.0,847.0 L1041.0,823.0 L1109.0,815.0 L1143.0,852.0 L1176.0,861.0 L1182.0,893.0 L1195.0,900.0 L1213.0,890.0 L1224.0,871.0 L1248.0,865.0 L1258.0,824.0 L1298.0,818.0 L1308.0,827.0 L1342.0,833.0 L1349.0,852.0 L1367.0,855.0 L1385.0,846.0 L1396.0,817.0 L1424.0,806.0 L1441.0,806.0 L1452.0,824.0 L1471.0,833.0 L1523.0,827.0 L1524.0,853.0 L1538.0,866.0 L1557.0,865.0 L1568.0,854.0 L1573.0,811.0 L1566.0,784.0 L1572.0,759.0 L1583.0,750.0 L1575.0,719.0 L1559.0,700.0 L1569.0,654.0 L1556.0,627.0 L1501.0,574.0 L1498.0,552.0 L1468.0,519.0 L1480.0,440.0 L1431.0,391.0 L1424.0,362.0 L1412.0,357.0 L1376.0,366.0 L1363.0,354.0 L1363.0,331.0 L1340.0,282.0 L1322.0,278.0 L1312.0,261.0 L1314.0,194.0 L1300.0,171.0 L1280.0,163.0 L1265.0,145.0 L1250.0,148.0 L1237.0,170.0 L1192.0,178.0 L1165.0,146.0 L1057.0,175.0 L994.0,170.0 L976.0,143.0 L939.0,120.0 L910.0,74.0 L896.0,71.0 L858.0,107.0 L828.0,113.0 L787.0,81.0 L735.0,81.0 L715.0,61.0 L696.0,61.0 L679.0,47.0 L643.0,36.0 L631.0,23.0 L597.0,14.0 L572.0,42.0 L571.0,69.0 L550.0,104.0 L496.0,163.0 L499.0,221.0 L484.0,236.0 L484.0,265.0 L472.0,278.0 L445.0,276.0 L430.0,291.0 L413.0,291.0 L394.0,279.0 L380.0,288.0 L380.0,305.0 L355.0,325.0 L294.0,326.0 L273.0,355.0 L259.0,358.0 L234.0,385.0 L217.0,392.0 L217.0,411.0 L199.0,430.0 L165.0,436.0 L141.0,422.0 L110.0,439.0 L109.0,468.0 L92.0,487.0 Z"
+            ></path>
+
+            <path
+                class="map-region"
+                data-region="chichibu"
+                d="M622.0,466.0 L614.0,461.0 L613.0,455.0 L604.0,443.0 L595.0,440.0 L588.0,432.0 L577.0,426.0 L577.0,415.0 L569.0,408.0 L569.0,403.0 L556.0,386.0 L550.0,385.0 L543.0,391.0 L531.0,393.0 L526.0,397.0 L508.0,394.0 L502.0,389.0 L505.0,374.0 L498.0,365.0 L465.0,346.0 L451.0,343.0 L446.0,337.0 L448.0,317.0 L443.0,313.0 L422.0,308.0 L420.0,298.0 L404.0,283.0 L392.0,281.0 L385.0,287.0 L382.0,306.0 L362.0,324.0 L350.0,326.0 L341.0,335.0 L332.0,335.0 L312.0,326.0 L290.0,331.0 L283.0,340.0 L283.0,347.0 L275.0,355.0 L256.0,361.0 L253.0,368.0 L241.0,376.0 L241.0,383.0 L237.0,387.0 L229.0,387.0 L221.0,392.0 L223.0,409.0 L195.0,434.0 L184.0,438.0 L166.0,438.0 L140.0,423.0 L134.0,428.0 L126.0,429.0 L112.0,442.0 L115.0,451.0 L112.0,469.0 L86.0,493.0 L59.0,499.0 L50.0,510.0 L49.0,520.0 L54.0,537.0 L68.0,545.0 L72.0,552.0 L81.0,558.0 L83.0,571.0 L90.0,573.0 L96.0,581.0 L96.0,596.0 L85.0,604.0 L85.0,614.0 L78.0,625.0 L83.0,637.0 L105.0,634.0 L112.0,640.0 L123.0,641.0 L129.0,645.0 L143.0,644.0 L150.0,651.0 L150.0,667.0 L155.0,672.0 L157.0,680.0 L178.0,691.0 L187.0,691.0 L194.0,684.0 L212.0,682.0 L215.0,690.0 L223.0,686.0 L232.0,686.0 L236.0,696.0 L247.0,706.0 L247.0,715.0 L253.0,722.0 L272.0,727.0 L290.0,711.0 L326.0,711.0 L339.0,694.0 L337.0,680.0 L346.0,672.0 L357.0,673.0 L363.0,669.0 L372.0,669.0 L388.0,656.0 L431.0,657.0 L437.0,645.0 L448.0,638.0 L461.0,639.0 L472.0,652.0 L474.0,659.0 L495.0,675.0 L496.0,684.0 L496.0,673.0 L503.0,672.0 L508.0,660.0 L522.0,660.0 L529.0,653.0 L533.0,653.0 L545.0,633.0 L545.0,628.0 L551.0,626.0 L554.0,613.0 L548.0,612.0 L547.0,601.0 L554.0,591.0 L545.0,584.0 L549.0,558.0 L546.0,553.0 L536.0,548.0 L536.0,542.0 L531.0,536.0 L531.0,518.0 L545.0,499.0 L546.0,481.0 L553.0,473.0 L566.0,473.0 L570.0,470.0 L595.0,471.0 L602.0,477.0 L618.0,476.0 Z"
+                aria-label="秩父市"
+            ></path>
+
+            <path
+                class="map-region"
+                data-region="hanno"
+                d="M483.0,665.0 L487.0,667.0 L489.0,673.0 L494.0,676.0 L496.0,685.0 L504.0,694.0 L511.0,696.0 L518.0,693.0 L527.0,693.0 L537.0,702.0 L556.0,699.0 L561.0,704.0 L562.0,710.0 L573.0,709.0 L583.0,724.0 L583.0,737.0 L587.0,747.0 L596.0,754.0 L601.0,754.0 L606.0,757.0 L611.0,763.0 L620.0,763.0 L630.0,771.0 L640.0,769.0 L644.0,761.0 L652.0,760.0 L658.0,752.0 L670.0,751.0 L683.0,763.0 L693.0,768.0 L708.0,768.0 L712.0,766.0 L714.0,760.0 L723.0,760.0 L732.0,764.0 L740.0,771.0 L761.0,778.0 L777.0,778.0 L788.0,774.0 L811.0,774.0 L815.0,777.0 L815.0,793.0 L809.0,798.0 L809.0,802.0 L814.0,809.0 L835.0,810.0 L840.0,805.0 L849.0,805.0 L854.0,778.0 L852.0,774.0 L844.0,768.0 L843.0,755.0 L848.0,745.0 L855.0,744.0 L858.0,735.0 L857.0,723.0 L865.0,715.0 L871.0,715.0 L874.0,703.0 L867.0,697.0 L867.0,688.0 L863.0,690.0 L854.0,690.0 L851.0,681.0 L846.0,685.0 L836.0,685.0 L831.0,679.0 L822.0,676.0 L816.0,678.0 L809.0,686.0 L794.0,686.0 L787.0,677.0 L784.0,677.0 L779.0,673.0 L777.0,662.0 L770.0,653.0 L770.0,645.0 L773.0,639.0 L774.0,630.0 L768.0,625.0 L765.0,618.0 L757.0,616.0 L751.0,620.0 L735.0,621.0 L731.0,617.0 L732.0,607.0 L723.0,598.0 L723.0,592.0 L719.0,588.0 L712.0,586.0 L709.0,581.0 L702.0,579.0 L703.0,556.0 L690.0,553.0 L690.0,544.0 L684.0,543.0 L684.0,536.0 L681.0,533.0 L673.0,531.0 L670.0,527.0 L658.0,527.0 L656.0,525.0 L649.0,530.0 L649.0,540.0 L637.0,548.0 L637.0,564.0 L632.0,570.0 L604.0,572.0 L597.0,575.0 L591.0,583.0 L582.0,584.0 L575.0,592.0 L555.0,593.0 L551.0,589.0 L551.0,596.0 L548.0,597.0 L547.0,603.0 L548.0,621.0 L545.0,635.0 L531.0,644.0 L527.0,649.0 L525.0,659.0 L521.0,660.0 L520.0,664.0 L511.0,664.0 L510.0,661.0 L504.0,660.0 L499.0,664.0 L498.0,669.0 L489.0,669.0 Z"
+                aria-label="飯能市"
+            ></path>
+
+            <path
+                class="map-region"
+                data-region="kawagoe"
+                d="M1060.0,515.0 L1046.0,515.0 L1042.0,517.0 L1038.0,521.0 L1038.0,529.0 L1036.0,531.0 L1024.0,534.0 L1022.0,540.0 L1024.0,542.0 L1024.0,550.0 L1014.0,551.0 L1004.0,563.0 L998.0,563.0 L994.0,566.0 L983.0,566.0 L975.0,558.0 L975.0,555.0 L970.0,552.0 L965.0,553.0 L960.0,559.0 L947.0,558.0 L944.0,562.0 L944.0,565.0 L948.0,570.0 L948.0,575.0 L959.0,583.0 L959.0,593.0 L957.0,595.0 L949.0,596.0 L948.0,606.0 L942.0,612.0 L935.0,615.0 L924.0,615.0 L919.0,611.0 L916.0,605.0 L913.0,605.0 L911.0,607.0 L910.0,617.0 L906.0,620.0 L909.0,626.0 L919.0,626.0 L923.0,629.0 L923.0,637.0 L921.0,639.0 L920.0,647.0 L927.0,652.0 L934.0,647.0 L943.0,647.0 L944.0,657.0 L952.0,663.0 L957.0,663.0 L961.0,667.0 L963.0,672.0 L971.0,673.0 L974.0,679.0 L976.0,679.0 L980.0,675.0 L989.0,676.0 L989.0,681.0 L993.0,682.0 L996.0,687.0 L996.0,697.0 L989.0,707.0 L989.0,713.0 L1001.0,723.0 L1004.0,729.0 L1004.0,733.0 L1006.0,734.0 L1006.0,740.0 L1018.0,742.0 L1018.0,750.0 L1025.0,749.0 L1027.0,747.0 L1026.0,736.0 L1024.0,734.0 L1024.0,726.0 L1040.0,720.0 L1050.0,709.0 L1058.0,708.0 L1059.0,696.0 L1064.0,690.0 L1072.0,690.0 L1074.0,688.0 L1074.0,685.0 L1080.0,681.0 L1084.0,675.0 L1092.0,675.0 L1098.0,685.0 L1108.0,686.0 L1115.0,682.0 L1119.0,674.0 L1124.0,670.0 L1125.0,664.0 L1128.0,663.0 L1128.0,658.0 L1125.0,655.0 L1123.0,655.0 L1119.0,650.0 L1119.0,639.0 L1123.0,632.0 L1124.0,625.0 L1119.0,607.0 L1116.0,607.0 L1113.0,604.0 L1113.0,595.0 L1117.0,590.0 L1118.0,579.0 L1120.0,577.0 L1123.0,577.0 L1130.0,569.0 L1130.0,565.0 L1128.0,563.0 L1113.0,560.0 L1108.0,557.0 L1108.0,548.0 L1111.0,546.0 L1110.0,541.0 L1101.0,538.0 L1098.0,534.0 L1096.0,534.0 L1093.0,537.0 L1082.0,537.0 L1079.0,533.0 L1075.0,531.0 L1075.0,523.0 L1071.0,520.0 L1065.0,520.0 Z"
+                aria-label="川越市"
+            ></path>
+        </svg>
+    </div>
+</div></section>
+
+<main class="content">
+
+<div class="section-head">
+<h2>対象地域</h2>
+<p>現在は秩父・川越が利用可能です。<br>飯能は準備中です。</p>
+</div>
+
+<div class="area-grid">
+
+<article class="area-card" data-region="chichibu">
+<div class="area-visual chichibu">
+<span class="area-number">AREA 01</span>
+<span class="area-symbol">CHICHIBU</span>
+<span class="status">利用可能</span>
+</div>
+<div class="area-body">
+<small>秩父地域</small>
+<h3>秩父</h3>
+<p>山・神社・温泉・長瀞など、自然と観光を組み合わせた旅行プランを作成します。</p>
+<div class="tags"><span class="tag">自然</span><span class="tag">温泉</span><span class="tag">長瀞</span><span class="tag">宿泊</span></div>
+<div class="action"><a class="area-button" href="{{ url_for('chichibu') }}"><span>秩父のプランを作る</span><span class="arrow">→</span></a></div>
+</div>
+</article>
+
+<article class="area-card" data-region="kawagoe">
+<div class="area-visual kawagoe">
+<span class="area-number">AREA 02</span>
+<span class="area-symbol">KAWAGOE</span>
+<span class="status">利用可能</span>
+</div>
+<div class="area-body">
+<small>川越地域</small>
+<h3>川越</h3>
+<p>蔵造りの町並み、歴史、食べ歩きなどを組み合わせた旅行プランを作成します。</p>
+<div class="tags"><span class="tag">街歩き</span><span class="tag">歴史</span><span class="tag">食べ歩き</span><span class="tag">観光</span></div>
+<div class="action"><a class="area-button" href="{{ url_for('kawagoe') }}"><span>川越のプランを作る</span><span class="arrow">→</span></a></div>
+</div>
+</article>
+
+<article class="area-card" data-region="hanno">
+<div class="area-visual hanno">
+<span class="area-number">AREA 03</span>
+<span class="area-symbol">HANNO</span>
+<span class="status">準備中</span>
+</div>
+<div class="area-body">
+<small>飯能地域</small>
+<h3>飯能</h3>
+<p>森林・湖・アウトドアなど、自然を楽しむ旅行プランへ対応予定です。</p>
+<div class="tags"><span class="tag">森林</span><span class="tag">アウトドア</span><span class="tag">自然</span><span class="tag">宿泊</span></div>
+<div class="action"><a class="area-button secondary" href="{{ url_for('hanno') }}"><span>飯能の入力画面を見る</span><span class="arrow">→</span></a></div>
+</div>
+</article>
+
+</div>
+
+<div class="note">
+<small>DEVELOPMENT STATUS</small>
+<strong>システムを3地域対応へ拡張しています。</strong>
+<p>秩父・川越は現在利用可能です。飯能は観光地・宿泊施設・飲食店・ルート情報を整備後、同じ旅行プラン作成ロジックへ接続する予定です。</p>
+</div>
+
+</main>
+
+<footer>埼玉県南西部地域を対象とした宿泊観光プラン作成支援システム</footer>
+
+<script>
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const cards =
+            Array.from(
+                document.querySelectorAll(
+                    ".area-card[data-region]"
+                )
+            );
+
+        const regions =
+            Array.from(
+                document.querySelectorAll(
+                    ".map-region[data-region]"
+                )
+            );
+
+
+        function setActiveRegion(
+            regionName
+        ) {
+
+            regions.forEach(
+                function (region) {
+
+                    region.classList.toggle(
+                        "is-active",
+                        region.dataset.region === regionName
+                    );
+                }
+            );
+
+            cards.forEach(
+                function (card) {
+
+                    card.classList.toggle(
+                        "is-map-active",
+                        card.dataset.region === regionName
+                    );
+                }
+            );
+        }
+
+
+        function clearActiveRegion() {
+
+            setActiveRegion(
+                null
+            );
+        }
+
+
+        cards.forEach(
+            function (card) {
+
+                const regionName =
+                    card.dataset.region;
+
+                card.addEventListener(
+                    "mouseenter",
+                    function () {
+
+                        setActiveRegion(
+                            regionName
+                        );
+                    }
+                );
+
+                card.addEventListener(
+                    "mouseleave",
+                    clearActiveRegion
+                );
+
+                card.addEventListener(
+                    "focusin",
+                    function () {
+
+                        setActiveRegion(
+                            regionName
+                        );
+                    }
+                );
+
+                card.addEventListener(
+                    "focusout",
+                    clearActiveRegion
+                );
+            }
+        );
+
+
+        regions.forEach(
+            function (region) {
+
+                const regionName =
+                    region.dataset.region;
+
+                region.addEventListener(
+                    "mouseenter",
+                    function () {
+
+                        setActiveRegion(
+                            regionName
+                        );
+                    }
+                );
+
+                region.addEventListener(
+                    "mouseleave",
+                    clearActiveRegion
+                );
+            }
+        );
+
+    }
+);
+</script>
+
+</body>
+</html>
