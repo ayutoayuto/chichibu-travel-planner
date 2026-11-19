@@ -11798,7 +11798,7 @@ def calculate_hotel_score(
 
 
 # =========================================================
-# 天気予報（秩父市・7日間）
+# 天気予報（秩父 / 川越・7日間）
 # =========================================================
 
 CHICHIBU_LATITUDE = 35.991681
@@ -11808,12 +11808,29 @@ OPEN_METEO_FORECAST_URL = (
     "https://api.open-meteo.com/v1/forecast"
 )
 
-WEATHER_TIMEZONE = "Asia/Tokyo"
-
-WEATHER_CACHE_TTL = timedelta(
-    minutes=30
+# Open-Meteoが一時的に利用できない場合のバックアップ。
+# APIキー不要。利用規約に従い識別可能なUser-Agentを送信する。
+MET_NORWAY_FORECAST_URL = (
+    "https://api.met.no/weatherapi/locationforecast/2.0/compact"
 )
 
+WEATHER_TIMEZONE = "Asia/Tokyo"
+WEATHER_CACHE_TTL = timedelta(minutes=30)
+WEATHER_HTTP_TIMEOUT = 12
+WEATHER_RETRY_COUNT = 2
+
+WEATHER_CACHE_DIR = os.path.join(
+    BASE_DIR,
+    "cache"
+)
+
+try:
+    os.makedirs(
+        WEATHER_CACHE_DIR,
+        exist_ok=True
+    )
+except OSError:
+    pass
 
 _weather_cache = {
     "region_code": None,
@@ -11821,372 +11838,268 @@ _weather_cache = {
     "expires_at": None,
 }
 
-
 JST = timezone(
-    timedelta(
-        hours=9
-    )
+    timedelta(hours=9)
 )
-
 
 WMO_WEATHER = {
-
-    0:
-        (
-            "晴れ",
-            "☀️"
-        ),
-
-    1:
-        (
-            "主に晴れ",
-            "🌤️"
-        ),
-
-    2:
-        (
-            "一部曇り",
-            "⛅"
-        ),
-
-    3:
-        (
-            "曇り",
-            "☁️"
-        ),
-
-    45:
-        (
-            "霧",
-            "🌫️"
-        ),
-
-    48:
-        (
-            "着氷性の霧",
-            "🌫️"
-        ),
-
-    51:
-        (
-            "弱い霧雨",
-            "🌦️"
-        ),
-
-    53:
-        (
-            "中程度の霧雨",
-            "🌦️"
-        ),
-
-    55:
-        (
-            "強い霧雨",
-            "🌧️"
-        ),
-
-    56:
-        (
-            "弱い着氷性の霧雨",
-            "🌧️"
-        ),
-
-    57:
-        (
-            "強い着氷性の霧雨",
-            "🌧️"
-        ),
-
-    61:
-        (
-            "弱い雨",
-            "🌧️"
-        ),
-
-    63:
-        (
-            "中程度の雨",
-            "🌧️"
-        ),
-
-    65:
-        (
-            "強い雨",
-            "🌧️"
-        ),
-
-    66:
-        (
-            "弱い着氷性の雨",
-            "🌧️"
-        ),
-
-    67:
-        (
-            "強い着氷性の雨",
-            "🌧️"
-        ),
-
-    71:
-        (
-            "弱い雪",
-            "🌨️"
-        ),
-
-    73:
-        (
-            "中程度の雪",
-            "❄️"
-        ),
-
-    75:
-        (
-            "強い雪",
-            "❄️"
-        ),
-
-    77:
-        (
-            "雪あられ",
-            "🌨️"
-        ),
-
-    80:
-        (
-            "弱いにわか雨",
-            "🌦️"
-        ),
-
-    81:
-        (
-            "中程度のにわか雨",
-            "🌧️"
-        ),
-
-    82:
-        (
-            "激しいにわか雨",
-            "⛈️"
-        ),
-
-    85:
-        (
-            "弱いにわか雪",
-            "🌨️"
-        ),
-
-    86:
-        (
-            "激しいにわか雪",
-            "❄️"
-        ),
-
-    95:
-        (
-            "雷雨",
-            "⛈️"
-        ),
-
-    96:
-        (
-            "雷雨・弱いひょう",
-            "⛈️"
-        ),
-
-    99:
-        (
-            "雷雨・強いひょう",
-            "⛈️"
-        )
-
+    0: ("晴れ", "☀️"),
+    1: ("主に晴れ", "🌤️"),
+    2: ("一部曇り", "⛅"),
+    3: ("曇り", "☁️"),
+    45: ("霧", "🌫️"),
+    48: ("着氷性の霧", "🌫️"),
+    51: ("弱い霧雨", "🌦️"),
+    53: ("中程度の霧雨", "🌦️"),
+    55: ("強い霧雨", "🌧️"),
+    56: ("弱い着氷性の霧雨", "🌧️"),
+    57: ("強い着氷性の霧雨", "🌧️"),
+    61: ("弱い雨", "🌧️"),
+    63: ("中程度の雨", "🌧️"),
+    65: ("強い雨", "🌧️"),
+    66: ("弱い着氷性の雨", "🌧️"),
+    67: ("強い着氷性の雨", "🌧️"),
+    71: ("弱い雪", "🌨️"),
+    73: ("中程度の雪", "❄️"),
+    75: ("強い雪", "❄️"),
+    77: ("雪あられ", "🌨️"),
+    80: ("弱いにわか雨", "🌦️"),
+    81: ("中程度のにわか雨", "🌧️"),
+    82: ("激しいにわか雨", "⛈️"),
+    85: ("弱いにわか雪", "🌨️"),
+    86: ("激しいにわか雪", "❄️"),
+    95: ("雷雨", "⛈️"),
+    96: ("雷雨・弱いひょう", "⛈️"),
+    99: ("雷雨・強いひょう", "⛈️"),
 }
 
-
-WEEKDAYS_JA = (
-    "月火水木金土日"
-)
+WEEKDAYS_JA = "月火水木金土日"
 
 
 def _weather_jst_today():
-
-    return datetime.now(
-        JST
-    ).date().isoformat()
+    return datetime.now(JST).date().isoformat()
 
 
-def _fetch_open_meteo(
-    url
+def _weather_cache_path(region_code=None):
+    code = str(
+        region_code
+        or ACTIVE_REGION_CODE
+        or "default"
+    ).strip()
+
+    safe_code = re.sub(
+        r"[^A-Za-z0-9_-]+",
+        "_",
+        code
+    )
+
+    return os.path.join(
+        WEATHER_CACHE_DIR,
+        f"weather_{safe_code}.json"
+    )
+
+
+def _save_weather_file_cache(data):
+    if not isinstance(data, dict):
+        return
+
+    path = _weather_cache_path()
+    temp_path = path + ".tmp"
+
+    payload = {
+        "saved_at": datetime.now(JST).isoformat(),
+        "region_code": ACTIVE_REGION_CODE,
+        "data": data,
+    }
+
+    try:
+        with open(
+            temp_path,
+            "w",
+            encoding="utf-8"
+        ) as f:
+            json.dump(
+                payload,
+                f,
+                ensure_ascii=False,
+                indent=2
+            )
+
+        os.replace(
+            temp_path,
+            path
+        )
+
+    except OSError as exc:
+        print(
+            "[WEATHER CACHE] save failed",
+            repr(exc)
+        )
+
+        try:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        except OSError:
+            pass
+
+
+def _load_weather_file_cache():
+    path = _weather_cache_path()
+
+    try:
+        with open(
+            path,
+            "r",
+            encoding="utf-8"
+        ) as f:
+            payload = json.load(f)
+
+        if not isinstance(payload, dict):
+            return None
+
+        data = payload.get("data")
+
+        if not isinstance(data, dict):
+            return None
+
+        forecasts = data.get("forecasts")
+
+        if not isinstance(forecasts, list) or not forecasts:
+            return None
+
+        return data
+
+    except (
+        OSError,
+        json.JSONDecodeError,
+        TypeError
+    ):
+        return None
+
+
+def _http_get_json(
+    url,
+    provider_label,
+    headers=None
 ):
     """
-    Open-MeteoのJSONを取得する。
+    外部天気APIのJSONを安全に取得する共通処理。
 
-    Windows環境でPythonのSSL証明書まわりが原因で
-    urllib通信に失敗するケースへ対応するため、
+    1. requests + certifi
+    2. urllib + certifi
+    3. urllib標準SSL
 
-    1. certifi CAを使ったurllib
-    2. 標準SSLのurllib
-    3. requests
-
-    の順でフォールバックする。
-
-    SSL検証は無効化しない。
+    の順で試す。SSL検証は無効化しない。
     """
+    merged_headers = {
+        "User-Agent": (
+            "SaitamaSouthwestTourismPlanner/1.1 "
+            "(university project; weather forecast)"
+        ),
+        "Accept": "application/json",
+        "Connection": "close",
+    }
+
+    if isinstance(headers, dict):
+        merged_headers.update(headers)
 
     last_error = None
 
     # -----------------------------------------------------
-    # 1. certifi + urllib
+    # 1. requests + certifi
     # -----------------------------------------------------
-
     try:
-        import ssl
+        import requests
 
-        ssl_context = None
+        verify_value = True
 
         try:
             import certifi
+            verify_value = certifi.where()
+        except (ImportError, OSError):
+            verify_value = True
 
-            ssl_context = ssl.create_default_context(
-                cafile=certifi.where()
-            )
-
-        except (
-            ImportError,
-            OSError
-        ):
-            ssl_context = ssl.create_default_context()
-
-        for attempt in range(
-            1,
-            3
-        ):
-
-            request_obj = urllib.request.Request(
-                url,
-                headers={
-                    "User-Agent":
-                        "SaitamaSouthwestTourismPlanner/1.0",
-                    "Accept":
-                        "application/json",
-                    "Connection":
-                        "close"
-                }
-            )
-
+        for attempt in range(1, WEATHER_RETRY_COUNT + 1):
             try:
-                with urllib.request.urlopen(
-                    request_obj,
-                    timeout=20,
-                    context=ssl_context
-                ) as response:
-
-                    status = getattr(
-                        response,
-                        "status",
-                        200
-                    )
-
-                    if status != 200:
-                        raise RuntimeError(
-                            f"Open-Meteo HTTP status: {status}"
-                        )
-
-                    payload = (
-                        response
-                        .read()
-                        .decode(
-                            "utf-8"
-                        )
-                    )
-
-                data = json.loads(
-                    payload
+                response = requests.get(
+                    url,
+                    headers=merged_headers,
+                    timeout=(5, WEATHER_HTTP_TIMEOUT),
+                    verify=verify_value
                 )
+                response.raise_for_status()
+                data = response.json()
 
                 if (
-                    isinstance(
-                        data,
-                        dict
-                    )
-                    and
-                    data.get(
-                        "error"
-                    ) is True
+                    isinstance(data, dict)
+                    and data.get("error") is True
                 ):
                     raise RuntimeError(
                         str(
-                            data.get(
-                                "reason"
-                            )
-                            or
-                            "Open-Meteo API error"
+                            data.get("reason")
+                            or f"{provider_label} API error"
                         )
                     )
 
                 print(
                     "[WEATHER FETCH]",
-                    "urllib/certifi",
+                    provider_label,
+                    "requests",
                     f"attempt={attempt}",
                     "SUCCESS"
                 )
 
                 return data
 
-            except (
-                urllib.error.URLError,
-                TimeoutError,
-                OSError,
-                json.JSONDecodeError,
-                RuntimeError
-            ) as exc:
-
+            except Exception as exc:
                 last_error = exc
-
                 print(
                     "[WEATHER FETCH]",
-                    "urllib/certifi",
-                    f"attempt={attempt}/2",
+                    provider_label,
+                    "requests",
+                    f"attempt={attempt}/{WEATHER_RETRY_COUNT}",
                     "FAILED",
                     repr(exc)
                 )
 
-                if attempt < 2:
-                    time.sleep(
-                        0.8
-                    )
+                if attempt < WEATHER_RETRY_COUNT:
+                    time.sleep(0.6)
 
     except Exception as exc:
         last_error = exc
-
         print(
             "[WEATHER FETCH]",
-            "urllib/certifi setup FAILED",
+            provider_label,
+            "requests setup FAILED",
             repr(exc)
         )
 
-
     # -----------------------------------------------------
-    # 2. 標準urllib
+    # 2. urllib + certifi
     # -----------------------------------------------------
-
     try:
+        import ssl
+
+        ssl_context = ssl.create_default_context()
+
+        try:
+            import certifi
+            ssl_context = ssl.create_default_context(
+                cafile=certifi.where()
+            )
+        except (ImportError, OSError):
+            pass
+
         request_obj = urllib.request.Request(
             url,
-            headers={
-                "User-Agent":
-                    "SaitamaSouthwestTourismPlanner/1.0",
-                "Accept":
-                    "application/json",
-                "Connection":
-                    "close"
-            }
+            headers=merged_headers
         )
 
         with urllib.request.urlopen(
             request_obj,
-            timeout=20
+            timeout=WEATHER_HTTP_TIMEOUT,
+            context=ssl_context
         ) as response:
-
             status = getattr(
                 response,
                 "status",
@@ -12195,44 +12108,28 @@ def _fetch_open_meteo(
 
             if status != 200:
                 raise RuntimeError(
-                    f"Open-Meteo HTTP status: {status}"
+                    f"{provider_label} HTTP status: {status}"
                 )
 
-            payload = (
-                response
-                .read()
-                .decode(
-                    "utf-8"
-                )
-            )
+            payload = response.read().decode("utf-8")
 
-        data = json.loads(
-            payload
-        )
+        data = json.loads(payload)
 
         if (
-            isinstance(
-                data,
-                dict
-            )
-            and
-            data.get(
-                "error"
-            ) is True
+            isinstance(data, dict)
+            and data.get("error") is True
         ):
             raise RuntimeError(
                 str(
-                    data.get(
-                        "reason"
-                    )
-                    or
-                    "Open-Meteo API error"
+                    data.get("reason")
+                    or f"{provider_label} API error"
                 )
             )
 
         print(
             "[WEATHER FETCH]",
-            "urllib/default",
+            provider_label,
+            "urllib/certifi",
             "SUCCESS"
         )
 
@@ -12240,60 +12137,42 @@ def _fetch_open_meteo(
 
     except Exception as exc:
         last_error = exc
-
         print(
             "[WEATHER FETCH]",
-            "urllib/default",
+            provider_label,
+            "urllib/certifi",
             "FAILED",
             repr(exc)
         )
 
-
     # -----------------------------------------------------
-    # 3. requests
+    # 3. urllib標準SSL
     # -----------------------------------------------------
-
     try:
-        import requests
-
-        response = requests.get(
+        request_obj = urllib.request.Request(
             url,
-            headers={
-                "User-Agent":
-                    "SaitamaSouthwestTourismPlanner/1.0",
-                "Accept":
-                    "application/json"
-            },
-            timeout=20
+            headers=merged_headers
         )
 
-        response.raise_for_status()
+        with urllib.request.urlopen(
+            request_obj,
+            timeout=WEATHER_HTTP_TIMEOUT
+        ) as response:
+            status = getattr(response, "status", 200)
 
-        data = response.json()
-
-        if (
-            isinstance(
-                data,
-                dict
-            )
-            and
-            data.get(
-                "error"
-            ) is True
-        ):
-            raise RuntimeError(
-                str(
-                    data.get(
-                        "reason"
-                    )
-                    or
-                    "Open-Meteo API error"
+            if status != 200:
+                raise RuntimeError(
+                    f"{provider_label} HTTP status: {status}"
                 )
-            )
+
+            payload = response.read().decode("utf-8")
+
+        data = json.loads(payload)
 
         print(
             "[WEATHER FETCH]",
-            "requests",
+            provider_label,
+            "urllib/default",
             "SUCCESS"
         )
 
@@ -12301,422 +12180,459 @@ def _fetch_open_meteo(
 
     except Exception as exc:
         last_error = exc
-
         print(
             "[WEATHER FETCH]",
-            "requests",
+            provider_label,
+            "urllib/default",
             "FAILED",
             repr(exc)
         )
-
 
     raise RuntimeError(
-        "Open-Meteo weather request failed with all secure methods"
+        f"{provider_label} request failed with all secure methods"
     ) from last_error
 
 
-def _build_weather_url(
-    model=None
-):
-
+def _build_weather_url(model=None):
     params = {
-
-        "latitude":
-            ACTIVE_WEATHER_LATITUDE,
-
-        "longitude":
-            ACTIVE_WEATHER_LONGITUDE,
-
-        "daily":
-            (
-                "weather_code,"
-                "temperature_2m_max,"
-                "temperature_2m_min,"
-                "precipitation_probability_max"
-            ),
-
-        "timezone":
-            WEATHER_TIMEZONE,
-
-        "forecast_days":
-            7,
-
-        "temperature_unit":
-            "celsius"
-
+        "latitude": ACTIVE_WEATHER_LATITUDE,
+        "longitude": ACTIVE_WEATHER_LONGITUDE,
+        "daily": (
+            "weather_code,"
+            "temperature_2m_max,"
+            "temperature_2m_min,"
+            "precipitation_probability_max"
+        ),
+        "timezone": WEATHER_TIMEZONE,
+        "forecast_days": 7,
+        "temperature_unit": "celsius",
     }
 
-
     if model:
-
-        params[
-            "models"
-        ] = model
-
+        params["models"] = model
 
     return (
-
         OPEN_METEO_FORECAST_URL
-        +
-        "?"
-        +
-        urlencode(
-            params
-        )
-
+        + "?"
+        + urlencode(params)
     )
 
 
-def _format_weather_value(
-    value,
-    suffix=""
-):
+def _build_met_norway_url():
+    params = {
+        "lat": f"{float(ACTIVE_WEATHER_LATITUDE):.6f}",
+        "lon": f"{float(ACTIVE_WEATHER_LONGITUDE):.6f}",
+    }
 
+    return (
+        MET_NORWAY_FORECAST_URL
+        + "?"
+        + urlencode(params)
+    )
+
+
+def _format_weather_value(value, suffix=""):
     if value is None:
-
         return "情報なし"
 
-
     try:
-
-        number = float(
-            value
-        )
-
+        number = float(value)
 
         if number.is_integer():
+            return f"{int(number)}{suffix}"
 
-            return (
-                f"{int(number)}"
-                f"{suffix}"
-            )
+        return f"{number:.1f}{suffix}"
 
-
-        return (
-            f"{number:.1f}"
-            f"{suffix}"
-        )
-
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
+    except (TypeError, ValueError):
         return "情報なし"
 
 
-def _weather_code_info(
-    code
-):
-
+def _weather_code_info(code):
     try:
-
-        normalized = int(
-            code
-        )
-
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
-        return (
-            "情報なし",
-            "☁️"
-        )
-
+        normalized = int(code)
+    except (TypeError, ValueError):
+        return ("情報なし", "☁️")
 
     return WMO_WEATHER.get(
-
         normalized,
-
-        (
-            "情報なし",
-            "☁️"
-        )
-
+        ("情報なし", "☁️")
     )
 
 
-def _normalize_weather_response(
-    data,
-    model_label
-):
+def _normalize_weather_response(data, model_label):
+    daily = data.get("daily")
 
-    daily = data.get(
-        "daily"
-    )
-
-
-    if not isinstance(
-        daily,
-        dict
-    ):
-
+    if not isinstance(daily, dict):
         raise RuntimeError(
             "Open-Meteo response does not contain daily data"
         )
 
+    dates = daily.get("time")
 
-    dates = daily.get(
-        "time"
-    )
-
-
-    if (
-        not isinstance(
-            dates,
-            list
-        )
-        or
-        not dates
-    ):
-
+    if not isinstance(dates, list) or not dates:
         raise RuntimeError(
             "Open-Meteo response does not contain daily dates"
         )
 
-
-    weather_codes = (
-        daily.get(
-            "weather_code"
-        )
-        or
-        []
-    )
-
-
-    max_temps = (
-        daily.get(
-            "temperature_2m_max"
-        )
-        or
-        []
-    )
-
-
-    min_temps = (
-        daily.get(
-            "temperature_2m_min"
-        )
-        or
-        []
-    )
-
-
-    rain_probs = (
-        daily.get(
-            "precipitation_probability_max"
-        )
-        or
-        []
-    )
-
+    weather_codes = daily.get("weather_code") or []
+    max_temps = daily.get("temperature_2m_max") or []
+    min_temps = daily.get("temperature_2m_min") or []
+    rain_probs = daily.get("precipitation_probability_max") or []
 
     forecasts = []
 
-
-    for index, iso_date in enumerate(
-        dates[:7]
-    ):
-
+    for index, iso_date in enumerate(dates[:7]):
         try:
-
-            current_date = (
-                datetime.strptime(
-                    str(
-                        iso_date
-                    ),
-                    "%Y-%m-%d"
-                )
-                .date()
-            )
-
-
-        except (
-            ValueError,
-            TypeError
-        ):
-
+            current_date = datetime.strptime(
+                str(iso_date),
+                "%Y-%m-%d"
+            ).date()
+        except (ValueError, TypeError):
             continue
 
-
-        weather_name, icon = (
-            _weather_code_info(
-
-                weather_codes[index]
-
-                if index
-                <
-                len(
-                    weather_codes
-                )
-
-                else None
-
-            )
+        weather_name, icon = _weather_code_info(
+            weather_codes[index]
+            if index < len(weather_codes)
+            else None
         )
-
 
         forecasts.append({
-
-            "date":
-                current_date.isoformat(),
-
-            "date_label":
-                (
-                    f"{current_date.month}/"
-                    f"{current_date.day}"
-                ),
-
-            "weekday":
-                WEEKDAYS_JA[
-                    current_date.weekday()
-                ],
-
-            "weather":
-                weather_name,
-
-            "icon":
-                icon,
-
-            "max_temperature":
-                _format_weather_value(
-
-                    max_temps[index]
-
-                    if index
-                    <
-                    len(
-                        max_temps
-                    )
-
-                    else None,
-
-                    "℃"
-
-                ),
-
-            "min_temperature":
-                _format_weather_value(
-
-                    min_temps[index]
-
-                    if index
-                    <
-                    len(
-                        min_temps
-                    )
-
-                    else None,
-
-                    "℃"
-
-                ),
-
-            "precipitation_probability":
-                _format_weather_value(
-
-                    rain_probs[index]
-
-                    if index
-                    <
-                    len(
-                        rain_probs
-                    )
-
-                    else None,
-
-                    "%"
-
-                )
-
+            "date": current_date.isoformat(),
+            "date_label": (
+                f"{current_date.month}/{current_date.day}"
+            ),
+            "weekday": WEEKDAYS_JA[current_date.weekday()],
+            "weather": weather_name,
+            "icon": icon,
+            "max_temperature": _format_weather_value(
+                max_temps[index]
+                if index < len(max_temps)
+                else None,
+                "℃"
+            ),
+            "min_temperature": _format_weather_value(
+                min_temps[index]
+                if index < len(min_temps)
+                else None,
+                "℃"
+            ),
+            "precipitation_probability": _format_weather_value(
+                rain_probs[index]
+                if index < len(rain_probs)
+                else None,
+                "%"
+            ),
         })
 
-
     if not forecasts:
-
         raise RuntimeError(
-            "No usable daily forecast data"
+            "No usable Open-Meteo daily forecast data"
         )
 
-
     return {
+        "forecasts": forecasts,
+        "model": model_label,
+        "provider": "Open-Meteo",
+        "latitude": ACTIVE_WEATHER_LATITUDE,
+        "longitude": ACTIVE_WEATHER_LONGITUDE,
+        "updated_at": datetime.now(JST).strftime(
+            "%Y-%m-%d %H:%M"
+        ),
+    }
 
-        "forecasts":
-            forecasts,
 
-        "model":
-            model_label,
+_MET_SYMBOL_INFO = {
+    "clearsky": ("晴れ", "☀️"),
+    "fair": ("晴れ", "🌤️"),
+    "partlycloudy": ("一部曇り", "⛅"),
+    "cloudy": ("曇り", "☁️"),
+    "fog": ("霧", "🌫️"),
+    "lightrain": ("弱い雨", "🌦️"),
+    "rain": ("雨", "🌧️"),
+    "heavyrain": ("強い雨", "🌧️"),
+    "lightsnow": ("弱い雪", "🌨️"),
+    "snow": ("雪", "❄️"),
+    "heavysnow": ("強い雪", "❄️"),
+    "sleet": ("みぞれ", "🌨️"),
+    "rainshowers": ("にわか雨", "🌦️"),
+    "heavyrainshowers": ("強いにわか雨", "🌧️"),
+    "snowshowers": ("にわか雪", "🌨️"),
+    "thunder": ("雷雨", "⛈️"),
+}
 
-        "latitude":
-            ACTIVE_WEATHER_LATITUDE,
 
-        "longitude":
-            ACTIVE_WEATHER_LONGITUDE,
+def _met_symbol_info(symbol_code):
+    raw = str(symbol_code or "").strip().lower()
 
-        "updated_at":
-            datetime.now(
-                JST
-            ).strftime(
-                "%Y-%m-%d %H:%M"
+    # clearsky_day / rainshowersandthunder_night などの
+    # day/night/polartwilight接尾辞を除く。
+    for suffix in (
+        "_day",
+        "_night",
+        "_polartwilight"
+    ):
+        if raw.endswith(suffix):
+            raw = raw[:-len(suffix)]
+            break
+
+    # 雷を含む場合は雷雨として扱う。
+    if "thunder" in raw:
+        return ("雷雨", "⛈️")
+
+    # より具体的な語を先に判定。
+    checks = (
+        "heavyrainshowers",
+        "rainshowers",
+        "heavyrain",
+        "lightrain",
+        "rain",
+        "heavysnow",
+        "snowshowers",
+        "lightsnow",
+        "snow",
+        "sleet",
+        "partlycloudy",
+        "clearsky",
+        "cloudy",
+        "fair",
+        "fog",
+    )
+
+    for key in checks:
+        if key in raw:
+            return _MET_SYMBOL_INFO.get(
+                key,
+                ("情報なし", "☁️")
             )
 
+    return ("情報なし", "☁️")
+
+
+def _parse_iso_datetime(value):
+    text = str(value or "").strip()
+
+    if not text:
+        return None
+
+    try:
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+
+        parsed = datetime.fromisoformat(text)
+
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(
+                tzinfo=timezone.utc
+            )
+
+        return parsed.astimezone(JST)
+
+    except ValueError:
+        return None
+
+
+def _normalize_met_norway_response(data):
+    properties = (
+        data.get("properties")
+        if isinstance(data, dict)
+        else None
+    )
+
+    timeseries = (
+        properties.get("timeseries")
+        if isinstance(properties, dict)
+        else None
+    )
+
+    if not isinstance(timeseries, list) or not timeseries:
+        raise RuntimeError(
+            "MET Norway response does not contain timeseries"
+        )
+
+    grouped = {}
+
+    for entry in timeseries:
+        if not isinstance(entry, dict):
+            continue
+
+        local_dt = _parse_iso_datetime(
+            entry.get("time")
+        )
+
+        if local_dt is None:
+            continue
+
+        day_key = local_dt.date().isoformat()
+        bucket = grouped.setdefault(
+            day_key,
+            {
+                "temps": [],
+                "symbols": [],
+                "precipitation": [],
+            }
+        )
+
+        entry_data = entry.get("data") or {}
+        instant = entry_data.get("instant") or {}
+        details = instant.get("details") or {}
+
+        temperature = details.get("air_temperature")
+
+        try:
+            if temperature is not None:
+                bucket["temps"].append(
+                    float(temperature)
+                )
+        except (TypeError, ValueError):
+            pass
+
+        symbol_code = None
+        precipitation_amount = None
+
+        for period_key in (
+            "next_1_hours",
+            "next_6_hours",
+            "next_12_hours"
+        ):
+            period = entry_data.get(period_key)
+
+            if not isinstance(period, dict):
+                continue
+
+            summary = period.get("summary") or {}
+            details_period = period.get("details") or {}
+
+            if symbol_code is None:
+                symbol_code = summary.get("symbol_code")
+
+            if precipitation_amount is None:
+                precipitation_amount = details_period.get(
+                    "precipitation_amount"
+                )
+
+        if symbol_code:
+            # 昼頃の情報を優先するため時刻も保持。
+            bucket["symbols"].append(
+                (
+                    abs(local_dt.hour - 12),
+                    str(symbol_code)
+                )
+            )
+
+        try:
+            if precipitation_amount is not None:
+                bucket["precipitation"].append(
+                    float(precipitation_amount)
+                )
+        except (TypeError, ValueError):
+            pass
+
+    forecasts = []
+    today = datetime.now(JST).date()
+
+    for offset in range(7):
+        current_date = today + timedelta(days=offset)
+        key = current_date.isoformat()
+        bucket = grouped.get(key)
+
+        if not bucket:
+            continue
+
+        temps = bucket.get("temps") or []
+        symbols = bucket.get("symbols") or []
+
+        if symbols:
+            symbols.sort(key=lambda item: item[0])
+            weather_name, icon = _met_symbol_info(
+                symbols[0][1]
+            )
+        else:
+            weather_name, icon = ("情報なし", "☁️")
+
+        max_temp = max(temps) if temps else None
+        min_temp = min(temps) if temps else None
+
+        forecasts.append({
+            "date": key,
+            "date_label": (
+                f"{current_date.month}/{current_date.day}"
+            ),
+            "weekday": WEEKDAYS_JA[current_date.weekday()],
+            "weather": weather_name,
+            "icon": icon,
+            "max_temperature": _format_weather_value(
+                max_temp,
+                "℃"
+            ),
+            "min_temperature": _format_weather_value(
+                min_temp,
+                "℃"
+            ),
+            # MET Norway compact APIにはOpen-Meteoと同じ形式の
+            # 日最大降水確率がないため、推測せず「情報なし」。
+            "precipitation_probability": "情報なし",
+        })
+
+    if not forecasts:
+        raise RuntimeError(
+            "No usable MET Norway daily forecast data"
+        )
+
+    return {
+        "forecasts": forecasts,
+        "model": "MET Norway Locationforecast（予備）",
+        "provider": "MET Norway",
+        "latitude": ACTIVE_WEATHER_LATITUDE,
+        "longitude": ACTIVE_WEATHER_LONGITUDE,
+        "updated_at": datetime.now(JST).strftime(
+            "%Y-%m-%d %H:%M"
+        ),
     }
 
 
 def get_weather_forecast():
     """
-    現在選択中の地域の7日間天気予報をOpen-Meteoから取得する。
+    現在選択中の地域の7日間天気予報を取得する。
 
-    ・秩父を開いた場合は秩父座標
-    ・川越を開いた場合は川越座標
+    取得優先順位:
+      1. 30分以内のメモリキャッシュ
+      2. Open-Meteo
+      3. MET Norway（自動バックアップ）
+      4. 保存済みファイルキャッシュ
 
-    ルート計算とは独立した天気専用API。
-    APIキー不要。
-    30分キャッシュを利用し、画面表示の待ち時間を抑える。
+    外部APIの一時障害だけで天気欄が空にならないようにする。
     """
-
-    now = datetime.now(
-        JST
-    )
+    now = datetime.now(JST)
 
     if _weather_cache.get("region_code") != ACTIVE_REGION_CODE:
         _weather_cache["region_code"] = ACTIVE_REGION_CODE
         _weather_cache["data"] = None
         _weather_cache["expires_at"] = None
 
-    cached_data = (
-        _weather_cache.get(
-            "data"
-        )
-    )
-
-    expires_at = (
-        _weather_cache.get(
-            "expires_at"
-        )
-    )
+    cached_data = _weather_cache.get("data")
+    expires_at = _weather_cache.get("expires_at")
 
     if (
         cached_data is not None
-        and
-        expires_at is not None
-        and
-        now < expires_at
+        and expires_at is not None
+        and now < expires_at
     ):
-        return (
-            cached_data,
-            None
+        print(
+            "[WEATHER]",
+            ACTIVE_REGION_NAME,
+            "| memory cache HIT"
         )
+        return (cached_data, None)
 
+    errors = []
+
+    # -----------------------------------------------------
+    # 1. Open-Meteo
+    # -----------------------------------------------------
     try:
-        # modelsを固定せず、Open-MeteoのBest Matchを利用する。
-        # 日本を含む各地点で適切な予報モデルを自動選択する。
-        weather_data = _fetch_open_meteo(
-            _build_weather_url()
+        weather_data = _http_get_json(
+            _build_weather_url(),
+            "Open-Meteo"
         )
 
         normalized = _normalize_weather_response(
@@ -12730,50 +12646,126 @@ def get_weather_forecast():
             now + WEATHER_CACHE_TTL
         )
 
+        _save_weather_file_cache(
+            normalized
+        )
+
         print(
             "[WEATHER]",
             ACTIVE_REGION_NAME,
-            "| Open-Meteo 7-day forecast loaded",
+            "| provider = Open-Meteo",
             "| lat =",
             ACTIVE_WEATHER_LATITUDE,
             "| lon =",
             ACTIVE_WEATHER_LONGITUDE
         )
 
-        return (
-            normalized,
-            None
-        )
+        return (normalized, None)
 
-    except Exception as weather_error:
+    except Exception as exc:
+        errors.append(
+            f"Open-Meteo: {repr(exc)}"
+        )
         print(
             "[WEATHER ERROR]",
             ACTIVE_REGION_NAME,
-            "|",
-            repr(weather_error)
+            "| Open-Meteo |",
+            repr(exc)
         )
 
-        # 一時的な通信失敗時、以前の取得結果があれば期限切れでも表示する。
-        if cached_data is not None:
-            print(
-                "[WEATHER]",
-                ACTIVE_REGION_NAME,
-                "| using stale cached forecast"
-            )
-
-            return (
-                cached_data,
-                None
-            )
-
-        return (
-            None,
-            (
-                "現在、天気予報APIへ接続できません。"
-                "ページを再読み込みしてください。"
-                "取得失敗の詳細はターミナルの[WEATHER FETCH]で確認できます。"
-            )
+    # -----------------------------------------------------
+    # 2. MET Norway backup
+    # -----------------------------------------------------
+    try:
+        backup_data = _http_get_json(
+            _build_met_norway_url(),
+            "MET Norway"
         )
+
+        normalized = _normalize_met_norway_response(
+            backup_data
+        )
+
+        _weather_cache["region_code"] = ACTIVE_REGION_CODE
+        _weather_cache["data"] = normalized
+        _weather_cache["expires_at"] = (
+            now + WEATHER_CACHE_TTL
+        )
+
+        _save_weather_file_cache(
+            normalized
+        )
+
+        print(
+            "[WEATHER]",
+            ACTIVE_REGION_NAME,
+            "| provider = MET Norway backup",
+            "| lat =",
+            ACTIVE_WEATHER_LATITUDE,
+            "| lon =",
+            ACTIVE_WEATHER_LONGITUDE
+        )
+
+        # 予備APIでも画面自体は正常表示させる。
+        return (normalized, None)
+
+    except Exception as exc:
+        errors.append(
+            f"MET Norway: {repr(exc)}"
+        )
+        print(
+            "[WEATHER ERROR]",
+            ACTIVE_REGION_NAME,
+            "| MET Norway |",
+            repr(exc)
+        )
+
+    # -----------------------------------------------------
+    # 3. 期限切れメモリキャッシュ
+    # -----------------------------------------------------
+    if cached_data is not None:
+        print(
+            "[WEATHER]",
+            ACTIVE_REGION_NAME,
+            "| using stale memory cache"
+        )
+        return (cached_data, None)
+
+    # -----------------------------------------------------
+    # 4. 保存済みファイルキャッシュ
+    # -----------------------------------------------------
+    file_cached = _load_weather_file_cache()
+
+    if file_cached is not None:
+        _weather_cache["region_code"] = ACTIVE_REGION_CODE
+        _weather_cache["data"] = file_cached
+        _weather_cache["expires_at"] = (
+            now + timedelta(minutes=10)
+        )
+
+        print(
+            "[WEATHER]",
+            ACTIVE_REGION_NAME,
+            "| using file cache"
+        )
+
+        return (file_cached, None)
+
+    # どの取得元も失敗し、キャッシュもない場合だけエラー表示。
+    print(
+        "[WEATHER FATAL]",
+        ACTIVE_REGION_NAME,
+        "|",
+        " || ".join(errors)
+    )
+
+    return (
+        None,
+        (
+            "現在、天気予報を取得できません。"
+            "数分後にページを再読み込みしてください。"
+        )
+    )
 
 
 # =========================================================
