@@ -2756,7 +2756,9 @@
                 0;
         }
 
-    </style>
+    
+.cross-region-label{display:inline-block;color:#48795b;border:1px solid #b6c9bb;background:#f4f7f4;padding:2px 8px;margin-left:8px;font-size:12px;font-weight:normal;vertical-align:middle}.cross-result-details{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 18px;margin:10px 0}.cross-result-details dt{font-weight:600}.cross-result-details dd{margin:0;overflow-wrap:anywhere}.cross-result-note p{font-size:13px;margin:8px 0}.cross-result-note a{color:#173c31;text-underline-offset:3px}.cross-segment-note{display:block;font-size:11px;color:#48795b;margin-top:4px}.cross-result-note{padding:12px 16px;border-left:3px solid #48795b;background:#f4f7f4;color:#173c31;margin:12px 0;line-height:1.7}
+</style>
 </head>
 <body class="region-{{ region_code }}">
 
@@ -2853,6 +2855,8 @@
 
 
 <main>
+{% if region_code == 'cross' %}<div class="cross-result-note"><strong>選択した旅行地域</strong><dl class="cross-result-details"><dt>対象地域</dt><dd>{{ target_region_labels|join('・') if target_region_labels else '秩父・川越・飯能' }}</dd><dt>実際の訪問地域</dt><dd>{{ visited_region_labels|join('・') if visited_region_labels else '未取得' }}</dd><dt>地域間の移動</dt><dd>{% if route_summary %}{{ route_summary.cross_segment_count|default(0) }}区間{% if route_summary.cross_segment_count %} ／ {{ route_summary.cross_duration_text }}{% endif %}{% else %}未取得{% endif %}</dd></dl><p>移動効率と旅行条件によって、訪問先が1地域にまとまる場合もあります。地域間の移動は区間の出発・到着施設の所属地域で集計しています。</p><a href="{{ url_for('area_select', target_regions=target_region_codes) }}">地域を選び直す →</a></div>{% endif %}
+
 
     <!-- ===========================
          YOUR CONDITIONS
@@ -3048,7 +3052,7 @@
                 </div>
 
                 <div class="route-summary-item">
-                    <small>総移動時間</small>
+                    <small>総移動時間（推定）</small>
                     <strong>
                         {% if route_summary and route_summary.total_duration_text %}
                             {{ route_summary.total_duration_text }}
@@ -3201,9 +3205,10 @@
                 {{ current_route.total_distance_text if current_route.total_distance_text else "未取得" }}
             </span>
             <span class="day-route-stat">
-                移動時間：
+                移動時間（推定）：
                 {{ current_route.total_duration_text if current_route.total_duration_text else "未取得" }}
             </span>
+            {% if current_route.cross_segment_count %}<span class="day-route-stat">地域間：{{ current_route.cross_segment_count }}区間 ／ {{ current_route.cross_duration_text }}</span>{% endif %}
         </div>
 
         <div class="route-segments">
@@ -3216,7 +3221,7 @@
 
                 <div class="route-segment-place">
                     <small>出発</small>
-                    <strong>{{ segment.origin }}</strong>
+                    <strong>{{ segment.origin }}</strong>{% if cross_region_labels.get(segment.origin) %}<small class="cross-segment-note">{{ cross_region_labels[segment.origin] }}</small>{% endif %}
                 </div>
 
                 <div class="route-segment-center">
@@ -3245,7 +3250,7 @@
 
                 <div class="route-segment-place">
                     <small>到着</small>
-                    <strong>{{ segment.destination }}</strong>
+                    <strong>{{ segment.destination }}</strong>{% if cross_region_labels.get(segment.destination) %}<small class="cross-segment-note">{{ cross_region_labels[segment.destination] }}</small>{% endif %}
                 </div>
 
                 {% if segment.route_warning %}
@@ -3298,7 +3303,8 @@
                 </button>
 
                 <h3>
-                    {{ spot.name }}
+                    {{ spot.name }}{% if cross_region_labels and cross_region_labels.get(spot.name) %}<span class="cross-region-label">{{ cross_region_labels.get(spot.name) }}</span>{% endif %}
+
                 </h3>
 
                 {% if spot.area %}
@@ -3482,12 +3488,10 @@
                     {% endif %}
 
 
-                    {% if spot.hours %}
                     <div class="detail-item">
                         <strong>営業時間</strong>
-                        <span>{{ spot.hours }}</span>
+                        <span>{{ facility_schedule_value(spot, 'hours') }}{% set schedule_src = facility_schedule_source(spot, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
 
                     {% if spot.price %}
@@ -3498,12 +3502,10 @@
                     {% endif %}
 
 
-                    {% if spot.closed %}
                     <div class="detail-item">
-                        <strong>休業日</strong>
-                        <span>{{ spot.closed }}</span>
+                        <strong>定休日・休業日</strong>
+                        <span>{{ facility_schedule_value(spot, 'closed') }}{% set schedule_src = facility_schedule_source(spot, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
 
                     {% if spot.parking %}
@@ -3670,9 +3672,10 @@
                 {{ current_route.total_distance_text if current_route.total_distance_text else "未取得" }}
             </span>
             <span class="day-route-stat">
-                移動時間：
+                移動時間（推定）：
                 {{ current_route.total_duration_text if current_route.total_duration_text else "未取得" }}
             </span>
+            {% if current_route.cross_segment_count %}<span class="day-route-stat">地域間：{{ current_route.cross_segment_count }}区間 ／ {{ current_route.cross_duration_text }}</span>{% endif %}
         </div>
 
         <div class="route-segments">
@@ -3685,7 +3688,7 @@
 
                 <div class="route-segment-place">
                     <small>出発</small>
-                    <strong>{{ segment.origin }}</strong>
+                    <strong>{{ segment.origin }}</strong>{% if cross_region_labels.get(segment.origin) %}<small class="cross-segment-note">{{ cross_region_labels[segment.origin] }}</small>{% endif %}
                 </div>
 
                 <div class="route-segment-center">
@@ -3714,7 +3717,7 @@
 
                 <div class="route-segment-place">
                     <small>到着</small>
-                    <strong>{{ segment.destination }}</strong>
+                    <strong>{{ segment.destination }}</strong>{% if cross_region_labels.get(segment.destination) %}<small class="cross-segment-note">{{ cross_region_labels[segment.destination] }}</small>{% endif %}
                 </div>
 
                 {% if segment.route_warning %}
@@ -3766,7 +3769,8 @@
                 </button>
 
                 <h3>
-                    {{ spot.name }}
+                    {{ spot.name }}{% if cross_region_labels and cross_region_labels.get(spot.name) %}<span class="cross-region-label">{{ cross_region_labels.get(spot.name) }}</span>{% endif %}
+
                 </h3>
 
 
@@ -3943,12 +3947,10 @@
                     </div>
                     {% endif %}
 
-                    {% if spot.hours %}
                     <div class="detail-item">
                         <strong>営業時間</strong>
-                        <span>{{ spot.hours }}</span>
+                        <span>{{ facility_schedule_value(spot, 'hours') }}{% set schedule_src = facility_schedule_source(spot, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
                     {% if spot.price %}
                     <div class="detail-item">
@@ -3957,12 +3959,10 @@
                     </div>
                     {% endif %}
 
-                    {% if spot.closed %}
                     <div class="detail-item">
-                        <strong>休業日</strong>
-                        <span>{{ spot.closed }}</span>
+                        <strong>定休日・休業日</strong>
+                        <span>{{ facility_schedule_value(spot, 'closed') }}{% set schedule_src = facility_schedule_source(spot, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
                     {% if spot.parking %}
                     <div class="detail-item">
@@ -4126,9 +4126,10 @@
                 {{ current_route.total_distance_text if current_route.total_distance_text else "未取得" }}
             </span>
             <span class="day-route-stat">
-                移動時間：
+                移動時間（推定）：
                 {{ current_route.total_duration_text if current_route.total_duration_text else "未取得" }}
             </span>
+            {% if current_route.cross_segment_count %}<span class="day-route-stat">地域間：{{ current_route.cross_segment_count }}区間 ／ {{ current_route.cross_duration_text }}</span>{% endif %}
         </div>
 
         <div class="route-segments">
@@ -4141,7 +4142,7 @@
 
                 <div class="route-segment-place">
                     <small>出発</small>
-                    <strong>{{ segment.origin }}</strong>
+                    <strong>{{ segment.origin }}</strong>{% if cross_region_labels.get(segment.origin) %}<small class="cross-segment-note">{{ cross_region_labels[segment.origin] }}</small>{% endif %}
                 </div>
 
                 <div class="route-segment-center">
@@ -4170,7 +4171,7 @@
 
                 <div class="route-segment-place">
                     <small>到着</small>
-                    <strong>{{ segment.destination }}</strong>
+                    <strong>{{ segment.destination }}</strong>{% if cross_region_labels.get(segment.destination) %}<small class="cross-segment-note">{{ cross_region_labels[segment.destination] }}</small>{% endif %}
                 </div>
 
                 {% if segment.route_warning %}
@@ -4222,7 +4223,8 @@
                 </button>
 
                 <h3>
-                    {{ spot.name }}
+                    {{ spot.name }}{% if cross_region_labels and cross_region_labels.get(spot.name) %}<span class="cross-region-label">{{ cross_region_labels.get(spot.name) }}</span>{% endif %}
+
                 </h3>
 
                 {% if spot.area %}
@@ -4398,12 +4400,10 @@
                     </div>
                     {% endif %}
 
-                    {% if spot.hours %}
                     <div class="detail-item">
                         <strong>営業時間</strong>
-                        <span>{{ spot.hours }}</span>
+                        <span>{{ facility_schedule_value(spot, 'hours') }}{% set schedule_src = facility_schedule_source(spot, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
                     {% if spot.price %}
                     <div class="detail-item">
@@ -4412,12 +4412,10 @@
                     </div>
                     {% endif %}
 
-                    {% if spot.closed %}
                     <div class="detail-item">
-                        <strong>休業日</strong>
-                        <span>{{ spot.closed }}</span>
+                        <strong>定休日・休業日</strong>
+                        <span>{{ facility_schedule_value(spot, 'closed') }}{% set schedule_src = facility_schedule_source(spot, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
                     {% if spot.parking %}
                     <div class="detail-item">
@@ -4605,7 +4603,7 @@
                         margin-bottom:8px;
                     "
                 >
-                    旅行中の車移動
+                    宿比較時の車移動（食事候補を含む）
                 </small>
 
                 <strong
@@ -4658,7 +4656,7 @@
                         margin-bottom:7px;
                     "
                 >
-                    DAY {{ meal.day }} ／ {{ meal.meal_type }}
+                    DAY {{ meal.day }} ／ {{ meal.meal_type }}{% if meal.arrival_minute is defined and meal.arrival_minute is not none %} ／ 到着目安 {{ "%02d:%02d"|format(meal.arrival_minute // 60, meal.arrival_minute % 60) }}{% endif %}
                 </div>
 
                 <strong
@@ -4669,7 +4667,8 @@
                         margin-bottom:7px;
                     "
                 >
-                    {{ meal.restaurant.name }}
+                    {{ meal.restaurant.name }}{% if cross_region_labels and cross_region_labels.get(meal.restaurant.name) %}<span class="cross-region-label">{{ cross_region_labels.get(meal.restaurant.name) }}</span>{% endif %}
+
                 </strong>
 
                 <p
@@ -4680,6 +4679,8 @@
                     "
                 >
                     {{ meal.note }}
+                    <span style="display:block;">営業時間：{{ facility_schedule_value(meal.restaurant, 'hours') }}{% set schedule_src = facility_schedule_source(meal.restaurant, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
+                    <span style="display:block;">定休日・休業日：{{ facility_schedule_value(meal.restaurant, 'closed') }}{% set schedule_src = facility_schedule_source(meal.restaurant, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
 
                     {% if meal.detour_minutes is not none %}
                         ／ 寄り道 約{{ meal.detour_minutes }}分
@@ -4747,7 +4748,8 @@
                 </button>
 
                 <h3>
-                    {{ restaurant.name }}
+                    {{ restaurant.name }}{% if cross_region_labels and cross_region_labels.get(restaurant.name) %}<span class="cross-region-label">{{ cross_region_labels.get(restaurant.name) }}</span>{% endif %}
+
                 </h3>
 
                 {% if restaurant.genre %}
@@ -4871,19 +4873,15 @@
                     </div>
                     {% endif %}
 
-                    {% if restaurant.hours %}
                     <div class="gourmet-info-item">
                         <strong>営業時間</strong>
-                        <span>{{ restaurant.hours }}</span>
+                        <span>{{ facility_schedule_value(restaurant, 'hours') }}{% set schedule_src = facility_schedule_source(restaurant, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
-                    {% if restaurant.closed %}
                     <div class="gourmet-info-item">
-                        <strong>休業日</strong>
-                        <span>{{ restaurant.closed }}</span>
+                        <strong>定休日・休業日</strong>
+                        <span>{{ facility_schedule_value(restaurant, 'closed') }}{% set schedule_src = facility_schedule_source(restaurant, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
                     {% if restaurant.price_range %}
                     <div class="gourmet-info-item">
@@ -5002,7 +5000,8 @@
                 </button>
 
                 <h3>
-                    {{ hotel.name }}
+                    {{ hotel.name }}{% if cross_region_labels and cross_region_labels.get(hotel.name) %}<span class="cross-region-label">{{ cross_region_labels.get(hotel.name) }}</span>{% endif %}
+
                 </h3>
 
                 {% if hotel.description %}
@@ -5067,19 +5066,23 @@
                     </div>
                     {% endif %}
 
-                    {% if hotel.check_in %}
                     <div class="detail-item">
-                        <strong>CHECK IN</strong>
-                        <span>{{ hotel.check_in }}</span>
+                        <strong>チェックイン</strong>
+                        <span>{{ facility_schedule_value(hotel, 'check_in') }}{% set schedule_src = facility_schedule_source(hotel, 'check_in') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
 
-                    {% if hotel.check_out %}
                     <div class="detail-item">
-                        <strong>CHECK OUT</strong>
-                        <span>{{ hotel.check_out }}</span>
+                        <strong>チェックアウト</strong>
+                        <span>{{ facility_schedule_value(hotel, 'check_out') }}{% set schedule_src = facility_schedule_source(hotel, 'check_out') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
                     </div>
-                    {% endif %}
+                    <div class="detail-item">
+                        <strong>宿泊時間の案内</strong>
+                        <span>{{ facility_schedule_value(hotel, 'hours') }}{% set schedule_src = facility_schedule_source(hotel, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>定休日・休業日</strong>
+                        <span>{{ facility_schedule_value(hotel, 'closed') }}{% set schedule_src = facility_schedule_source(hotel, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</span>
+                    </div>
 
                 </div>
 
@@ -5238,6 +5241,11 @@
 
                     {% endif %}
 
+
+                    <div class="hotel-card-meta">チェックイン：{{ facility_schedule_value(other, 'check_in') }}{% set schedule_src = facility_schedule_source(other, 'check_in') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</div>
+                    <div class="hotel-card-meta">チェックアウト：{{ facility_schedule_value(other, 'check_out') }}{% set schedule_src = facility_schedule_source(other, 'check_out') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</div>
+                    <div class="hotel-card-meta">宿泊時間の案内：{{ facility_schedule_value(other, 'hours') }}{% set schedule_src = facility_schedule_source(other, 'hours') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</div>
+                    <div class="hotel-card-meta">定休日・休業日：{{ facility_schedule_value(other, 'closed') }}{% set schedule_src = facility_schedule_source(other, 'closed') %}{% if schedule_src.url %} <small><a href="{{ schedule_src.url }}" target="_blank" rel="noopener noreferrer">出典</a>{% if schedule_src.checked %}（{{ schedule_src.checked }}）{% endif %}</small>{% endif %}</div>
 
                     {% if other.url or other.official_url %}
 
@@ -5520,6 +5528,8 @@ document.addEventListener(
                 return "";
             }
 
+            if (item.route_query) return String(item.route_query);
+
             const lat =
                 item.latitude ??
                 item.lat ??
@@ -5560,7 +5570,7 @@ document.addEventListener(
             return [
                 item.name,
                 item.area,
-                "秩父 埼玉県 日本"
+                "{{ region_name }} 埼玉県 日本"
             ]
             .filter(Boolean)
             .join(" ");
@@ -5649,15 +5659,17 @@ document.addEventListener(
                 const day =
                     button.dataset.routeDay;
 
-                const items =
-                    routeData[
-                        "day" + day
-                    ]
-                    ||
-                    [];
-
-                const url =
-                    buildRouteUrl(items);
+                // 日別の確定済み区間を使用し、初日の入口・宿・最終日の帰着点も含める。
+                const segments = routeData.route_days?.[Number(day) - 1]?.segments || [];
+                const points = [];
+                if (segments.length && segments.every(segment => segment.available)) {
+                    points.push(segments[0].origin_map_query || segments[0].origin);
+                    segments.forEach(segment => {
+                        const point = segment.destination_map_query || segment.destination;
+                        if (points[points.length - 1] !== point) points.push(point);
+                    });
+                }
+                const url = buildRouteUrl(points.map(point => ({route_query: point})));
 
                 if (!url) {
 

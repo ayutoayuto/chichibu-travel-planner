@@ -1,0 +1,1008 @@
+{
+  "region": {
+    "code": "hanno",
+    "name": "飯能",
+    "verified_date": "2026-11-24",
+    "data_policy": "公式・公的観光情報を優先。確認できない営業時間・定休日・駐車場詳細は推測せずnullとする。"
+  },
+  "restaurant_count": 34,
+  "restaurants": [
+    {
+      "name": "手打ちそば処 せいたろう",
+      "area": "飯能市街地",
+      "genre": [
+        "そば",
+        "和食",
+        "郷土料理"
+      ],
+      "specialties": [
+        "手打ちそば",
+        "韃靼そば",
+        "飯能すいーとん"
+      ],
+      "description": "国産石臼挽きそばと飯能のご当地料理『飯能すいーとん』を楽しめる店。",
+      "address": "埼玉県飯能市八幡町13-19",
+      "phone": "042-974-3358",
+      "hours": "11:00～14:30（夜は予約・宴会のみ）",
+      "closed": "水曜日",
+      "parking": {
+        "available": true,
+        "capacity": "6台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g003/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "手打ちそば・うどん 青田や",
+      "area": "飯能東部",
+      "genre": [
+        "そば",
+        "うどん",
+        "和食"
+      ],
+      "specialties": [
+        "手打ちそば",
+        "手打ちうどん",
+        "野菜天合いもり",
+        "鴨汁合いもり"
+      ],
+      "description": "田園に囲まれた環境で手打ちそば・うどんを提供する店。",
+      "address": "埼玉県飯能市小久保46-5",
+      "phone": "042-971-3736",
+      "hours": "11:00～15:00",
+      "closed": "月～金曜日（2026年4月1日以降、土日のみ営業）",
+      "parking": {
+        "available": true,
+        "capacity": "8台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g001/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "うどん ゆずの庄",
+      "area": "南高麗・吾野方面",
+      "genre": [
+        "うどん",
+        "和食",
+        "郷土料理"
+      ],
+      "specialties": [
+        "肉汁うどん",
+        "冷や汁うどん",
+        "きのこ汁うどん"
+      ],
+      "description": "飯能の名水と国産豚肉を使ったうどんを提供する店。",
+      "address": "埼玉県飯能市大字南801",
+      "phone": "042-970-1388",
+      "hours": "11:00～15:00",
+      "closed": "火・水曜日、冬季不定休（1月・2月休業）",
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g006/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "清河園・蜻蛉亭",
+      "area": "飯能市街地",
+      "genre": [
+        "和食",
+        "会席",
+        "日本料理"
+      ],
+      "specialties": [
+        "会席料理",
+        "弁当",
+        "季節料理"
+      ],
+      "description": "名栗川の景観を眺めながら食事ができる和食・会席料理店。",
+      "address": "埼玉県飯能市稲荷町23-23",
+      "phone": "042-973-2311",
+      "hours": "11:30～15:00（LO14:00）／17:00～22:00（LO20:30）",
+      "closed": "年末年始を除き無休",
+      "parking": {
+        "available": true,
+        "capacity": "30台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "http://www.seikaen-tonbotei.jp/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "極和美膳 暖らん",
+      "area": "東飯能",
+      "genre": [
+        "和食",
+        "寿司",
+        "会席",
+        "定食"
+      ],
+      "specialties": [
+        "御膳",
+        "寿司",
+        "会席料理",
+        "魚介料理"
+      ],
+      "description": "御膳・寿司・会席など幅広い和食を提供する大型店。",
+      "address": "埼玉県飯能市新町4-4",
+      "phone": "042-971-6129",
+      "hours": "11:00～15:00／17:00～21:30",
+      "closed": "月曜日（祝日を除く）",
+      "parking": {
+        "available": true,
+        "capacity": "50台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "http://danran-hanno.jimdo.com/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "レストラン HAMA",
+      "area": "赤沢",
+      "genre": [
+        "洋食",
+        "ステーキ",
+        "ハンバーグ"
+      ],
+      "specialties": [
+        "ステーキ丼",
+        "オムライス",
+        "ハンバーグ",
+        "やまめの唐揚げ"
+      ],
+      "description": "山あいの景色を眺めながらステーキ丼や洋食を楽しめるレストラン。",
+      "address": "埼玉県飯能市赤沢876",
+      "phone": "042-977-0181",
+      "hours": "平日11:00～15:00／土日祝11:00～15:00・17:00～20:00",
+      "closed": "火曜日、第3水曜日、臨時休業あり",
+      "parking": {
+        "available": true,
+        "capacity": "21台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "http://www.ha-ma.net/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "COUNTRY CAFE ターニップ",
+      "area": "名栗",
+      "genre": [
+        "カフェ",
+        "洋食",
+        "カレー",
+        "ピザ"
+      ],
+      "specialties": [
+        "鶏の香草焼き",
+        "焼きカレー",
+        "ピザ",
+        "シフォンケーキ"
+      ],
+      "description": "名栗の水を使った珈琲と洋食・手作りパンを楽しめるカフェ。",
+      "address": "埼玉県飯能市上名栗243-1",
+      "phone": "042-979-1020",
+      "hours": "11:00～15:00（LO14:30）／17:00～20:00（LO19:30）",
+      "closed": "水・木曜日",
+      "parking": {
+        "available": true,
+        "capacity": "10台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g013/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "Cafe&Shop YAMASEMI",
+      "area": "名栗",
+      "genre": [
+        "カフェ",
+        "軽食",
+        "北欧"
+      ],
+      "specialties": [
+        "北欧風ポモドーロ",
+        "名栗ルバーブとミックスベリーパイ",
+        "名栗まんじゅう"
+      ],
+      "description": "Nolla naguri内のカフェ。北欧風軽食や名栗の地域商品を扱う。",
+      "address": "埼玉県飯能市下名栗607-1",
+      "phone": "042-978-5522",
+      "hours": "夏季10:00～18:00／冬季10:00～17:00",
+      "closed": "なし（施設点検等で臨時休業あり）",
+      "parking": {
+        "available": true,
+        "capacity": "約40台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "http://nolla-naguri.jp/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "レイクサイドテラス名栗湖",
+      "area": "名栗湖",
+      "genre": [
+        "和食",
+        "そば",
+        "うどん",
+        "郷土料理"
+      ],
+      "specialties": [
+        "有間ダムカレー",
+        "山菜料理",
+        "鮎・マス塩焼き",
+        "肉汁うどん"
+      ],
+      "description": "名栗湖を眺めながら山菜料理や麺類、川魚料理を楽しめる食事処。",
+      "address": "埼玉県飯能市下名栗1830-4",
+      "phone": "042-979-0995",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "公式観光情報で詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g015/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "喫茶＆ギャラリー 名栗の杜",
+      "area": "名栗",
+      "genre": [
+        "カフェ",
+        "洋食"
+      ],
+      "specialties": [
+        "鴨肉ハンバーグ",
+        "オリジナルカレー",
+        "珈琲"
+      ],
+      "description": "無垢材を使った空間で食事・珈琲・ギャラリー展示を楽しめる。",
+      "address": "埼玉県飯能市上名栗571",
+      "phone": "042-979-0646",
+      "hours": "10:30～17:00",
+      "closed": "火・水・木曜日",
+      "parking": {
+        "available": true,
+        "capacity": "5台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "http://n-mori.info/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "おくむら茶屋",
+      "area": "正丸峠",
+      "genre": [
+        "和食",
+        "ジンギスカン",
+        "そば",
+        "うどん",
+        "定食"
+      ],
+      "specialties": [
+        "ジンギスカン",
+        "正丸丼",
+        "田舎おしるこ"
+      ],
+      "description": "正丸峠頂上にある老舗茶屋。景色とジンギスカン、麺類などを楽しめる。",
+      "address": "埼玉県飯能市南川447-2",
+      "phone": "042-978-8025",
+      "hours": "平日9:00～16:00／土日祝8:00～17:00",
+      "closed": "不定休",
+      "parking": {
+        "available": true,
+        "capacity": "12台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://foodplace.jp/okumura/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "まるよね 伊勢屋",
+      "area": "飯能市街地",
+      "genre": [
+        "和食",
+        "甘味",
+        "軽食"
+      ],
+      "specialties": [
+        "久下だんご",
+        "久下ちらし",
+        "栗おこわ",
+        "赤飯"
+      ],
+      "description": "飯能銀座商店街の老舗。だんご、ちらし、ランチセットなどを提供。",
+      "address": "埼玉県飯能市仲町8-14",
+      "phone": "042-972-2962",
+      "hours": "8:30～19:30",
+      "closed": "月曜日",
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "提携リパーク利用"
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g029/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "大里屋本店",
+      "area": "永田",
+      "genre": [
+        "甘味",
+        "和菓子"
+      ],
+      "specialties": [
+        "四里餅",
+        "羊羹",
+        "ゆず饅頭"
+      ],
+      "description": "明治40年創業。飯能名物『四里餅』で知られる和菓子店。",
+      "address": "埼玉県飯能市永田453",
+      "phone": "042-972-3600",
+      "hours": "8:30～17:00",
+      "closed": "月曜日（祝祭日は営業）",
+      "parking": {
+        "available": true,
+        "capacity": "8台",
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g026/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "御菓子処 亀屋",
+      "area": "飯能市街地",
+      "genre": [
+        "甘味",
+        "和菓子"
+      ],
+      "specialties": [
+        "御茶煎餅",
+        "最中",
+        "飯能おぼろ"
+      ],
+      "description": "明治36年開業の老舗和菓子店。",
+      "address": "埼玉県飯能市仲町7-28",
+      "phone": "042-972-2507",
+      "hours": "9:00～19:00",
+      "closed": "月曜日（休日の場合は翌平日）",
+      "parking": {
+        "available": false,
+        "capacity": null,
+        "fee": null,
+        "notes": null
+      },
+      "official_url": "https://hanno-tourism.jp/eat/g023/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "Brewery & Restaurant CARVAAN",
+      "area": "大河原",
+      "genre": [
+        "中東料理",
+        "地中海料理",
+        "洋食",
+        "レストラン"
+      ],
+      "specialties": [
+        "中東料理",
+        "地中海料理",
+        "クラフトビール"
+      ],
+      "description": "飯能河原近くのブルワリー併設レストラン。中東・地中海料理を中心に提供。",
+      "address": "埼玉県飯能市大河原32-1",
+      "phone": "042-973-7000",
+      "hours": "曜日により異なる",
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "最新情報要確認"
+      },
+      "official_url": "https://carvaan.jp/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_or_business_verified",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "そば處 長寿庵",
+      "area": "飯能市街地",
+      "genre": [
+        "そば",
+        "うどん",
+        "和食"
+      ],
+      "specialties": [
+        "そば",
+        "うどん"
+      ],
+      "description": "飯能駅周辺のそば・うどん店。",
+      "address": "埼玉県飯能市仲町7-28",
+      "phone": "042-972-3596",
+      "hours": "11:00～15:00",
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "うどん こくや",
+      "area": "飯能市街地",
+      "genre": [
+        "うどん",
+        "和食",
+        "郷土料理"
+      ],
+      "specialties": [
+        "肉汁うどん",
+        "武蔵野うどん"
+      ],
+      "description": "飯能で長く親しまれているコシの強いうどん店。",
+      "address": "埼玉県飯能市八幡町6-9",
+      "phone": "042-972-3215",
+      "hours": "11:00～14:10",
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "専用駐車場情報要確認"
+      },
+      "official_url": null,
+      "latitude": null,
+      "longitude": null,
+      "source_type": "business_verified",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "献上飯能そば 竹むら",
+      "area": "飯能市街地",
+      "genre": [
+        "そば",
+        "うどん",
+        "和食"
+      ],
+      "specialties": [
+        "そば",
+        "天ざる",
+        "天ぷら"
+      ],
+      "description": "飯能駅近くの老舗そば店。",
+      "address": "埼玉県飯能市仲町14-8",
+      "phone": "042-973-6366",
+      "hours": "11:30～15:00",
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": null,
+      "latitude": null,
+      "longitude": null,
+      "source_type": "business_verified",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "マルトクカフェ",
+      "area": "飯能市街地",
+      "genre": [
+        "カフェ",
+        "軽食"
+      ],
+      "specialties": [
+        "カフェメニュー"
+      ],
+      "description": "飯能市街地にあるカフェ。",
+      "address": "埼玉県飯能市仲町5-7",
+      "phone": "042-978-7776",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "雑貨＆カフェ kinoca",
+      "area": "吾野・虎秀",
+      "genre": [
+        "カフェ",
+        "軽食"
+      ],
+      "specialties": [
+        "カフェメニュー",
+        "木工・地域商品"
+      ],
+      "description": "西川材など地域の木文化に触れられる雑貨・カフェ。",
+      "address": "埼玉県飯能市虎秀36-4",
+      "phone": "042-978-8814",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "BBQ&Camping Kitchen BlueTarp",
+      "area": "名栗",
+      "genre": [
+        "カフェ",
+        "アウトドア料理",
+        "洋食"
+      ],
+      "specialties": [
+        "BBQ料理",
+        "キャンプ料理"
+      ],
+      "description": "アウトドア料理をテーマにした名栗の飲食店。",
+      "address": "埼玉県飯能市下名栗755-1",
+      "phone": "042-978-9801",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "Naguri Base周辺。詳細要確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "古民家ひらぬま",
+      "area": "名栗",
+      "genre": [
+        "和食",
+        "カフェ",
+        "古民家"
+      ],
+      "specialties": [
+        "古民家料理"
+      ],
+      "description": "上名栗の古民家を活用した飲食施設。",
+      "address": "埼玉県飯能市上名栗201",
+      "phone": "042-979-0028",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "大松閣別館 山の茶屋",
+      "area": "名栗",
+      "genre": [
+        "和食",
+        "炭火焼",
+        "郷土料理"
+      ],
+      "specialties": [
+        "炭火焼",
+        "川魚",
+        "ふるさと料理"
+      ],
+      "description": "大松閣別館の食事処。炭火焼とふるさと料理を提供。",
+      "address": "埼玉県飯能市下名栗917",
+      "phone": "042-979-0505",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "大松閣駐車場利用。詳細は要確認"
+      },
+      "official_url": "https://www.taishoukaku.com/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "花廼家大衆割烹",
+      "area": "名栗",
+      "genre": [
+        "和食",
+        "割烹"
+      ],
+      "specialties": [
+        "和食",
+        "割烹料理"
+      ],
+      "description": "上名栗にある大衆割烹。",
+      "address": "埼玉県飯能市上名栗21",
+      "phone": "042-979-0029",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "五郎八",
+      "area": "赤沢",
+      "genre": [
+        "和食",
+        "食事処"
+      ],
+      "specialties": [
+        "和食"
+      ],
+      "description": "赤沢地区の食事処。",
+      "address": "埼玉県飯能市赤沢905-1",
+      "phone": "042-977-1919",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "古民家レストラン ぽれぽれ",
+      "area": "赤沢",
+      "genre": [
+        "レストラン",
+        "古民家"
+      ],
+      "specialties": [
+        "古民家料理"
+      ],
+      "description": "赤沢地区の古民家レストラン。",
+      "address": "埼玉県飯能市赤沢220-2",
+      "phone": "042-978-8594",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "山里の古民家レストラン むつみ",
+      "area": "飯能東部",
+      "genre": [
+        "和食",
+        "古民家",
+        "レストラン"
+      ],
+      "specialties": [
+        "古民家料理"
+      ],
+      "description": "小久保地区の古民家レストラン。",
+      "address": "埼玉県飯能市小久保264-1",
+      "phone": "080-7566-6671",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "Spice＆Curry タットゥカダ",
+      "area": "小瀬戸",
+      "genre": [
+        "カレー",
+        "スパイス料理"
+      ],
+      "specialties": [
+        "スパイスカレー"
+      ],
+      "description": "小瀬戸地区のスパイス料理・カレー店。",
+      "address": "埼玉県飯能市小瀬戸67-2",
+      "phone": "080-4372-4222",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "ラス・フィンカス",
+      "area": "大河原",
+      "genre": [
+        "レストラン",
+        "洋食"
+      ],
+      "specialties": [
+        "洋食"
+      ],
+      "description": "大河原地区のレストラン。",
+      "address": "埼玉県飯能市大河原458-7",
+      "phone": "070-2244-7779",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "Café Y's Garden",
+      "area": "小瀬戸",
+      "genre": [
+        "カフェ",
+        "軽食"
+      ],
+      "specialties": [
+        "カフェメニュー"
+      ],
+      "description": "小瀬戸地区にあるカフェ。",
+      "address": "埼玉県飯能市小瀬戸11-2",
+      "phone": "042-972-0644",
+      "hours": null,
+      "closed": null,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "詳細未確認"
+      },
+      "official_url": "https://hanno-tourism.jp/tourismassociation/about/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "焼き鳥Dining 高",
+      "area": "飯能市街地",
+      "genre": [
+        "焼き鳥",
+        "居酒屋",
+        "和食"
+      ],
+      "specialties": [
+        "焼き鳥"
+      ],
+      "description": "飯能駅周辺の焼き鳥・居酒屋。",
+      "address": "埼玉県飯能市柳町19-21",
+      "phone": "042-980-7499",
+      "hours": "16:00～24:00",
+      "closed": null,
+      "parking": {
+        "available": false,
+        "capacity": null,
+        "fee": null,
+        "notes": "専用駐車場なしの情報あり"
+      },
+      "official_url": null,
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism_directory_and_business",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "ムーミン谷の食堂",
+      "area": "宮沢湖",
+      "genre": [
+        "洋食",
+        "テーマパークレストラン",
+        "北欧"
+      ],
+      "specialties": [
+        "ムーミンテーマ料理"
+      ],
+      "description": "ムーミンバレーパーク内のレストラン。",
+      "address": "埼玉県飯能市宮沢327-6 メッツァ",
+      "phone": null,
+      "hours": "ムーミンバレーパーク営業時間に準ずる",
+      "closed": "営業カレンダーに準ずる",
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "メッツァ駐車場"
+      },
+      "official_url": "https://metsa-hanno.com/place/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_facility",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "Market hall 1F フードエリア",
+      "area": "宮沢湖",
+      "genre": [
+        "カフェ",
+        "軽食",
+        "埼玉グルメ",
+        "北欧"
+      ],
+      "specialties": [
+        "埼玉県産食材",
+        "ミートボール",
+        "抹茶スイーツ"
+      ],
+      "description": "メッツァビレッジのマーケットホール1階にある複数の飲食店舗エリア。",
+      "address": "埼玉県飯能市宮沢327-6 メッツァ",
+      "phone": null,
+      "hours": "店舗ごとに異なる",
+      "closed": "営業カレンダーに準ずる",
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "メッツァ駐車場"
+      },
+      "official_url": "https://metsa-hanno.com/place/32874/",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_facility",
+      "verified_date": "2026-11-24"
+    },
+    {
+      "name": "マクドナルド 299バイパス飯能店",
+      "area": "飯能市街地",
+      "genre": [
+        "ファストフード",
+        "カフェ",
+        "軽食"
+      ],
+      "specialties": [
+        "ハンバーガー",
+        "朝食"
+      ],
+      "description": "朝7時から利用でき、観光マップ等も設置されている大型店舗。",
+      "address": "埼玉県飯能市中山335-2",
+      "phone": "042-973-5110",
+      "hours": "7:00～23:00",
+      "closed": "年中無休",
+      "parking": {
+        "available": true,
+        "capacity": "24台",
+        "fee": null,
+        "notes": "ドライブスルーあり"
+      },
+      "official_url": "https://map.mcdonalds.co.jp/map/11724",
+      "latitude": null,
+      "longitude": null,
+      "source_type": "official_tourism",
+      "verified_date": "2026-11-24"
+    }
+  ]
+}
+

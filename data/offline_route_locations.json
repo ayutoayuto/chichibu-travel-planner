@@ -246,9 +246,11 @@
       "name": "和銅鉱泉 ゆの宿 和どう",
       "category": "宿泊施設",
       "address": "埼玉県秩父市黒谷813",
-      "latitude": 35.999,
-      "longitude": 139.027,
-      "coordinate_source": "route_locations.json"
+      "latitude": 36.0398915,
+      "longitude": 139.1065377,
+      "coordinate_source": "https://mapfan.com/spots/SCYHY%2CJ%2CDP4",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     "新木鉱泉旅館": {
       "name": "新木鉱泉旅館",
@@ -310,9 +312,11 @@
       "name": "ちちぶ温泉 はなのや",
       "category": "宿泊施設",
       "address": "埼玉県秩父市荒川日野542",
-      "latitude": 35.985,
-      "longitude": 139.0,
-      "coordinate_source": "route_locations.json"
+      "latitude": 35.9533956,
+      "longitude": 139.0125875,
+      "coordinate_source": "https://mapfan.com/map/spots/SCYHY%2CJ%2CB57",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     "PICA秩父": {
       "name": "PICA秩父",
@@ -326,9 +330,11 @@
       "name": "御宿 竹取物語",
       "category": "宿泊施設",
       "address": "埼玉県秩父市荒川上田野56",
-      "latitude": 35.983,
-      "longitude": 139.017,
-      "coordinate_source": "route_locations.json"
+      "latitude": 35.9631309,
+      "longitude": 139.0547178,
+      "coordinate_source": "https://mapfan.com/spots/SC5CC%2CJ%2C4I0",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     "豚みそ丼本舗 野さか": {
       "name": "豚みそ丼本舗 野さか",

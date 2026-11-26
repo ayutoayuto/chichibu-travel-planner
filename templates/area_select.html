@@ -215,6 +215,8 @@ footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;col
     .area-card{min-height:auto}
 }
 @media(max-width:560px){.topbar{padding:0 24px}.topbar-note{display:none}.hero{padding:68px 24px 48px}.content{width:calc(100% - 32px);padding-top:46px}.area-symbol{font-size:38px}}
+
+.area-card:has(input:checked){border-color:#48795b;box-shadow:0 0 0 2px #48795b}.region-choice{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid #d8cfbb;color:#173c31;background:#faf8f3;cursor:pointer;font-size:14px;font-weight:700}.region-choice:has(input:checked){border-color:#48795b;background:#edf3ed}.region-choice:has(input:disabled){opacity:.55;cursor:not-allowed}.region-choice input,.select-all-regions input{width:20px;height:20px;accent-color:#173c31;flex-shrink:0;margin:0}.region-choice:focus-within{outline:2px solid #48795b;outline-offset:3px}.region-selection-footer{margin-top:30px;padding:24px 28px;background:#fff;border:1px solid #ddd7cb;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}.region-selection-footer p{margin:8px 0 0;color:#65716b;font-size:12px;line-height:1.8}.select-all-regions{display:flex;align-items:center;gap:10px;color:#173c31;font-weight:600;font-size:14px;cursor:pointer}.region-selection-footer .area-button{width:min(100%,420px);min-height:52px;cursor:pointer;font-family:inherit}.region-selection-footer .area-button:disabled{opacity:.5;cursor:not-allowed}.region-selection-footer .area-button:focus-visible{outline:2px solid #48795b;outline-offset:3px}@media(max-width:560px){.region-selection-footer{padding:18px}.region-selection-footer .area-button{width:100%}}
 </style>
 </head>
 <body>
@@ -233,7 +235,7 @@ footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;col
 <div class="hero-copy">
 <p class="eyebrow">SELECT YOUR DESTINATION</p>
 <h1>旅したい地域から、<br>プランをはじめる。</h1>
-<p>埼玉県南西部の地域ごとに、観光地・宿泊施設・食事・移動を考えた旅行プランを作成します。地域を選択して、旅行条件の入力へ進んでください。</p>
+<p>埼玉県南西部の観光地・宿泊施設・食事・移動を考えた旅行プランを作成します。行きたい地域を1つ以上選び、旅行条件の入力へ進んでください。</p>
 
 <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:30px;">
 <a
@@ -401,10 +403,12 @@ footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;col
 <main class="content">
 
 <div class="section-head">
-<h2>対象地域</h2>
-<p>現在は秩父・川越が利用可能です。<br>飯能は準備中です。</p>
+<h2>旅行する地域を選択</h2>
+<p>{% if hanno_available %}秩父・川越・飯能が利用可能です。{% else %}現在は秩父・川越が利用可能です。<br>飯能は準備中です。{% endif %}</p>
 </div>
 
+<form id="regionSelectionForm" action="{{ url_for('cross') }}" method="get" data-cross-ready="{{ 1 if cross_available else 0 }}">
+<input type="hidden" name="selection" value="1">
 <div class="area-grid">
 
 <article class="area-card" data-region="chichibu">
@@ -418,7 +422,7 @@ footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;col
 <h3>秩父</h3>
 <p>山・神社・温泉・長瀞など、自然と観光を組み合わせた旅行プランを作成します。</p>
 <div class="tags"><span class="tag">自然</span><span class="tag">温泉</span><span class="tag">長瀞</span><span class="tag">宿泊</span></div>
-<div class="action"><a class="area-button" href="{{ url_for('chichibu') }}"><span>秩父のプランを作る</span><span class="arrow">→</span></a></div>
+<div class="action"><label class="region-choice"><input type="checkbox" name="target_regions" value="chichibu" {% if 'chichibu' in selected_regions and true %}checked{% endif %}> <span>秩父を選択</span></label></div>
 </div>
 </article>
 
@@ -433,7 +437,7 @@ footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;col
 <h3>川越</h3>
 <p>蔵造りの町並み、歴史、食べ歩きなどを組み合わせた旅行プランを作成します。</p>
 <div class="tags"><span class="tag">街歩き</span><span class="tag">歴史</span><span class="tag">食べ歩き</span><span class="tag">観光</span></div>
-<div class="action"><a class="area-button" href="{{ url_for('kawagoe') }}"><span>川越のプランを作る</span><span class="arrow">→</span></a></div>
+<div class="action"><label class="region-choice"><input type="checkbox" name="target_regions" value="kawagoe" {% if 'kawagoe' in selected_regions and true %}checked{% endif %}> <span>川越を選択</span></label></div>
 </div>
 </article>
 
@@ -441,23 +445,32 @@ footer{padding:32px 7vw 42px;border-top:1px solid #ddd7cb;background:#ede8dd;col
 <div class="area-visual hanno">
 <span class="area-number">AREA 03</span>
 <span class="area-symbol">HANNO</span>
-<span class="status">準備中</span>
+<span class="status">{{ "利用可能" if hanno_available else "準備中" }}</span>
 </div>
 <div class="area-body">
 <small>飯能地域</small>
 <h3>飯能</h3>
-<p>森林・湖・アウトドアなど、自然を楽しむ旅行プランへ対応予定です。</p>
+<p>森林・湖・アウトドアなど、自然を楽しむ旅行プランを作成します。</p>
 <div class="tags"><span class="tag">森林</span><span class="tag">アウトドア</span><span class="tag">自然</span><span class="tag">宿泊</span></div>
-<div class="action"><a class="area-button secondary" href="{{ url_for('hanno') }}"><span>飯能の入力画面を見る</span><span class="arrow">→</span></a></div>
+<div class="action"><label class="region-choice"><input type="checkbox" name="target_regions" value="hanno" {% if 'hanno' in selected_regions and hanno_available %}checked{% endif %} {% if not hanno_available %}disabled{% endif %}> <span>飯能を選択</span></label></div>
 </div>
 </article>
 
+
 </div>
 
+<div class="region-selection-footer">
+<div><label class="select-all-regions"><input type="checkbox" id="selectAllRegions" {% if not cross_available %}disabled{% endif %}>すべての地域を選択</label>
+<p id="regionSelectionStatus" role="status">旅行する地域を1つ以上選んでください。</p>{% if not cross_available %}<p>地域間の経路が準備中のため、現在は1地域のみ選択できます。</p>{% endif %}
+<p>選んだ地域を候補として比較します。必ずすべての地域を訪問するわけではありません。</p></div>
+<button type="submit" class="area-button" id="continueRegionSelection"><span>旅行条件の入力へ</span><span class="arrow" aria-hidden="true">→</span></button>
+</div>
+</form>
+
 <div class="note">
-<small>DEVELOPMENT STATUS</small>
-<strong>システムを3地域対応へ拡張しています。</strong>
-<p>秩父・川越は現在利用可能です。飯能は観光地・宿泊施設・飲食店・ルート情報を整備後、同じ旅行プラン作成ロジックへ接続する予定です。</p>
+<small>AVAILABLE AREAS</small>
+<strong>{% if cross_available %}3地域の旅行プランに対応しています。{% else %}地域別の旅行プランを作成できます。{% endif %}</strong>
+<p>{% if hanno_available %}3地域で共通の旅行プラン作成システムを利用できます。{% if cross_available %}地域をまたぐ場合も登録済みの道路経路を使用します。{% endif %}{% else %}飯能はルート情報を整備後、同じ旅行プラン作成ロジックへ接続します。{% endif %}</p>
 </div>
 
 </main>
@@ -584,5 +597,8 @@ document.addEventListener(
 );
 </script>
 
+<script>
+(()=>{const form=document.getElementById('regionSelectionForm');const boxes=[...form.querySelectorAll('input[name="target_regions"]')].filter(x=>!x.disabled);const all=document.getElementById('selectAllRegions');const next=document.getElementById('continueRegionSelection');const status=document.getElementById('regionSelectionStatus');const labels={chichibu:'秩父',kawagoe:'川越',hanno:'飯能'};const multi=form.dataset.crossReady==='1';function sync(){const selected=boxes.filter(x=>x.checked);all.checked=selected.length===boxes.length&&boxes.length>0;all.indeterminate=selected.length>0&&selected.length<boxes.length;next.disabled=selected.length===0||(!multi&&selected.length>1);status.textContent=selected.length?'選択中：'+selected.map(x=>labels[x.value]).join('・')+'（'+selected.length+'地域）':'地域を1つ以上選択してください。';}boxes.forEach(box=>box.addEventListener('change',()=>{if(!multi&&box.checked)boxes.forEach(x=>{if(x!==box)x.checked=false;});sync();}));all.addEventListener('change',()=>{if(multi)boxes.forEach(x=>x.checked=all.checked);sync();});form.addEventListener('submit',e=>{sync();if(next.disabled)e.preventDefault();});sync();window.addEventListener('pageshow',sync);})();
+</script>
 </body>
 </html>

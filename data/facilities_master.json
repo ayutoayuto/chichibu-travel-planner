@@ -1964,10 +1964,10 @@
       "aliases": [],
       "description": null,
       "tags": [],
-      "address": null,
+      "address": "〒368-0001 埼玉県秩父市黒谷813",
       "phone": null,
-      "latitude": null,
-      "longitude": null,
+      "latitude": 36.0398915,
+      "longitude": 139.1065377,
       "travel_time_from_seibu_chichibu": null,
       "travel_time_from_chichibu_station": null,
       "travel_time_from_nagatoro_station": null,
@@ -2003,7 +2003,10 @@
       "data_confidence": "research_master_basis",
       "notes_extra": [
         "important_note: 秩父七湯の和銅鉱泉。温泉はほぼ24時間利用可（23:00～24:00、10:00～11:00清掃）。"
-      ]
+      ],
+      "coordinate_source": "https://mapfan.com/spots/SCYHY%2CJ%2CDP4",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     {
       "id": 32,
@@ -2538,10 +2541,10 @@
       "aliases": [],
       "description": null,
       "tags": [],
-      "address": null,
+      "address": "〒369-1803 埼玉県秩父市荒川日野542",
       "phone": null,
-      "latitude": null,
-      "longitude": null,
+      "latitude": 35.9533956,
+      "longitude": 139.0125875,
       "travel_time_from_seibu_chichibu": null,
       "travel_time_from_chichibu_station": null,
       "travel_time_from_nagatoro_station": null,
@@ -2573,7 +2576,10 @@
       "data_scope_note": "宿泊施設。宿泊料金は日付・人数・客室・プランで変動するため、固定参考予算とは分離する。",
       "remaining_research_items": [],
       "source_checked_at": "2026-09-04",
-      "data_confidence": "research_master_basis"
+      "data_confidence": "research_master_basis",
+      "coordinate_source": "https://mapfan.com/map/spots/SCYHY%2CJ%2CB57",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     {
       "id": 40,
@@ -2698,10 +2704,10 @@
       "aliases": [],
       "description": null,
       "tags": [],
-      "address": null,
+      "address": "〒369-1802 埼玉県秩父市荒川上田野56",
       "phone": null,
-      "latitude": null,
-      "longitude": null,
+      "latitude": 35.9631309,
+      "longitude": 139.0547178,
       "travel_time_from_seibu_chichibu": null,
       "travel_time_from_chichibu_station": null,
       "travel_time_from_nagatoro_station": null,
@@ -2739,7 +2745,10 @@
       "data_confidence": "research_master_basis",
       "notes_extra": [
         "important_note: 中学生以上限定。本館の客室定員は2名、離れかぐやは4名。オールインクルーシブ。"
-      ]
+      ],
+      "coordinate_source": "https://mapfan.com/spots/SC5CC%2CJ%2C4I0",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     }
   ]
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>お気に入り | 秩父旅行プランナー</title>
+    <title>お気に入り | 埼玉県南西部旅行プラン</title>
 
     <style>
         *{box-sizing:border-box;}
@@ -469,7 +469,10 @@
                 font-size:30px;
             }
         }
-    </style>
+    .facility-review-dialog{box-sizing:border-box;width:min(560px,calc(100% - 24px));max-height:88vh;overflow:auto;border:1px solid #d8cfbb;border-radius:12px;padding:22px;color:#18392f;background:#fffdf8;box-shadow:0 10px 45px #0003;position:fixed;margin:auto;inset:0;font-family:inherit}.facility-review-dialog::backdrop{background:#182c25a0}.facility-review-dialog h2{font-size:22px;margin:8px 32px 8px 0;overflow-wrap:anywhere}.facility-review-dialog p{margin:8px 0;line-height:1.65}.facility-review-close{float:right;border:1px solid #d8cfbb;border-radius:6px;padding:5px 10px;background:white;color:#18392f;cursor:pointer}.facility-review-list{list-style:none;padding:0;margin:12px 0;max-height:230px;overflow:auto}.facility-review-list li{border-top:1px solid #e5e0d6;padding:10px 0;overflow-wrap:anywhere;white-space:pre-wrap}.facility-review-stars{color:#8a6d36;font-size:19px;letter-spacing:1px}.facility-review-dialog label{display:block;margin-top:10px;font-size:13px;font-weight:600}.facility-review-dialog input:not([type=radio]),.facility-review-dialog textarea{box-sizing:border-box;width:100%;padding:9px;border:1px solid #b7c5b9;border-radius:5px;background:white;color:#18392f;font:inherit}.facility-review-dialog fieldset{border:0;padding:0;margin:10px 0}.facility-review-rating{display:flex;gap:8px;flex-wrap:wrap}.facility-review-rating label{display:flex;align-items:center;gap:3px;margin:4px 0;cursor:pointer;font-size:16px}.facility-review-submit{background:#18392f;color:white;border:0;border-radius:6px;padding:11px 18px;font:inherit;cursor:pointer;margin-top:10px}.facility-review-submit:disabled{opacity:.55;cursor:wait}.facility-review-status{font-size:13px;color:#6d5c36}.facility-review-status[data-error=true]{color:#9b2626}@media(max-width:600px){.facility-review-dialog{padding:16px}}@media print{.facility-review-dialog{display:none!important}}
+.facility-review-dialog .facility-review-submit{min-height:42px}.facility-review-dialog .facility-review-close:focus-visible,.facility-review-dialog .facility-review-submit:focus-visible{outline:2px solid #48795b;outline-offset:3px}.favorite-action.review{color:#6d5c36}.favorite-action.review:hover{color:#fff}.favorite-review-intro{font-size:13px;line-height:1.8;color:#65716b;margin:0 0 30px;}
+
+</style>
 </head>
 
 <body>
@@ -492,6 +495,7 @@
 </header>
 
 <main id="favoritesMain">
+    <p class="favorite-review-intro">お気に入りに保存した施設のレビューを閲覧・投稿できます。実際に利用した施設について感想をお寄せください。</p>
 
     <section class="favorite-category" data-category="観光地">
         <div class="category-heading">
@@ -547,6 +551,29 @@
     <p>DISCOVER · PLAN · EXPERIENCE</p>
 </footer>
 
+<dialog id="facilityReviewDialog" class="facility-review-dialog" aria-labelledby="facilityReviewTitle" data-review-endpoint="{{ url_for('get_reviews') }}">
+  <button type="button" class="facility-review-close" id="facilityReviewClose" aria-label="閉じる">×</button>
+  <h2 id="facilityReviewTitle">施設レビュー</h2>
+  <p id="facilityReviewSummary" aria-live="polite">読み込み中…</p>
+  <ul id="facilityReviewList" class="facility-review-list"></ul>
+  <form id="facilityReviewForm">
+    <fieldset><legend>評価（5段階）</legend><div class="facility-review-rating">
+      <label><input type="radio" name="rating" value="1" required>1★</label>
+      <label><input type="radio" name="rating" value="2">2★</label>
+      <label><input type="radio" name="rating" value="3">3★</label>
+      <label><input type="radio" name="rating" value="4">4★</label>
+      <label><input type="radio" name="rating" value="5">5★</label>
+    </div></fieldset>
+    <label for="facilityReviewNickname">ニックネーム（40文字以内）</label>
+    <input id="facilityReviewNickname" name="nickname" required maxlength="40" autocomplete="off">
+    <label for="facilityReviewComment">感想（500文字以内）</label>
+    <textarea id="facilityReviewComment" name="comment" required maxlength="500" rows="4"></textarea>
+    <p style="font-size:12px">実際の利用体験を投稿してください。氏名・連絡先などの個人情報は記載しないでください。</p>
+    <button class="facility-review-submit" type="submit">レビューを投稿</button>
+    <p id="facilityReviewStatus" class="facility-review-status" role="status" aria-live="polite"></p>
+  </form>
+</dialog>
+
 <script id="favoriteCatalogData" type="application/json">{{ favorite_catalog | tojson }}</script>
 
 <script>
@@ -575,6 +602,45 @@
         const detailGrid = document.getElementById("detailGrid");
         const modalNotes = document.getElementById("detailModalNotes");
         const modalActions = document.getElementById("detailModalActions");
+
+
+ const dialog=document.getElementById('facilityReviewDialog'), form=document.getElementById('facilityReviewForm'), summary=document.getElementById('facilityReviewSummary'), list=document.getElementById('facilityReviewList'), status=document.getElementById('facilityReviewStatus'), submit=form.querySelector('button[type=submit]');
+ const endpoint=dialog.dataset.reviewEndpoint;
+ let current=null, version=0, posting=false, trigger=null;
+ const showStatus=(message,error=false)=>{status.textContent=message;status.dataset.error=String(error);};
+ const stars=n=>'★'.repeat(Math.max(0,Math.min(5,Math.round(Number(n)||0))))+'☆'.repeat(5-Math.max(0,Math.min(5,Math.round(Number(n)||0))));
+ async function load(target,token){
+   summary.textContent='読み込み中…'; list.replaceChildren();
+   try{
+     const res=await fetch(endpoint+'?'+new URLSearchParams(target),{cache:'no-store',headers:{Accept:'application/json'}});
+     const data=await res.json(); if(token!==version)return;
+     if(!res.ok||!data.ok)throw Error(data.error||'レビューを取得できませんでした。');
+     summary.textContent=data.count?`${stars(data.average_rating)} ${data.average_rating.toFixed(1)} / 5（${data.count}件）`:'まだレビューはありません。';
+     for(const item of data.reviews){const li=document.createElement('li'), head=document.createElement('strong'), text=document.createElement('p'), date=document.createElement('small');head.textContent=stars(item.rating)+' '+item.nickname;head.className='facility-review-stars';text.textContent=item.comment;const d=new Date(item.created_at);date.textContent=Number.isNaN(d.valueOf())?'':d.toLocaleDateString('ja-JP',{timeZone:'Asia/Tokyo'});li.append(head,text,date);list.append(li);}
+   }catch(e){if(token===version)summary.textContent=e.message||'レビューを取得できませんでした。';}
+ }
+ function isSaved(target){return readFavorites().some(item=>item.type===target.facility_type && item.name===target.facility_name);}
+ function openReview(favorite,button){
+   if(posting)return;
+   const target={facility_type:favorite.type,facility_name:favorite.name};
+   if(!isSaved(target)){renderFavorites();return;}
+   trigger=button;current=target;const token=++version;form.reset();showStatus('');submit.disabled=false;
+   document.getElementById('facilityReviewTitle').textContent=target.facility_name+' のレビュー';
+   if(!dialog.open)dialog.showModal();load(target,token);
+ }
+ function reviewButton(favorite){
+   const button=document.createElement('button');button.type='button';button.className='favorite-action review';button.textContent='☆ レビュー';
+   button.addEventListener('click',()=>openReview(favorite,button));return button;
+ }
+ function checkReviewFavorite(){if(current&&!isSaved(current)){submit.disabled=true;showStatus('お気に入りから解除されました。投稿するには再登録してください。',true);if(!posting&&dialog.open)dialog.close();}}
+ document.getElementById('facilityReviewClose').addEventListener('click',()=>{if(!posting)dialog.close();});
+ dialog.addEventListener('cancel',e=>{if(posting)e.preventDefault();});
+ dialog.addEventListener('close',()=>{version++;current=null;if(trigger&&trigger.isConnected)trigger.focus();});
+ form.addEventListener('submit',async e=>{e.preventDefault();if(!current||posting)return;if(!isSaved(current)){checkReviewFavorite();return;}const target={...current},token=version,fields=new FormData(form);const nickname=String(fields.get('nickname')||'').trim(),comment=String(fields.get('comment')||'').trim();if(!nickname||!comment){showStatus('ニックネームと感想を入力してください。',true);return;}
+   posting=true;submit.disabled=true;showStatus('投稿中…');
+   try{const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({...target,rating:Number(fields.get('rating')),nickname,comment})});const data=await res.json();if(!res.ok||!data.ok)throw Error(data.error||'投稿できませんでした。');if(token===version){form.reset();showStatus('レビューを投稿しました。');await load(target,token);}}catch(e){if(token===version)showStatus(e.message||'投稿できませんでした。',true);}finally{posting=false;submit.disabled=!!current&&!isSaved(current);checkReviewFavorite();}
+ });
+
 
         function readFavorites() {
             try {
@@ -709,6 +775,7 @@
                 closeModal();
             });
             modalActions.appendChild(favoriteButton);
+            modalActions.appendChild(reviewButton(favorite));
 
             modal.classList.add("is-open");
             modal.setAttribute("aria-hidden", "false");
@@ -725,6 +792,7 @@
                 return favoriteKey(item) !== key;
             });
             writeFavorites(updated);
+            checkReviewFavorite();
             renderFavorites();
         }
 
@@ -771,6 +839,7 @@
             });
 
             actions.appendChild(detailButton);
+            actions.appendChild(reviewButton(favorite));
             actions.appendChild(removeButton);
 
             if (item && item.map_url) {
@@ -845,13 +914,14 @@
         });
 
         document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
+            if (event.key === "Escape" && !dialog.open) {
                 closeModal();
             }
         });
 
         window.addEventListener("storage", function (event) {
-            if (event.key === STORAGE_KEY) {
+            if (event.key === STORAGE_KEY || event.key === null) {
+                checkReviewFavorite();
                 renderFavorites();
             }
         });

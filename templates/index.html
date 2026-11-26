@@ -1466,7 +1466,9 @@
                     "...";
             }
         }
-    </style>
+    
+.cross-settings{border:1px solid #ddd7cb;background:#faf9f5;padding:22px;margin-bottom:28px}.cross-settings h3{color:#173c31;margin:0 0 16px}.cross-mode-links,.cross-targets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.cross-mode-links a,.cross-targets label{padding:13px 8px;text-align:center;border:1px solid #ddd7cb;background:white;color:#173c31;text-decoration:none;font-size:14px}.cross-mode-links a[aria-current="page"]{background:#173c31;color:white;border-color:#173c31}.cross-settings p{margin:14px 0;line-height:1.7}.cross-targets input{accent-color:#173c31}.cross-targets label{cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;min-height:48px}.cross-targets label:has(input:checked){background:#edf3ed;border-color:#48795b;font-weight:600}.cross-mode-links a:focus-visible,.cross-targets label:focus-within{outline:2px solid #48795b;outline-offset:3px}.must-visit-grid label[hidden]{display:none!important}@media(max-width:520px){.cross-settings{padding:14px}.cross-mode-links{grid-template-columns:1fr}}
+</style>
 </head>
 
 <body class="region-{{ region_code }}">
@@ -1599,6 +1601,13 @@
             </div>
 
             <div class="form-body">
+<section class="cross-settings" aria-labelledby="cross-title">
+ <h3 id="cross-title">選択した旅行地域</h3>
+ {% if region_code == 'cross' %}<input type="hidden" name="area_mode" value="cross">{% for code in selected_regions %}<input type="hidden" name="target_regions" value="{{ code }}">{% endfor %}{% endif %}
+ <p><strong>{{ selected_region_labels|join('・') }}</strong>（{{ selected_region_labels|length }}地域）</p>
+ <p>選択した地域から条件に合う施設を推薦します。<a href="{{ url_for('area_select', target_regions=selected_regions) }}">地域を選び直す →</a></p>
+</section>
+
 
                 <!-- =========================
                      BASIC INFORMATION
@@ -1883,24 +1892,13 @@
                         <select
                             name="arrival_detail"
                             id="carArrivalSelect"
+                            required
                             aria-label="{{ region_name }}方面への入口"
                         >
 
-                            <option
-                                value="花園IC"
-                                selected
-                            >
-                                関越道方面から（花園IC）
-                            </option>
-
-                            <option value="芦ヶ久保駅">
-                                飯能方面から（国道299号・芦ヶ久保）
-                            </option>
-
-                        </select>
                             {% for option in arrival_options %}
                             <option
-                                value="{{ option.value }}"
+                                value="{{ option.value }}" data-owner="{{ option.region }}"
                                 {% if option.selected %}selected{% endif %}
                             >
                                 {{ option.label }}
@@ -1910,7 +1908,7 @@
 
                         <p class="selection-note">
                             来る方向に近い入口を選んでください。
-                            ここから先の移動時間は事前計算した車ルートデータを使用します。
+                            ここから先の移動時間は事前計算した車ルートデータに基づく推定値です。実際の交通状況・駐車場の混雑は反映していません。
                         </p>
 
                     </div>
@@ -2174,7 +2172,7 @@
                             <input
                                 type="checkbox"
                                 name="must_visit_spots"
-                                value="{{ spot.name }}"
+                                value="{{ spot.name }}" data-owner="{{ spot.region }}"
                             >
 
                             <span>
@@ -2961,6 +2959,8 @@
         </div>
 
     </div>
+
+
 
 </body>
 </html>

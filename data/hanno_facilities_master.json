@@ -1,0 +1,1558 @@
+{
+  "region": {
+    "code": "hanno",
+    "name": "飯能",
+    "name_en": "HANNO",
+    "purpose_options": [
+      "自然・ハイキング",
+      "北欧・テーマパーク",
+      "温泉・癒やし",
+      "歴史・文化"
+    ],
+    "verified_date": "2026-11-24",
+    "schema_note": "既存の川越地域ローダーと同様に category は 観光スポット / 宿泊施設 で判定する。"
+  },
+  "facilities": [
+    {
+      "name": "天覧山",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市飯能",
+        "phone": null,
+        "stay_time_hours": 1.5
+      },
+      "description": "飯能市街地に近い標高197mの低山。山頂から飯能の街並みや関東平野を望める。",
+      "purpose_tags": [
+        "自然・ハイキング",
+        "歴史・文化"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/leisure/n007/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "散策自由",
+      "closed": "散策自由",
+      "price": 0,
+      "parking": {
+        "available": false,
+        "capacity": null,
+        "fee": null,
+        "notes": "専用駐車場なし"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "medium",
+      "safety_notes": [
+        "夜間は入山不可"
+      ],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/leisure/n007/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "多峯主山",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市",
+        "phone": null,
+        "stay_time_hours": 2.0
+      },
+      "description": "標高271m。天覧山から続けて歩ける低山で、山頂から平野部や周辺山地を見渡せる。",
+      "purpose_tags": [
+        "自然・ハイキング",
+        "歴史・文化"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/hiking/h008/",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": null,
+      "price": 0,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "要確認"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "medium",
+      "safety_notes": [
+        "登山道のため悪天候時は注意"
+      ],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/hiking/h008/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "吾妻峡",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "飯能市街地西部",
+        "address": "埼玉県飯能市",
+        "phone": null,
+        "stay_time_hours": 1.5
+      },
+      "description": "岩根橋より上流に広がる入間川の峡谷。赤岩・兎岩などの奇岩が連なる。",
+      "purpose_tags": [
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/hiking/h008/",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": null,
+      "price": 0,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "要確認"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "medium",
+      "safety_notes": [
+        "増水時は河川付近に注意"
+      ],
+      "localness_score": 18,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/hiking/h008/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "ドレミファ橋",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "吾妻峡",
+        "address": "埼玉県飯能市",
+        "phone": null,
+        "stay_time_hours": 0.5
+      },
+      "description": "吾妻峡の川の中に飛び石を並べた橋。",
+      "purpose_tags": [
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/hiking/h008/",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": null,
+      "price": 0,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "要確認"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "medium",
+      "safety_notes": [
+        "増水時は渡れない場合がある",
+        "前日や当日の大雨時は利用を避ける"
+      ],
+      "localness_score": 17,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/hiking/h008/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "能仁寺",
+      "category": "観光スポット",
+      "basic": {
+        "type": "歴史・文化",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市飯能1329",
+        "phone": "042-973-4128",
+        "stay_time_hours": 1.0
+      },
+      "description": "飯能戦争の本陣となった歴史を持つ寺院。本堂北庭に市指定文化財の庭園がある。",
+      "purpose_tags": [
+        "歴史・文化",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://noninji.net/engi.html",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": null,
+      "price": 300,
+      "parking": {
+        "available": null,
+        "capacity": null,
+        "fee": null,
+        "notes": "要確認"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "秋"
+      ],
+      "best_season": [
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 19,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/special/hanno-momiji/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "飯能市立博物館",
+      "category": "観光スポット",
+      "basic": {
+        "type": "歴史・文化",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市飯能258-1",
+        "phone": "042-972-1414",
+        "stay_time_hours": 1.25
+      },
+      "description": "飯能の歴史・自然・西川材を紹介する市立博物館。",
+      "purpose_tags": [
+        "歴史・文化"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://www.city.hanno.lg.jp/kanko_bunka_sports/museum/index.html",
+      "latitude": null,
+      "longitude": null,
+      "hours": "9:30～16:30",
+      "closed": "月曜日、祝日の翌日、1月を除く毎月第4金曜日、年末年始",
+      "price": 0,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": "無料",
+        "notes": null
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": true,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 18,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/history/c019/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "店蔵絹甚",
+      "category": "観光スポット",
+      "basic": {
+        "type": "歴史・文化",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市本町2-2",
+        "phone": "042-972-3377",
+        "stay_time_hours": 0.75
+      },
+      "description": "1904年建築の飯能市指定有形文化財。飯能の絹産業史を知ることができる。",
+      "purpose_tags": [
+        "歴史・文化"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/history/c020/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "10:00～16:00",
+      "closed": "月・火・水・木曜日",
+      "price": null,
+      "parking": {
+        "available": false,
+        "capacity": null,
+        "fee": null,
+        "notes": "専用駐車場なし"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": true,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 17,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/history/c020/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "トーベ・ヤンソンあけぼの子どもの森公園",
+      "category": "観光スポット",
+      "basic": {
+        "type": "北欧・テーマパーク",
+        "area": "阿須",
+        "address": "埼玉県飯能市大字阿須893-1",
+        "phone": "042-972-7711",
+        "stay_time_hours": 2.0
+      },
+      "description": "トーベ・ヤンソンの世界観と自然を融合した飯能市営公園。",
+      "purpose_tags": [
+        "北欧・テーマパーク",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://www.city.hanno.lg.jp/akebono/index.html",
+      "latitude": null,
+      "longitude": null,
+      "hours": "9:00～17:00",
+      "closed": "繁忙期は原則月曜、閑散期は原則月・火・水曜、年末年始12月28日～1月4日。祝日等の振替あり。",
+      "price": 0,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": "無料",
+        "notes": "無料駐車場完備"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": true,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [
+        "ハチ・ヘビ等に注意",
+        "建物内はペット同伴不可"
+      ],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_city",
+          "name": "飯能市",
+          "url": "https://www.city.hanno.lg.jp/akebono/annai/2113.html",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "ムーミンバレーパーク",
+      "category": "観光スポット",
+      "basic": {
+        "type": "北欧・テーマパーク",
+        "area": "宮沢湖",
+        "address": "埼玉県飯能市宮沢327-6 メッツァ",
+        "phone": null,
+        "stay_time_hours": 5.0
+      },
+      "description": "ムーミンの物語を主題とした有料テーマパーク。",
+      "purpose_tags": [
+        "北欧・テーマパーク",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://metsa-hanno.com/Moominvalleypark/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "日程により変動",
+      "closed": "営業カレンダーで確認",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "メッツァ駐車場"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "メッツァ公式",
+          "url": "https://metsa-hanno.com/Moominvalleypark/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "メッツァビレッジ",
+      "category": "観光スポット",
+      "basic": {
+        "type": "北欧・テーマパーク",
+        "area": "宮沢湖",
+        "address": "埼玉県飯能市宮沢327-6 メッツァ",
+        "phone": null,
+        "stay_time_hours": 3.0
+      },
+      "description": "北欧のライフスタイルや食、買い物、アクティビティを楽しめる宮沢湖畔の施設。",
+      "purpose_tags": [
+        "北欧・テーマパーク",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://metsa-hanno.com/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "平日10:00～18:00、土日祝10:00～19:00（繁忙期等は変更あり）",
+      "closed": "営業カレンダーで確認",
+      "price": 0,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "メッツァ駐車場"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "メッツァ公式FAQ",
+          "url": "https://metsa-hanno.com/faq/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "名栗湖",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "名栗",
+        "address": "埼玉県飯能市下名栗",
+        "phone": null,
+        "stay_time_hours": 1.5
+      },
+      "description": "有間ダムでせき止められた人造湖。1986年完成。湖一周約5km。",
+      "purpose_tags": [
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/leisure/n014/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "散策自由",
+      "closed": "散策自由",
+      "price": 0,
+      "parking": {
+        "available": false,
+        "capacity": null,
+        "fee": null,
+        "notes": "専用駐車場なし"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/leisure/n014/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "名栗カヌー工房",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "名栗",
+        "address": "埼玉県飯能市下名栗1817-9",
+        "phone": "042-979-1117",
+        "stay_time_hours": 2.0
+      },
+      "description": "飯能市特産の西川材を活用したカヌー製作・漕艇・木工体験施設。",
+      "purpose_tags": [
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "http://naguri-canoe.co.jp/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "9:30～16:30",
+      "closed": "水曜日、年末年始",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": true,
+      "walking_difficulty": "easy",
+      "safety_notes": [
+        "水上体験のため天候・水位等により利用条件が変わる可能性あり"
+      ],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/leisure/n003/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "有間渓谷観光釣り場",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "名栗",
+        "address": "埼玉県飯能市下名栗1811-2",
+        "phone": "042-979-0569",
+        "stay_time_hours": 3.0
+      },
+      "description": "有間川の源流を活用した観光釣り場。",
+      "purpose_tags": [
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://www.arimakeikoku.jp/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "8:00～17:00、冬季9:00～15:00",
+      "closed": "増水時・年末年始。冬季12月1日～2月28日は土・日・祝のみ営業。",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "120台",
+        "fee": "普通車500円",
+        "notes": "マイクロ1,000円、大型2,000円"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": true,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [
+        "増水時休業"
+      ],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/leisure/n001/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "Nolla naguri",
+      "category": "観光スポット",
+      "basic": {
+        "type": "北欧・テーマパーク",
+        "area": "名栗",
+        "address": "埼玉県飯能市下名栗607-1",
+        "phone": "042-978-5522",
+        "stay_time_hours": 3.0
+      },
+      "description": "名栗の自然と北欧文化を組み合わせたアウトドア拠点。",
+      "purpose_tags": [
+        "北欧・テーマパーク",
+        "自然・ハイキング",
+        "温泉・癒やし"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "http://nolla-naguri.jp/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "夏季10:00～18:00、冬季10:00～17:00（変動可能性あり）",
+      "closed": "原則なし。臨時休業あり。",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "約40台",
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 20,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/eat/g021/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "さわらびの湯",
+      "category": "観光スポット",
+      "basic": {
+        "type": "温泉・癒やし",
+        "area": "名栗",
+        "address": "埼玉県飯能市下名栗685",
+        "phone": "042-979-1212",
+        "stay_time_hours": 2.0
+      },
+      "description": "名栗地区の日帰り天然温泉。名栗湖やノーラ名栗と組み合わせやすい。",
+      "purpose_tags": [
+        "温泉・癒やし",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": null,
+      "latitude": null,
+      "longitude": null,
+      "hours": "10:00～18:00",
+      "closed": "第1水曜日（祝日を除く）※最新営業日は要確認",
+      "price": 800,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": true,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 19,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会 名栗モデルコース",
+          "url": "https://hanno-tourism.jp/wp/wp-content/uploads/2024/05/naguri_meguri.pdf",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "東郷公園",
+      "category": "観光スポット",
+      "basic": {
+        "type": "歴史・文化",
+        "area": "吾野",
+        "address": "埼玉県飯能市坂石580",
+        "phone": "042-978-0072",
+        "stay_time_hours": 1.5
+      },
+      "description": "東郷平八郎元帥にゆかりが深い奥武蔵の公園。紅葉スポットとしても知られる。",
+      "purpose_tags": [
+        "歴史・文化",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://togo-koen.jp/",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": null,
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": "紅葉期は有料の場合あり"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "秋"
+      ],
+      "best_season": [
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "medium",
+      "safety_notes": [],
+      "localness_score": 19,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会 紅葉情報",
+          "url": "https://hanno-tourism.jp/special/hanno-momiji/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "名栗川橋",
+      "category": "観光スポット",
+      "basic": {
+        "type": "歴史・文化",
+        "area": "名栗",
+        "address": "埼玉県飯能市下名栗",
+        "phone": null,
+        "stay_time_hours": 0.5
+      },
+      "description": "大正13年竣工の鉄筋コンクリートアーチ橋。埼玉県有形文化財。",
+      "purpose_tags": [
+        "歴史・文化",
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "一人",
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": "https://hanno-tourism.jp/special/sakurainfo/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "通行可能",
+      "closed": null,
+      "price": 0,
+      "parking": {
+        "available": false,
+        "capacity": null,
+        "fee": null,
+        "notes": "専用駐車場なし"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "秋"
+      ],
+      "best_season": [
+        "春",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "weather_sensitive": false,
+      "indoor": false,
+      "required_reservation": false,
+      "walking_difficulty": "easy",
+      "safety_notes": [
+        "重量制限等は現地表示に従う"
+      ],
+      "localness_score": 18,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会 桜情報",
+          "url": "https://hanno-tourism.jp/special/sakurainfo/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "たいら栗園",
+      "category": "観光スポット",
+      "basic": {
+        "type": "自然・ハイキング",
+        "area": "吾野方面",
+        "address": "埼玉県飯能市井上54-2",
+        "phone": "042-978-0327",
+        "stay_time_hours": 2.0
+      },
+      "description": "栗拾い、いも掘り、ブルーベリー摘み、石窯ピザ作り、BBQなどを楽しめる。",
+      "purpose_tags": [
+        "自然・ハイキング"
+      ],
+      "member_tags": [
+        "デート",
+        "家族",
+        "友人"
+      ],
+      "official_url": null,
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": "火曜日（GW・お盆期間除く場合あり）、年末年始",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "夏",
+        "秋"
+      ],
+      "best_season": [
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": true,
+      "weather_sensitive": true,
+      "indoor": false,
+      "required_reservation": true,
+      "walking_difficulty": "easy",
+      "safety_notes": [],
+      "localness_score": 16,
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会 まるっと飯能",
+          "url": "https://hanno-tourism.jp/wp/wp-content/uploads/2025/03/hanno_marutto_2025.3-1.pdf",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "名栗温泉 大松閣",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "温泉旅館",
+        "area": "名栗",
+        "address": "埼玉県飯能市大字下名栗917",
+        "phone": "042-979-0505"
+      },
+      "description": "名栗渓谷にある温泉旅館。客室・温泉・食事を備え、飯能の自然を楽しむ宿泊拠点として利用できる。",
+      "official_url": "https://www.taishoukaku.com/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "チェックイン15:00～／チェックアウト～10:00（プランにより異なる場合あり）",
+      "closed": null,
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "50台",
+        "fee": "無料",
+        "notes": "予約不要"
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "名栗温泉 大松閣 公式",
+          "url": "https://www.taishoukaku.com/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "休暇村 奥武蔵",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "リゾートホテル",
+        "area": "吾野",
+        "address": "埼玉県飯能市吾野72",
+        "phone": "042-978-2888"
+      },
+      "description": "豊かな森と清流に囲まれた休暇村。ホテル棟のほかログハウスがあり、露天風呂付き大浴場やレストランも利用できる。",
+      "official_url": "https://www.qkamura.or.jp/musashi/",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": null,
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "110台",
+        "fee": "無料",
+        "notes": "宿泊者等施設利用者向け"
+      },
+      "access": {
+        "car": "圏央道 狭山日高ICから約40分",
+        "public_transport": "西武秩父線 吾野駅から送迎バス約5分"
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "休暇村 奥武蔵 公式",
+          "url": "https://www.qkamura.or.jp/musashi/access/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "ホテル・ヘリテイジ飯能sta.",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "シティホテル",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市仲町11-21",
+        "phone": "042-975-1313"
+      },
+      "description": "西武池袋線飯能駅直結のシティホテル。市街地観光や奥武蔵・宮沢湖方面への観光拠点として利用しやすい。",
+      "official_url": "https://hanno-heritagehotel.com/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "チェックイン14:00／チェックアウト11:00",
+      "closed": null,
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "411台",
+        "fee": "宿泊者800円/日",
+        "notes": "西武飯能ステーションビル駐車場"
+      },
+      "access": {
+        "car": "圏央道 狭山日高ICから約8km・平常時約15分",
+        "public_transport": "西武池袋線 飯能駅直結"
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "ホテル・ヘリテイジ飯能sta. 公式",
+          "url": "https://hanno-heritagehotel.com/",
+          "verified_date": "2026-11-24"
+        },
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/stay/s002/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "奥むさし旅館",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "旅館",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市仲町24-8",
+        "phone": "042-973-2766"
+      },
+      "description": "全室和室の旅館。飯能駅から徒歩圏内で、大浴場や食事を利用できる。",
+      "official_url": "https://hpdsp.jp/Okumusashi/",
+      "latitude": null,
+      "longitude": null,
+      "hours": null,
+      "closed": "旅館は無休",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "15台",
+        "fee": "無料",
+        "notes": null
+      },
+      "access": {
+        "car": "圏央道 狭山日高ICから約15分",
+        "public_transport": "飯能駅から徒歩約8分、東飯能駅から徒歩約15分"
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "奥むさし旅館 公式",
+          "url": "https://hpdsp.jp/Okumusashi/",
+          "verified_date": "2026-11-24"
+        },
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/stay/s003/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "マロウドイン飯能",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "ビジネスホテル",
+        "area": "飯能市街地",
+        "address": "埼玉県飯能市双柳105-8",
+        "phone": "042-974-4000"
+      },
+      "description": "東飯能駅から徒歩圏内のホテル。市街地や周辺地域への観光拠点として利用しやすい。",
+      "official_url": "https://www.marroad.jp/hanno/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "チェックイン15:00／チェックアウト10:00",
+      "closed": null,
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "40台",
+        "fee": "普通車無料",
+        "notes": "先着順・予約不可。全長5m超の車両は予約制・有料"
+      },
+      "access": {
+        "car": null,
+        "public_transport": "JR八高線・西武池袋線 東飯能駅東口から徒歩約5分"
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_facility",
+          "name": "マロウドイン飯能 公式",
+          "url": "https://www.marroad.jp/hanno/faq/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "西山荘・笑美亭",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "民宿",
+        "area": "名栗",
+        "address": "埼玉県飯能市上名栗1753",
+        "phone": "042-979-0164"
+      },
+      "description": "名栗川上流の名郷にある木組みの小さな宿。季節の食材を使った料理や木の温もりを楽しめる。",
+      "official_url": "http://www.warabitei.com/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "チェックイン16:00／チェックアウト10:00",
+      "closed": null,
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "20台",
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": null,
+        "public_transport": null
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/stay/s006/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "旅荘 京都",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "旅館・宿泊施設",
+        "area": "宮沢湖",
+        "address": "埼玉県飯能市宮沢109-1",
+        "phone": "042-973-5780"
+      },
+      "description": "宮沢湖・メッツァ周辺に近いレトロな宿泊施設。和洋室を備え、ムーミンバレーパーク方面の観光拠点に向く。",
+      "official_url": null,
+      "latitude": null,
+      "longitude": null,
+      "hours": "24時間",
+      "closed": "なし",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": null,
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": "飯能駅からタクシー約15分",
+        "public_transport": "『メッツァ』停留所から徒歩約7分"
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/stay/s008/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    },
+    {
+      "name": "Alive サステナブルラボ飯能",
+      "category": "宿泊施設",
+      "basic": {
+        "type": "一棟貸し",
+        "area": "名栗",
+        "address": "埼玉県飯能市上名栗1051-4",
+        "phone": "03-6432-0220"
+      },
+      "description": "入間川沿いの森の中にある一棟貸しログハウス。最大12名まで宿泊でき、グループ旅行や合宿にも向く。",
+      "official_url": "https://alive-slab.com/",
+      "latitude": null,
+      "longitude": null,
+      "hours": "24時間",
+      "closed": "年中無休",
+      "price": null,
+      "parking": {
+        "available": true,
+        "capacity": "2台",
+        "fee": null,
+        "notes": null
+      },
+      "access": {
+        "car": "飯能駅から車で約30分、青梅ICから約40分、狭山日高ICから約50分",
+        "public_transport": "飯能駅から国際興業バスで約50分"
+      },
+      "season": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "best_season": [
+        "春",
+        "夏",
+        "秋"
+      ],
+      "seasonal_operation": false,
+      "walking_difficulty": "easy",
+      "status": "active",
+      "sources": [
+        {
+          "type": "official_tourism",
+          "name": "奥むさし飯能観光協会",
+          "url": "https://hanno-tourism.jp/stay/alive-%E3%82%B5%E3%82%B9%E3%83%86%E3%83%8A%E3%83%96%E3%83%AB%E3%83%A9%E3%83%9C%E9%A3%AF%E8%83%BD/",
+          "verified_date": "2026-11-24"
+        }
+      ]
+    }
+  ]
+}

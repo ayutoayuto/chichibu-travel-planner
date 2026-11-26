@@ -104,11 +104,13 @@
     "ちちぶ温泉 はなのや": {
       "category": "宿泊施設",
       "address": "〒369-1803 埼玉県秩父市荒川日野542",
-      "latitude": 35.985,
-      "longitude": 139.0,
-      "coordinate_source": "route_locations.json",
-      "verification_method": null,
-      "verification_level": null
+      "latitude": 35.9533956,
+      "longitude": 139.0125875,
+      "coordinate_source": "https://mapfan.com/map/spots/SCYHY%2CJ%2CB57",
+      "verification_method": "external_map_representative_position",
+      "verification_level": "provisional",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     "ちちぶ銘仙館": {
       "category": "観光スポット",
@@ -230,11 +232,13 @@
     "和銅鉱泉 ゆの宿 和どう": {
       "category": "宿泊施設",
       "address": "〒368-0001 埼玉県秩父市黒谷813",
-      "latitude": 35.999,
-      "longitude": 139.027,
-      "coordinate_source": "route_locations.json",
-      "verification_method": null,
-      "verification_level": null
+      "latitude": 36.0398915,
+      "longitude": 139.1065377,
+      "coordinate_source": "https://mapfan.com/spots/SCYHY%2CJ%2CDP4",
+      "verification_method": "external_map_representative_position",
+      "verification_level": "provisional",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     "埼玉県立自然の博物館": {
       "category": "観光スポット",
@@ -311,11 +315,13 @@
     "御宿 竹取物語": {
       "category": "宿泊施設",
       "address": "〒369-1802 埼玉県秩父市荒川上田野56",
-      "latitude": 35.983,
-      "longitude": 139.017,
-      "coordinate_source": "route_locations.json",
-      "verification_method": null,
-      "verification_level": null
+      "latitude": 35.9631309,
+      "longitude": 139.0547178,
+      "coordinate_source": "https://mapfan.com/spots/SC5CC%2CJ%2C4I0",
+      "verification_method": "external_map_representative_position",
+      "verification_level": "provisional",
+      "parking_verified": false,
+      "coordinate_status": "map_representative_position; road approach provisional"
     },
     "手打そば 武蔵屋": {
       "category": "gourmet",

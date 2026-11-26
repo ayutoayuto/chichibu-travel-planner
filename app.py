@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, g, redirect, url_for
+from threading import RLock
 from datetime import datetime, timedelta, timezone
 from urllib.parse import quote, urlencode
 import hashlib
+import math
 import itertools
 import urllib.error
 import urllib.request
@@ -17,6 +19,22 @@ except ImportError:
     psycopg = None
 
 app = Flask(__name__)
+
+# 地域データは既存設計でグローバル変数を切り替えるため、
+# 別地域の同時リクエストによる推薦・ルートの混在を防ぐ。
+_REGION_REQUEST_LOCK = RLock()
+
+@app.before_request
+def _lock_region_request():
+    _REGION_REQUEST_LOCK.acquire()
+    g._region_lock_held = True
+
+@app.teardown_request
+def _unlock_region_request(error=None):
+    if getattr(g, "_region_lock_held", False):
+        g._region_lock_held = False
+        _REGION_REQUEST_LOCK.release()
+
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
@@ -35,6 +53,11 @@ KAWAGOE_RESTAURANT_FILE = os.path.join(BASE_DIR, "data", "kawagoe_restaurants.js
 KAWAGOE_FACILITY_MASTER_FILE = os.path.join(BASE_DIR, "data", "kawagoe_facilities_master.json")
 KAWAGOE_ROUTE_LOCATION_FILE = os.path.join(BASE_DIR, "data", "kawagoe_route_locations.json")
 KAWAGOE_ROUTE_MATRIX_FILE = os.path.join(BASE_DIR, "data", "kawagoe_route_matrix.json")
+
+HANNO_FACILITY_MASTER_FILE = os.path.join(BASE_DIR, "data", "hanno_facilities_master.json")
+HANNO_RESTAURANT_FILE = os.path.join(BASE_DIR, "data", "hanno_restaurants.json")
+HANNO_ROUTE_LOCATION_FILE = os.path.join(BASE_DIR, "data", "hanno_route_locations.json")
+HANNO_ROUTE_MATRIX_FILE = os.path.join(BASE_DIR, "data", "hanno_route_matrix.json")
 
 ACTIVE_REGION_CODE = "chichibu"
 ACTIVE_REGION_NAME = "秩父"
@@ -1683,6 +1706,91 @@ def format_parking_for_display(value):
     return text if text else "情報なし"
 
 
+# 営業情報: 既存データの再利用と根拠付き補完（表示専用）
+_SCHEDULE_UPDATES = {'hanno': {'大松閣別館 山の茶屋': {'source': 'https://www.taishoukaku.com/yamanochaya/', 'checked': '2026-11-26', 'hours': '昼 11:00～15:00（L.O.14:00、コース要予約）／夜 17:00～20:00（L.O.19:30、完全予約制）', 'closed': '水・木曜日（祝日は営業）、臨時休業あり'}, 'レイクサイドテラス名栗湖': {'source': 'https://hanno-tourism.jp/eat/g015/', 'checked': '2026-11-26', 'hours': '9:00～15:00', 'closed': '火曜日、年末年始、冬季休業あり'}, 'マルトクカフェ': {'source': 'https://martokcafe.com/contact/', 'checked': '2026-11-26', 'hours': '火～金 11:00～16:00／土 11:00～17:00（公式ページ間で平日開店時刻に差あり）', 'closed': '日・月曜日'}, '雑貨＆カフェ kinoca': {'source': 'https://kinocaori.com/access/', 'checked': '2026-11-26', 'hours': '雑貨 10:00～16:00／カフェ 10:30～15:20／ランチ 11:00～14:00', 'closed': '水・木・金曜日、臨時休業あり'}, 'BBQ&Camping Kitchen BlueTarp': {'source': 'https://bluetarp.naguri.jp/', 'checked': '2026-11-26', 'hours': '11:00～15:00（BBQコースは予約制）', 'closed': '金曜日、営業カレンダーによる変更あり'}, '古民家ひらぬま': {'source': 'https://kominka-hiranuma.com/contact/', 'checked': '2026-11-26', 'hours': '10:30～16:30（L.O.16:00）', 'closed': '火・水曜日、不定休あり'}, '焼き鳥Dining 高': {'source': 'https://yakitori-taka.com/', 'checked': '2026-11-26', 'hours': '16:00～24:00（L.O.23:00）', 'closed': '定休日なし'}, '花廼家大衆割烹': {'source': 'https://hanno-tourism.com/5-Gourmet/gourmet_wasyoku-sushi.html', 'checked': '2026-11-26', 'hours': '11:00～14:00／17:00～22:00（観光協会掲載）', 'closed': '月曜日（観光協会掲載）'}, '五郎八': {'source': 'https://hanno-tourism.com/5-Gourmet/gourmet_udon-soba.html', 'checked': '2026-11-26', 'hours': '11:00～14:00／17:00～23:00（観光協会掲載）', 'closed': 'なし（観光協会掲載）'}, 'Brewery & Restaurant CARVAAN': {'source': 'https://carvaan.jp/news/1370/', 'checked': '2026-11-26', 'hours': '月火 11:30～16:30／木金 11:30～16:30・17:00～21:00／土・連休中日 11:30～22:00／日祝 11:30～21:00（2024年公式告知。最新日程要確認）', 'closed': '水曜日（臨時変更あり）'}, '休暇村 奥武蔵': {'source': 'https://www.jtb.co.jp/kokunai-hotel/htl/4101421/plan/', 'checked': '2026-11-26', 'check_in': '15:00（標準・JTB掲載）', 'check_out': '10:00（標準・JTB掲載）'}, 'そば處 長寿庵': {'source': 'https://choujuansoba.wixsite.com/choujuan', 'checked': '2026-11-26', 'hours': '通常11:00～20:00（臨時11:00～15:00との案内あり）', 'closed': '木曜日'}, 'うどん こくや': {'source': 'https://chocotabi-saitama.jp/gourmet/153818/', 'checked': '2026-11-26', 'closed': '日曜日・祝日'}, '献上飯能そば 竹むら': {'source': 'https://hanno-takemura.com/wp/access/', 'checked': '2026-11-26', 'closed': '金曜日（店舗公式掲載。不定休の観光協会案内もあるため訪問前確認）'}, 'たいら栗園': {'source': 'https://tairakurien.com/', 'checked': '2026-11-26', 'hours': '園9:00～17:00（体験別・季節別の時間あり）', 'closed': '火曜日（体験日程・祝日・臨時休業は公式告知確認）'}}, 'kawagoe': {'小川菊': {'source': 'https://www.ogakiku.com/', 'checked': '2026-11-26', 'hours': '平日 11:00～14:00／16:30～19:30（L.O.19:00）。土日祝は10:40から通し営業（終了時刻は最新告知確認）。売切・早期受付終了あり', 'closed': '木曜日（祝日除く）、不定休あり'}, 'glin coffee 元町1号店': {'source': 'https://glincoffee.jp/pages/motomachi', 'checked': '2026-11-26', 'hours': '平日 9:00～18:00／土日祝 8:00～18:00', 'closed': 'なし'}, '太陽軒': {'source': 'https://taiyouken.co.jp/access/', 'checked': '2026-11-26', 'hours': '水～日 昼11:00～15:00（L.O.14:00）／夜17:00～21:30（L.O.20:30、6名以上・電話完全予約制）', 'closed': '月・火曜日（祝日は営業）'}, '陶路子': {'source': 'https://www.touho-yamawa.co.jp/truck/', 'checked': '2026-11-26', 'hours': '10:00～17:00／ランチ11:45～15:00', 'closed': '通常水曜日（公式の臨時営業告知あり）'}, 'うなっ子': {'source': 'https://www.kawagoe.com/unakko/', 'checked': '2026-11-26', 'hours': '11:00～18:00（L.O.18:00との公式掲載。終了時刻要確認）'}, 'うんとん処 春夏秋冬': {'source': 'https://kinbue.jp/directly-administered_meals', 'checked': '2026-11-26', 'hours': '平日11:00～16:00（L.O.15:00）／土日祝11:00～17:00（L.O.15:30）', 'closed': 'なし（臨時変更あり）'}, '小川藤': {'source': 'https://www.ogatou.jp/', 'checked': '2026-11-26', 'hours': '11:30～15:00（L.O.14:45）'}, 'Te’PAN Le OMUS': {'source': 'https://kawagoe-ichibangai.com/store/omus/', 'checked': '2026-11-26', 'hours': '昼12:00～15:00（L.O.14:30）／夜17:30～23:00（料理L.O.21:00、予約制）', 'closed': '火曜日休業。金曜の営業区分は市と商店街の案内が一致しないため要確認'}}, 'chichibu': {'和銅鉱泉 ゆの宿 和どう': {'source': 'https://www.wadoh.co.jp/contact/', 'checked': '2026-11-26', 'check_in': '15:00～18:00（夕食なしは22:00まで）', 'check_out': '通常客室10:00／露天風呂付客室11:00（プラン優先）'}, '新木鉱泉旅館': {'source': 'https://www.onsen-yado.net/shisetsu/', 'checked': '2026-11-26', 'check_out': '露天風呂付・和室12畳11:00／和室8畳10:00（プラン優先）'}, 'ホテルルートインGrand秩父': {'source': 'https://www.route-inn.co.jp/hotel_list/saitama/index_hotel_id_714/parking/', 'checked': '2026-09-04', 'previous_research': True, 'hours': 'チェックイン15:00／チェックアウト10:00'}, 'アパホテル〈埼玉秩父駅前〉': {'source': 'https://www.apahotel.com/hotel/syutoken/saitama/saitama-chichibu-ekimae/', 'checked': '2026-09-04', 'previous_research': True, 'hours': 'チェックイン15:00／チェックアウト10:00'}}}
+_SCHEDULE_ORIGINAL = {'chichibu': {'長瀞・岩畳': {'hours': '屋外景勝地のため常時見学可', 'closed': 'なし（屋外）', 'source': 'https://www.nagatoro.gr.jp/faq/', 'official_url': 'https://www.nagatoro.gr.jp/faq/', 'source_checked_at': '2026-09-04'}, '長瀞ラインくだり': {'hours': '公式案内ページでは9:00～16:00。運航時間・期間は水量・天候・季節で変動', 'closed': '冬季休業等あり。増水・渇水・天候で欠航あり', 'source': 'https://www.nagatoro.gr.jp/shisetsu/nagatoro-line/', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/nagatoro-line/', 'source_checked_at': '2026-09-04'}, '宝登山': {'hours': '山・公園としては常時利用。山頂施設・ロープウェイは各施設の営業時間', 'closed': '山自体の定休日なし。各施設は別', 'source': 'https://www.nagatoro.gr.jp/robaien/', 'official_url': 'https://www.nagatoro.gr.jp/robaien/', 'source_checked_at': '2026-09-04'}, '寶登山神社': {'hours': '参拝施設。祈願・授与所等の受付時間は別途確認', 'closed': '原則なし', 'source': 'https://www.nagatoro.gr.jp/shisetsu/hodosan_jinja/', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/hodosan_jinja/', 'source_checked_at': '2026-09-04'}, '宝登山ロープウェイ': {'hours': '現行公式案内では9:40より運行。冬季は要問い合わせ。季節で終了時刻変動', 'closed': '年中無休（定期点検時休業あり）', 'source': 'https://www.nagatoro.gr.jp/shisetsu/hodosan-ropeway/', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/hodosan-ropeway/', 'source_checked_at': '2026-09-04'}, '埼玉県立自然の博物館': {'hours': '9:00～16:30（入館16:00まで）。7・8月は9:00～17:00（入館16:30まで）', 'closed': '月曜（祝休日・GW・7・8月・県民の日は開館）、12/29～1/3、臨時休館あり', 'source': 'https://www.pref.saitama.lg.jp/shisetsu/hakubutsukan/004.html?pagePrint=1', 'official_url': 'https://www.pref.saitama.lg.jp/shisetsu/hakubutsukan/004.html?pagePrint=1', 'source_checked_at': '2026-09-04'}, '月の石もみじ公園': {'hours': '常時開放', 'closed': 'なし', 'source': 'https://www.nagatoro.gr.jp/koyomatsuri2019-2/', 'official_url': 'https://www.nagatoro.gr.jp/koyomatsuri2019-2/', 'source_checked_at': '2026-09-04'}, '金石水管橋': {'hours': '屋外', 'closed': 'なし', 'source': 'https://www.nagatoro.gr.jp/%E9%87%91%E7%9F%B3%E6%B0%B4%E7%AE%A1%E6%A9%8B-01/', 'official_url': 'https://www.nagatoro.gr.jp/%E9%87%91%E7%9F%B3%E6%B0%B4%E7%AE%A1%E6%A9%8B-01/', 'source_checked_at': '2026-09-04'}, '秩父神社': {'hours': '参拝自体の開放時間は個別確認。授与所・祈願受付は別', 'closed': '原則なし', 'source': 'https://www.chichibu-jinja.or.jp/access/', 'official_url': 'https://www.chichibu-jinja.or.jp/access/', 'source_checked_at': '2026-09-04'}, '三峯神社': {'hours': '開門8:00～18:00の案内あり', 'closed': '原則なし。交通・特定日ダイヤなど要確認', 'source': 'https://www.mitsuminejinja.or.jp/koutsu/', 'official_url': 'https://www.mitsuminejinja.or.jp/koutsu/', 'source_checked_at': '2026-09-04'}, '羊山公園': {'hours': '公園は屋外。芝桜の丘は開園期間・有料期間あり', 'closed': '公園なし。芝桜の丘は期間外', 'source': 'https://navi.city.chichibu.lg.jp/p_flower/1955/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_flower/1955/', 'source_checked_at': '2026-09-04'}, '秩父ミューズパーク': {'hours': '園内施設ごとに異なる', 'closed': '施設ごと', 'source': 'https://www.pref.saitama.lg.jp/spo-navi/shisetsu/saitamaken/chichibu.html', 'official_url': 'https://www.pref.saitama.lg.jp/spo-navi/shisetsu/saitamaken/chichibu.html', 'source_checked_at': '2026-09-04'}, '旅立ちの丘': {'hours': '音楽8:00～21:00、夜間照明は日没～21:00', 'closed': 'なし（要現地確認）', 'source': 'https://navi.city.chichibu.lg.jp/p_sightseeingr/884/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_sightseeingr/884/', 'source_checked_at': '2026-09-04'}, '美の山公園': {'hours': '年中無休・常時開放', 'closed': 'なし', 'source': 'https://www.pref.saitama.lg.jp/b0504/minoyamakouen-top/riyou.html', 'official_url': 'https://www.pref.saitama.lg.jp/b0504/minoyamakouen-top/riyou.html', 'source_checked_at': '2026-09-04'}, '橋立鍾乳洞': {'hours': '8:00～17:00', 'closed': '3月1日～12月上旬のみ営業の案内。冬季休業', 'source': 'https://navi.city.chichibu.lg.jp/', 'official_url': 'https://navi.city.chichibu.lg.jp/', 'source_checked_at': '2026-09-04'}, '聖神社': {'hours': '参拝施設。通常は屋外参拝可能', 'closed': '原則なし', 'source': 'https://navi.city.chichibu.lg.jp/p_shrine/907/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_shrine/907/', 'source_checked_at': '2026-09-04'}, '秩父まつり会館': {'hours': '4～11月 9:00～17:00、12～3月 10:00～17:00。最終受付16:30', 'closed': '3～11月 第4・第5火曜、12～2月 毎週火曜、12/29～1/1。祝祭日は開館', 'source': 'https://www.chichibu-matsuri.jp/riyo/', 'official_url': 'https://www.chichibu-matsuri.jp/riyo/', 'source_checked_at': '2026-09-04'}, 'ほっとすぽっと秩父館': {'hours': '10:00～18:00という案内実績あり。最新は確認推奨', 'closed': '定休日なしとの案内実績。最新確認推奨', 'source': 'https://navi.city.chichibu.lg.jp/p_sightseeingr/861/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_sightseeingr/861/', 'source_checked_at': '2026-09-04'}, 'ちちぶ銘仙館': {'hours': '9:00～16:00。体験受付9:00～11:30、13:00～15:00', 'closed': '無休（年末年始12/29～1/3休業）', 'source': 'https://www.meisenkan.com/guide/', 'official_url': 'https://www.meisenkan.com/guide/', 'source_checked_at': '2026-09-04'}, '武甲山資料館': {'hours': '9:00～16:00', 'closed': '毎週火曜（祝日開館）、12/29～12/31、1/1～1/3', 'source': 'https://navi.city.chichibu.lg.jp/travel/ja/museum/2018/01/316/', 'official_url': 'https://navi.city.chichibu.lg.jp/travel/ja/museum/2018/01/316/', 'source_checked_at': '2026-09-04'}, '秩父ふるさと館': {'hours': '10:00～21:00。ただし店舗により異なる', 'closed': '水曜。店舗により異なる', 'source': 'https://navi.city.chichibu.lg.jp/p_sightseeingr/842/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_sightseeingr/842/', 'source_checked_at': '2026-09-04'}, '和銅遺跡': {'hours': '屋外', 'closed': 'なし。ただし立入禁止区域あり', 'source': 'https://navi.city.chichibu.lg.jp/p_history/155/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_history/155/', 'source_checked_at': '2026-09-04'}, '清雲寺': {'hours': '寺院境内。特別公開期間等は年度で確認', 'closed': 'なし', 'source': 'https://navi.city.chichibu.lg.jp/', 'official_url': 'https://navi.city.chichibu.lg.jp/', 'source_checked_at': '2026-09-04'}, '秩父華厳の滝': {'hours': '屋外', 'closed': 'なし', 'source': 'https://www.minano.gr.jp/leisure/%E7%A7%A9%E7%88%B6%E8%8F%AF%E5%8E%B3%E3%81%AE%E6%BB%9D/', 'official_url': 'https://www.minano.gr.jp/leisure/%E7%A7%A9%E7%88%B6%E8%8F%AF%E5%8E%B3%E3%81%AE%E6%BB%9D/', 'source_checked_at': '2026-09-04'}, '三十槌の氷柱': {'hours': '2026年イベント 8:30～17:00。ライトアップ 平日17:00～19:00、土休日17:00～20:00', 'closed': '2026年は2/23で終了。氷柱は年ごとに開催期間変動', 'source': 'https://navi.city.chichibu.lg.jp/p_flower/1403/', 'official_url': 'https://navi.city.chichibu.lg.jp/p_flower/1403/', 'source_checked_at': '2026-09-04'}, '小松沢レジャー農園': {'hours': '開園9:45～16:00。体験により開始・終了時間が異なる。食事11:00～15:00（L.O.14:00）', 'closed': '営業カレンダーで日ごとに確認。日によって営業しない場合あり', 'source': 'https://komatsuzawa.co.jp/access/access.html', 'official_url': 'https://komatsuzawa.co.jp/access/access.html', 'source_checked_at': '2026-09-04'}, '秩父フルーツファーム': {'hours': '9:30～16:30。ぶどう食べ放題受付10:00～15:00', 'closed': '営業日はカレンダー確認。季節変動', 'source': 'https://www.fruit-farm.jp/access/', 'official_url': 'https://www.fruit-farm.jp/access/', 'source_checked_at': '2026-09-04'}, '道の駅ちちぶ': {'hours': '9:30～17:30', 'closed': '臨時休業あり。2026年にも設備工事等の臨時休業実績', 'source': 'https://www.michinoeki-network.jp/chichibu/', 'official_url': 'https://www.michinoeki-network.jp/chichibu/', 'source_checked_at': '2026-09-04'}, '秩父温泉 満願の湯': {'hours': '10:00～21:00（最終入館20:30）', 'closed': '2026年度は6月9日～11日休館。今後の休館は公式告知を確認。', 'source': 'https://www.chichibuonsen.co.jp/shisetsu/', 'official_url': 'https://www.chichibuonsen.co.jp/shisetsu/', 'source_checked_at': '2026-09-04'}, '大滝温泉': {'hours': '日帰り温泉『遊湯館』。最新営業時刻は公式道の駅サイト・秩父市で確認', 'closed': '木曜等の定休日情報あり。臨時休館もあるため利用日確認必須', 'source': 'https://www.city.chichibu.lg.jp/3167.html', 'official_url': 'https://www.city.chichibu.lg.jp/3167.html', 'source_checked_at': '2026-09-04'}, '和銅鉱泉 ゆの宿 和どう': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://www.wadoh.co.jp/access/', 'official_url': 'https://www.wadoh.co.jp/access/', 'source_checked_at': '2026-09-04'}, '新木鉱泉旅館': {'hours': '受付8:00～21:00', 'closed': '毎週木曜日。ただし繁忙期・連休・メンテナンス等で変更あり。', 'source': 'https://www.onsen-yado.net/access/', 'official_url': 'https://www.onsen-yado.net/access/', 'source_checked_at': '2026-09-04'}, 'NIPPONIA 秩父 門前町': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://nipponia-chichibu.jp/', 'official_url': 'https://nipponia-chichibu.jp/', 'source_checked_at': '2026-09-04'}, 'ホテルルートインGrand秩父': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://www.route-inn.co.jp/hotel_list/saitama/index_hotel_id_714/parking/', 'official_url': 'https://www.route-inn.co.jp/hotel_list/saitama/index_hotel_id_714/parking/', 'source_checked_at': '2026-09-04'}, 'ホテルルートイン西武秩父駅前': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://www.route-inn.co.jp/hotel_list/saitama/index_hotel_id_60/parking/', 'official_url': 'https://www.route-inn.co.jp/hotel_list/saitama/index_hotel_id_60/parking/', 'source_checked_at': '2026-09-04'}, 'アパホテル〈埼玉秩父駅前〉': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://www.apahotel.com/hotel/syutoken/saitama/saitama-chichibu-ekimae/', 'official_url': 'https://www.apahotel.com/hotel/syutoken/saitama/saitama-chichibu-ekimae/', 'source_checked_at': '2026-09-04'}, 'ホテル美やま': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://www.miyama-onsen.com/access.asp', 'official_url': 'https://www.miyama-onsen.com/access.asp', 'source_checked_at': '2026-09-04'}, '旅館 比与志': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://www.chichibuji.gr.jp/hotel/hotel-syousai02/', 'official_url': 'https://www.chichibuji.gr.jp/hotel/hotel-syousai02/', 'source_checked_at': '2026-09-04'}, 'ちちぶ温泉 はなのや': {'hours': '宿泊施設。チェックイン/アウトは施設・プラン別', 'closed': '宿泊プラン・営業カレンダーで確認', 'source': 'https://chichibu-resort.com/hananoya/access/', 'official_url': 'https://chichibu-resort.com/hananoya/access/', 'source_checked_at': '2026-09-04'}, 'PICA秩父': {'hours': 'フロント営業時間：月7:30～21:00、火7:30～21:00、水7:30～10:00、木定休、金9:00～21:00、土7:30～21:00、日7:30～21:00。日によって変動する場合あり。', 'closed': '木曜定休の基本案内あり。ただしフロント営業時間・営業日は日付で変動する場合があるため予約カレンダーを優先。', 'source': 'https://www.pica-resort.jp/chichibu/access.html', 'official_url': 'https://www.pica-resort.jp/chichibu/access.html', 'source_checked_at': '2026-09-04'}, '御宿 竹取物語': {'hours': '9:00～22:00', 'closed': '毎週火曜・水曜', 'source': 'https://www.oyadotaketori.com/', 'official_url': 'https://www.oyadotaketori.com/', 'source_checked_at': '2026-09-04'}, '豚みそ丼本舗 野さか': {'hours': '11:00～15:00（豚みそ漬けがなくなり次第終了）', 'closed': '公式サイト掲載の2026年9月臨時休業日に注意', 'official_url': 'https://www.butamisodon.jp/', 'source_checked_at': '2026-09-04'}, '名物 秩父そば 立花': {'hours': '月・火・金・土・日 11:00～15:00／水 11:00～14:15', 'closed': '木曜日', 'official_url': 'https://chichibusoba.net/', 'source_checked_at': '2026-09-04'}, '田舎屋': {'hours': '11:00～21:00', 'closed': '不定休', 'official_url': 'https://akr5598080266.owst.jp/', 'source_checked_at': '2026-09-04'}, 'TRAGHETTO（トラゲット）': {'hours': '11:00～15:00、17:00～21:00', 'closed': '年中無休（年末年始を除く）', 'official_url': 'https://traghetto.owst.jp/', 'source_checked_at': '2026-09-04'}, '和味処 えん': {'hours': '11:30～14:00、17:00～22:00', 'closed': '木曜日', 'official_url': 'http://www.soba-en.com/', 'source_checked_at': '2026-09-04'}, 'そば処 まるた': {'hours': '11:30～16:00（なくなり次第終了）', 'closed': '木曜日', 'official_url': '公式URLを今回確認できず', 'source_checked_at': '2026-09-04'}, 'やなぎや': {'hours': '11:00～14:30 L.O.または売切まで', 'closed': '木・金曜日（祝日は営業）', 'official_url': 'https://soba-ya.co.jp/', 'source_checked_at': '2026-09-04'}, '武蔵屋本店': {'hours': '売店9:00～18:00／そば処11:00～16:00（16:00以降予約のみ、8名様～）', 'closed': '毎週火曜日', 'official_url': 'http://www.chichibu-soba.com/', 'source_checked_at': '2026-09-04'}, '本格手打 わへいそば': {'hours': '11:00～18:00（売り切れ次第終了）', 'closed': '毎週木曜日', 'official_url': 'http://www.waheisoba.gr.jp/', 'source_checked_at': '2026-09-04'}, 'そば処 大むら': {'hours': '平日11:30～14:30／土日祝11:30～14:30、17:00～19:30', 'closed': '毎週水曜日', 'official_url': '公式URLを今回確認できず', 'source_checked_at': '2026-09-04'}, '手打そば 武蔵屋': {'hours': '平日11:00～16:00／土日祝11:00～15:00', 'closed': '毎週火曜日', 'official_url': 'http://www.chichibu-musashiya.co.jp/', 'source_checked_at': '2026-09-04'}, '大むら本店': {'hours': '11:00～15:00（L.O.14:30）、17:00～20:00（L.O.19:30）', 'closed': '毎週水曜日', 'official_url': '公式URLを今回確認できず', 'source_checked_at': '2026-09-04'}, 'そばの杜': {'hours': '11:30～14:30（夜営業は予約）', 'closed': '毎週水曜日', 'official_url': 'http://www.sobanomori.net/', 'source_checked_at': '2026-09-04'}, '秩父そば 昌楽 道の駅店': {'hours': '10:00～18:00', 'closed': '無休との掲載情報', 'official_url': 'http://chichibu-syouraku.com/', 'source_checked_at': '2026-09-04'}, '高砂ホルモン': {'hours': '平日17:00～20:00／土曜16:30～20:00／日曜16:30～19:00', 'closed': '火・木曜日', 'official_url': '公式URLを今回確認できず', 'source_checked_at': '2026-09-04'}, 'かつ屋まんてん': {'hours': '11:30～14:00、17:30～20:00', 'closed': '月曜日', 'official_url': '公式URLを今回確認できず', 'source_checked_at': '2026-09-04'}, '空＆閑': {'hours': '10:30～17:00との公式LINE情報', 'closed': '茶館 閑は火・水定休との公式LINE情報', 'official_url': 'https://www.kuandkan.com/', 'source_checked_at': '2026-09-04'}, '焼き肉＆ホルモン あっとほ～む': {'hours': '月・水～日 11:00～15:00（L.O.14:30）／月・水・木・日 17:00～23:00（L.O.22:30）／金・土 17:00～24:00（L.O.23:30）', 'closed': '火曜日', 'official_url': '公式URLを今回確認できず', 'source_checked_at': '2026-09-04'}, '長瀞屋': {'hours': '11:00～15:00', 'closed': '木曜定休・月曜不定休', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/nagatoroya/', 'source_checked_at': '2026-09-04'}, 'そば処 うちだ': {'hours': '10:30～15:00', 'closed': '金曜日', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/%E3%81%9D%E3%81%B0%E5%87%A6%E3%80%80%E3%81%86%E3%81%A1%E3%81%A0/', 'source_checked_at': '2026-09-04'}, 'お豆ふ処 うめだ屋': {'hours': '10:30～17:30', 'closed': '水曜日（祝日の場合は営業）', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/%E3%81%8A%E8%B1%86%E3%81%B5%E5%87%A6%E3%81%86%E3%82%81%E3%81%A0%E5%B1%8B/', 'source_checked_at': '2026-09-04'}, '豚みそ丼専門店 有隣': {'hours': '10:30～16:00', 'closed': '火曜日・水曜日', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/%E8%B1%9A%E3%81%BF%E3%81%9D%E4%B8%BC%E5%B0%82%E9%96%80%E5%BA%97%E3%80%80%E6%9C%89%E9%9A%A3/', 'source_checked_at': '2026-09-04'}, '天狗鮨': {'hours': '11:30～13:30／16:30～22:00', 'closed': '水曜日', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/tengusushi/', 'source_checked_at': '2026-09-04'}, '阿左美冷蔵 寶登山道店': {'hours': '10:00～17:00頃', 'closed': '火曜日', 'official_url': 'https://www.nagatoro.gr.jp/outletticket/%E9%98%BF%E5%B7%A6%E7%BE%8E%E5%86%B7%E8%94%B5%E3%80%80%E5%AF%B6%E7%99%BB%E5%B1%B1%E9%81%93%E5%BA%97/', 'source_checked_at': '2026-09-04'}, 'ジビエ料理の千葉亭 Gibier Dining Chibatei': {'hours': '11:00～21:00（8月31日までは20:00まで）', 'closed': '火曜日', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/chibatei/', 'source_checked_at': '2026-09-04'}, '楓庵': {'hours': '11:00～15:00', 'closed': '火曜日・水曜日', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/kaedean/', 'source_checked_at': '2026-09-04'}, '見晴': {'hours': '9:00～17:00', 'closed': '不定休', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/%E8%A6%8B%E6%99%B4/', 'source_checked_at': '2026-09-04'}, '芋うらら 長瀞店': {'hours': '10:00～17:00', 'closed': '火曜日', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/%E8%8A%8B%E3%81%86%E3%82%89%E3%82%89%E3%80%80%E9%95%B7%E7%80%9E%E5%BA%97/', 'source_checked_at': '2026-09-04'}, 'いちごと抹茶 長瀞みるくスタンド': {'hours': '10:00～17:00', 'closed': '月曜日（G.W、夏休み期間は無休）', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/%E3%81%84%E3%81%A1%E3%81%94%E3%81%A8%E6%8A%B9%E8%8C%B6%E3%80%80%E9%95%B7%E7%80%9E%E3%81%BF%E3%82%8B%E3%81%8F%E3%82%B9%E3%82%BF%E3%83%B3%E3%83%89/', 'source_checked_at': '2026-09-04'}, 'お食事処 さくらい': {'hours': '要予約', 'closed': '不定休', 'official_url': 'https://www.nagatoro.gr.jp/shisetsu/sakurai/', 'source_checked_at': '2026-09-04'}}, 'kawagoe': {'時の鐘': {'hours': '屋外からの見学。鐘つきは1日4回（6:00・12:00・15:00・18:00）', 'closed': 'なし（屋外）', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011562.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011562.html'}, '蔵造りの町並み': {'hours': '屋外の町並みのため常時見学可', 'closed': 'なし（屋外）', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011559.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011559.html'}, '菓子屋横丁': {'hours': '通りは常時通行可。各店舗の営業時間は店舗ごとに異なる', 'closed': '各店舗による', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011568.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011568.html'}, '川越まつり会館': {'hours': '4～9月 9:30～18:30（入館18:00まで）／10～3月 9:30～17:30（入館17:00まで）', 'closed': '第2・第4水曜日（休日の場合翌日）、年末年始12/29～1/1、臨時休館', 'source': 'https://www.kawagoematsuri.jp/matsurimuseum/index.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.kawagoematsuri.jp/matsurimuseum/index.html'}, '旧山崎家別邸': {'hours': '4～9月 9:30～18:30（入館18:00まで）／10～3月 9:30～17:30（入館17:00まで）', 'closed': '第1・第3水曜日（休日の場合翌日）、年末年始12/29～1/1、臨時休館', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011563.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011563.html'}, '小江戸蔵里': {'hours': '明治蔵10:00～18:00／大正蔵 平日11:00～15:00・17:00～22:00、休日11:00～22:00／昭和蔵11:00～19:00', 'closed': '休業日なし', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011564/1011566.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011564/1011566.html'}, '蓮馨寺': {'hours': '境内参拝可。個別施設の受付時間は公式情報要確認', 'closed': '原則なし', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011569.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011569.html'}, '大正浪漫夢通り': {'hours': '通りは常時通行可。各店舗の営業時間は店舗ごとに異なる', 'closed': '各店舗による', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011570.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011557/1011570.html'}, '川越熊野神社': {'hours': '参拝可。御朱印帳への直書きは16:40まで、17:00までは書き置きのみ（公式案内）', 'closed': '原則なし', 'source': 'https://www.kawagoekumano.jp/aboutus/', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.kawagoekumano.jp/aboutus/'}, '川越城本丸御殿': {'hours': '9:00～17:00（入館16:30まで）', 'closed': '月曜日（休日の場合は翌平日）、第4金曜日（休日除く）、年末年始12/29～1/3、臨時休館', 'source': 'https://www.city.kawagoe.saitama.jp/museum/honmaru/1011573.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/museum/honmaru/1011573.html'}, '川越市立博物館': {'hours': '9:00～17:00（入館16:30まで）', 'closed': '月曜日（休日の場合翌日）、第4金曜日（休日除く）、年末年始12/29～1/3、臨時休館', 'source': 'https://www.city.kawagoe.saitama.jp/museum/1013701/1013703.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/museum/1013701/1013703.html'}, '川越市立美術館': {'hours': '9:00～17:00（入場16:30まで）', 'closed': '月曜日（休日の場合翌火曜日）、年末年始12/29～1/3、特別整理期間', 'source': 'https://www.city.kawagoe.saitama.jp/artmuseum/a-info/1013686.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/artmuseum/a-info/1013686.html'}, '三芳野神社': {'hours': '境内参拝可', 'closed': '原則なし', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011572/1011580.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011572/1011580.html'}, '川越氷川神社': {'hours': '参拝可。授与所等の詳細時間は公式情報要確認', 'closed': '原則なし', 'source': 'https://www.kawagoehikawa.jp/access/', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.kawagoehikawa.jp/access/'}, '川越城中ノ門堀跡': {'hours': '9:00～17:00', 'closed': '年末年始12/29～1/3。都合により変更あり', 'source': 'https://www.city.kawagoe.saitama.jp/kurashi/bunka/1003787/1004082.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kurashi/bunka/1003787/1004082.html'}, '喜多院': {'hours': '3/1～11/23 平日8:50～16:30・日祝8:50～16:50／11/24～2月末 平日8:50～16:00・日祝8:50～16:20', 'closed': '公式情報要確認', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011583/1011584.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011583/1011584.html'}, '仙波東照宮': {'hours': '境内参拝可。社殿公開等の詳細は公式情報要確認', 'closed': '公式情報要確認', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011583/1011585.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011583/1011585.html'}, '中院': {'hours': '境内参拝可。詳細時間は公式情報要確認', 'closed': '原則なし', 'source': 'https://yugyou.nakain.com/access_m.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://yugyou.nakain.com/access_m.html'}, '成田山川越別院': {'hours': '参拝可。詳細時間は公式情報要確認', 'closed': '原則なし', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011583/1011587.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011583/1011587.html'}, '川越八幡宮': {'hours': '電話受付案内9:00～17:00。参拝は境内状況に従う', 'closed': '原則なし', 'source': 'https://www.kawagoe-hachimangu.net/', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.kawagoe-hachimangu.net/'}, '伊佐沼': {'hours': '屋外のため常時見学可', 'closed': 'なし（屋外）', 'source': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011589/1011594.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kanko/k-spots/1011589/1011594.html'}, '国指定史跡 河越館跡': {'hours': '史跡公園として見学可。詳細開園時間は公式ページで次段階確認', 'closed': '公式情報要確認', 'source': 'https://www.city.kawagoe.saitama.jp/kurashi/bunka/1003787/1003798/1003800/1003823.html', 'source_checked_at': '2026-11-18', 'official_url': 'https://www.city.kawagoe.saitama.jp/kurashi/bunka/1003787/1003798/1003800/1003823.html'}, '松村屋旅館': {'hours': 'チェックイン15:00（最終は宿泊プラン優先、公式案内では21:00/FAQでは22:00までの案内あり）／チェックアウト11:00', 'closed': '宿泊プラン・営業状況で確認', 'source': 'https://coedomatsumuraya.com/', 'official_url': 'https://coedomatsumuraya.com/', 'source_checked_at': '2026-11-18'}, '川越ビジネスホテル': {'hours': 'チェックイン15:00／チェックアウト10:00', 'closed': '営業日・空室状況は予約時に確認', 'source': 'https://kawagoe-hotel-ryokan.com/hotels/kawagoe-business.html', 'official_url': 'https://kawagoe-hotel-ryokan.com/hotels/kawagoe-business.html', 'source_checked_at': '2026-11-18'}, '川越東武ホテル': {'hours': 'チェックイン15:00／チェックアウト11:00（2026年12月1日チェックイン分以降の新規予約は15:00から）', 'closed': '通常営業。法定点検等による臨時休館は公式お知らせを確認', 'source': 'https://www.tobuhotel.co.jp/kawagoe2020/', 'official_url': 'https://www.tobuhotel.co.jp/kawagoe2020/', 'source_checked_at': '2026-11-18'}, '川越第一ホテル': {'hours': 'チェックイン15:00／チェックアウト10:00', 'closed': '営業日・空室状況は予約時に確認', 'source': 'https://www.kawagoe-dai1.com/', 'official_url': 'https://www.kawagoe-dai1.com/', 'source_checked_at': '2026-11-18'}, '川越プリンスホテル': {'hours': 'チェックイン・チェックアウトは宿泊プランで確認', 'closed': '通常営業。最新の営業情報は公式サイト確認', 'source': 'https://www.princehotels.co.jp/kawagoe/', 'official_url': 'https://www.princehotels.co.jp/kawagoe/', 'source_checked_at': '2026-11-18'}, '川越湯遊ランド・ホテル三光': {'hours': 'チェックイン・チェックアウトは宿泊プランで確認', 'closed': '営業日・設備メンテナンス情報は公式サイト確認', 'source': 'https://kawagoe-yuyu.com/', 'official_url': 'https://kawagoe-yuyu.com/', 'source_checked_at': '2026-11-18'}, 'デイリーホテル小江戸川越店': {'hours': 'チェックイン15:00／閉門1:00／チェックアウト10:00', 'closed': '営業状況は公式サイト・予約画面で確認', 'source': 'https://dailyhotel.jp/', 'official_url': 'https://dailyhotel.jp/', 'source_checked_at': '2026-11-18'}, 'UTILITY HOTEL cooju': {'hours': 'チェックイン・チェックアウトは宿泊プランで確認', 'closed': '営業状況は公式サイト確認', 'source': 'https://www.cooju.jp/kawagoe/', 'official_url': 'https://www.cooju.jp/kawagoe/', 'source_checked_at': '2026-11-18'}, 'スーパーホテル埼玉・川越': {'hours': 'チェックイン15:00／チェックアウト10:00', 'closed': '営業状況は公式サイト確認', 'source': 'https://www.superhotel.co.jp/s_hotels/kawagoe/', 'official_url': 'https://www.superhotel.co.jp/s_hotels/kawagoe/', 'source_checked_at': '2026-11-18'}, '旅籠 小江戸や': {'hours': 'チェックイン16:00～24:00／チェックアウト10:00', 'closed': '営業状況は公式予約画面で確認', 'source': 'https://hatago-coedoya.com/', 'official_url': 'https://hatago-coedoya.com/', 'source_checked_at': '2026-11-18'}, '泊まれるリラクゼーションサロン ゆきき': {'hours': 'チェックイン17:00～19:00／チェックアウト10:00', 'closed': 'サロンは不定休。宿泊は予約状況による', 'source': 'https://yu-kiki.com/inn/', 'official_url': 'https://yu-kiki.com/inn/', 'source_checked_at': '2026-11-18'}, 'ちゃぶだい Guesthouse, Cafe&Bar': {'hours': 'チェックイン16:30～22:00／チェックアウト10:00', 'closed': '水曜定休の案内あり。宿泊予約状況は公式サイト確認', 'source': 'https://chabudai-kawagoe.com/', 'official_url': 'https://chabudai-kawagoe.com/', 'source_checked_at': '2026-11-18'}, '小江戸川越おもてなしの家': {'hours': 'チェックイン15:00～17:00／チェックアウト10:00', 'closed': '営業・空室状況は予約時に確認', 'source': 'https://www.d-refine.com/omotenashi/', 'official_url': 'https://www.d-refine.com/omotenashi/', 'source_checked_at': '2026-11-18'}, '月の宿 KAGUYA': {'hours': 'セルフチェックイン。チェックイン・アウト時刻は予約内容で確認', 'closed': '営業・空室状況は公式予約画面確認', 'source': 'https://tsukinoyado.jp/', 'official_url': 'https://tsukinoyado.jp/', 'source_checked_at': '2026-11-18'}, 'WE HOME STAY 川越・的場': {'hours': 'チェックイン15:00～21:00／チェックアウト10:00', 'closed': '2027年1月末閉館予定の案内あり。予約可能日を必ず確認', 'source': 'https://wehome-stay.com/kawagoematoba/', 'official_url': 'https://wehome-stay.com/kawagoematoba/', 'source_checked_at': '2026-11-18'}, '結家 -MUSUBIYA-': {'hours': 'チェックイン15:00～17:00／チェックアウト10:00', 'closed': '営業日カレンダーを公式案内・Instagramで確認', 'source': 'https://www.musubiya.site/', 'official_url': 'https://www.musubiya.site/', 'source_checked_at': '2026-11-18'}, '丹徳庭園': {'hours': 'チェックイン16:00／チェックアウト11:00', 'closed': '宿泊定休日は月曜日。繁忙期は月曜日営業の場合あり', 'source': 'https://tantoku.jp/stay/', 'official_url': 'https://tantoku.jp/stay/', 'source_checked_at': '2026-11-18'}, 'ゲストハウスくく 川越店': {'hours': 'チェックイン16:00／チェックアウト11:00', 'closed': '予約状況・スタッフ不在時間等を公式案内で確認', 'source': 'https://gh-kuku-kawagoe.com/', 'official_url': 'https://gh-kuku-kawagoe.com/', 'source_checked_at': '2026-11-18'}, '小川菊': {'hours': '営業時間は店舗公式で利用日前に確認', 'closed': '定休日は店舗公式で利用日前に確認', 'official_url': 'https://www.ogakiku.com/', 'source_checked_at': '2026-11-18'}, '林屋': {'hours': '11:00～L.O.16:00（観光協会『Discover Taste of Kawagoe』掲載）', 'closed': '火曜日（観光協会掲載）', 'official_url': 'https://nasu-hayashiya.co.jp/store/kawagoe/', 'source_checked_at': '2026-11-18'}, 'いちのや': {'hours': '曜日により昼・夜営業。利用日前に公式サイトで確認', 'closed': '営業カレンダーを公式サイトで確認', 'official_url': 'http://www.unagi-ichinoya.jp/', 'source_checked_at': '2026-11-18'}, '東屋': {'hours': '営業時間は利用前に店舗へ確認', 'closed': '定休日・不定休は利用前に店舗へ確認', 'official_url': 'https://koedo.or.jp/category/food/%E3%81%86%E3%81%AA%E3%81%8E%E6%96%99%E7%90%86/', 'source_checked_at': '2026-11-18'}, '小川藤': {'hours': '営業時間は店舗公式で利用日前に確認', 'closed': '定休日は店舗公式で利用日前に確認', 'official_url': 'https://koedo.or.jp/spot_026/', 'source_checked_at': '2026-11-18'}, 'ぽんぽこ亭': {'hours': '11:00～14:00／17:00～20:45', 'closed': '火曜日', 'official_url': 'https://ponpokotei.com/', 'source_checked_at': '2026-11-18'}, 'うなっ子': {'hours': '営業時間は公式サイトで利用日前に確認', 'closed': '定休日は公式サイトで利用日前に確認', 'official_url': 'https://koedo.or.jp/spot_031/', 'source_checked_at': '2026-11-18'}, '寿庵 蔵のまち店': {'hours': '11:15～（L.O.19:00）', 'closed': '水曜日', 'official_url': 'http://www.kawagoe.com/kotobukian', 'source_checked_at': '2026-11-18'}, '陶路子': {'hours': '営業時間は公式サイトで利用日前に確認', 'closed': '定休日は公式サイトで確認', 'official_url': 'http://www.touho-yamawa.co.jp', 'source_checked_at': '2026-11-18'}, '十限無': {'hours': '11:00～15:00／18:00～21:00', 'closed': '水曜日・第3木曜日', 'official_url': 'https://koedo.or.jp/spot_183/', 'source_checked_at': '2026-11-18'}, '浪漫茶房 右門': {'hours': '11:00～L.O.16:00', 'closed': '年末年始', 'official_url': 'https://imokoi.com/', 'source_checked_at': '2026-11-18'}, '郷土ぐるめ 開運亭': {'hours': '11:00～L.O.17:00', 'closed': '月曜日・第3火曜日', 'official_url': 'https://koedo.or.jp/feel-edo-culture/assets/link_pdf/discover-taste-of-kawagoe.pdf', 'source_checked_at': '2026-11-18'}, 'HATSUNEYA GARDEN': {'hours': 'Restaurant Lunch 11:30～15:00（L.O.14:00）／Dinner 17:30～21:00（L.O.19:00）', 'closed': '火曜日', 'official_url': 'https://hatsuneya.jp/', 'source_checked_at': '2026-11-18'}, '料亭 山屋': {'hours': '11:30～14:00／17:00～21:00', 'closed': '月曜日＋不定期で週1日', 'official_url': 'https://ryoutei-yamaya.com/', 'source_checked_at': '2026-11-18'}, 'すぺいん亭': {'hours': '営業時間は公式サイトで利用日前に確認', 'closed': '定休日は公式サイトで利用日前に確認', 'official_url': 'https://www.spainteikawagoe.com/', 'source_checked_at': '2026-11-18'}, '太陽軒': {'hours': '営業時間は店舗公式で利用日前に確認', 'closed': '定休日は店舗公式で利用日前に確認', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, '吉寅': {'hours': '営業時間は店舗公式で利用日前に確認', 'closed': '定休日は店舗公式で利用日前に確認', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, '頑者 本店': {'hours': '11:30～16:20（観光協会ガイド掲載。最新は公式確認）', 'closed': '日曜日（観光協会ガイド掲載。最新は公式確認）', 'official_url': 'https://www.ganja.co.jp/', 'source_checked_at': '2026-11-18'}, 'ミオ・カザロ 川越 蔵のまち店': {'hours': '10:00～18:00（観光協会ガイド掲載。最新は公式確認）', 'closed': '不定休・最新は公式確認', 'official_url': 'https://www.miocasalo.co.jp/', 'source_checked_at': '2026-11-18'}, 'glin coffee 元町1号店': {'hours': '営業時間は公式サイトで利用日前に確認', 'closed': '定休日は公式サイトで確認', 'official_url': 'https://glincoffee.jp/', 'source_checked_at': '2026-11-18'}, 'une brise': {'hours': '11:00～17:00', 'closed': '月曜日（祝日の場合は次の平日）', 'official_url': 'https://unebrise.owst.jp/', 'source_checked_at': '2026-11-18'}, 'あぶり珈琲': {'hours': '営業時間は公式情報で利用日前に確認', 'closed': '定休日は公式情報で確認', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, '1901 TEA SALON': {'hours': '営業時間は店舗公式・SNSで利用日前に確認', 'closed': '定休日は店舗公式・SNSで確認', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, '川越ベーカリー楽楽': {'hours': '営業時間は店舗公式で利用日前に確認', 'closed': '定休日は店舗公式で確認', 'official_url': 'https://www.bakery-rakuraku.com/', 'source_checked_at': '2026-11-18'}, 'うんとん処 春夏秋冬': {'hours': '営業時間は金笛川越店公式で利用日前に確認', 'closed': '定休日は公式サイトで確認', 'official_url': 'https://www.kinbue.jp/', 'source_checked_at': '2026-11-18'}, '海鮮料理 近長魚店': {'hours': '営業時間は店舗へ利用日前に確認', 'closed': '水曜日（観光協会案内）', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, '甘味茶房 かすが': {'hours': '営業時間は店舗へ利用日前に確認', 'closed': '定休日は店舗へ確認', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, 'Te’PAN Le OMUS': {'hours': '営業時間は公式情報で利用日前に確認', 'closed': '定休日は公式情報で確認', 'official_url': 'https://koedo.or.jp/', 'source_checked_at': '2026-11-18'}, '日本料理 美鈴': {'hours': '完全予約制。時間は予約時に確認', 'closed': '営業日は予約時に確認', 'official_url': 'https://www.misuzu1935.net/', 'source_checked_at': '2026-11-18'}, '和創菜と四季のすし 風凛': {'hours': '営業時間は店舗公式・予約ページで利用日前に確認', 'closed': '定休日は店舗公式・予約ページで確認', 'official_url': 'https://wasousaitoshikinosushifurin.gorp.jp/', 'source_checked_at': '2026-11-18'}}, 'hanno': {'天覧山': {'official_url': 'https://hanno-tourism.jp/leisure/n007/', 'hours': '散策自由', 'closed': '散策自由', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/leisure/n007/', 'verified_date': '2026-11-24'}]}, '多峯主山': {'official_url': 'https://hanno-tourism.jp/hiking/h008/', 'hours': None, 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/hiking/h008/', 'verified_date': '2026-11-24'}]}, '吾妻峡': {'official_url': 'https://hanno-tourism.jp/hiking/h008/', 'hours': None, 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/hiking/h008/', 'verified_date': '2026-11-24'}]}, 'ドレミファ橋': {'official_url': 'https://hanno-tourism.jp/hiking/h008/', 'hours': None, 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/hiking/h008/', 'verified_date': '2026-11-24'}]}, '能仁寺': {'official_url': 'https://noninji.net/engi.html', 'hours': None, 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/special/hanno-momiji/', 'verified_date': '2026-11-24'}]}, '飯能市立博物館': {'official_url': 'https://www.city.hanno.lg.jp/kanko_bunka_sports/museum/index.html', 'hours': '9:30～16:30', 'closed': '月曜日、祝日の翌日、1月を除く毎月第4金曜日、年末年始', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/history/c019/', 'verified_date': '2026-11-24'}]}, '店蔵絹甚': {'official_url': 'https://hanno-tourism.jp/history/c020/', 'hours': '10:00～16:00', 'closed': '月・火・水・木曜日', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/history/c020/', 'verified_date': '2026-11-24'}]}, 'トーベ・ヤンソンあけぼの子どもの森公園': {'official_url': 'https://www.city.hanno.lg.jp/akebono/index.html', 'hours': '9:00～17:00', 'closed': '繁忙期は原則月曜、閑散期は原則月・火・水曜、年末年始12月28日～1月4日。祝日等の振替あり。', 'sources': [{'type': 'official_city', 'name': '飯能市', 'url': 'https://www.city.hanno.lg.jp/akebono/annai/2113.html', 'verified_date': '2026-11-24'}]}, 'ムーミンバレーパーク': {'official_url': 'https://metsa-hanno.com/Moominvalleypark/', 'hours': '日程により変動', 'closed': '営業カレンダーで確認', 'sources': [{'type': 'official_facility', 'name': 'メッツァ公式', 'url': 'https://metsa-hanno.com/Moominvalleypark/', 'verified_date': '2026-11-24'}]}, 'メッツァビレッジ': {'official_url': 'https://metsa-hanno.com/', 'hours': '平日10:00～18:00、土日祝10:00～19:00（繁忙期等は変更あり）', 'closed': '営業カレンダーで確認', 'sources': [{'type': 'official_facility', 'name': 'メッツァ公式FAQ', 'url': 'https://metsa-hanno.com/faq/', 'verified_date': '2026-11-24'}]}, '名栗湖': {'official_url': 'https://hanno-tourism.jp/leisure/n014/', 'hours': '散策自由', 'closed': '散策自由', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/leisure/n014/', 'verified_date': '2026-11-24'}]}, '名栗カヌー工房': {'official_url': 'http://naguri-canoe.co.jp/', 'hours': '9:30～16:30', 'closed': '水曜日、年末年始', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/leisure/n003/', 'verified_date': '2026-11-24'}]}, '有間渓谷観光釣り場': {'official_url': 'https://www.arimakeikoku.jp/', 'hours': '8:00～17:00、冬季9:00～15:00', 'closed': '増水時・年末年始。冬季12月1日～2月28日は土・日・祝のみ営業。', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/leisure/n001/', 'verified_date': '2026-11-24'}]}, 'Nolla naguri': {'official_url': 'http://nolla-naguri.jp/', 'hours': '夏季10:00～18:00、冬季10:00～17:00（変動可能性あり）', 'closed': '原則なし。臨時休業あり。', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/eat/g021/', 'verified_date': '2026-11-24'}]}, 'さわらびの湯': {'official_url': None, 'hours': '10:00～18:00', 'closed': '第1水曜日（祝日を除く）※最新営業日は要確認', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会 名栗モデルコース', 'url': 'https://hanno-tourism.jp/wp/wp-content/uploads/2024/05/naguri_meguri.pdf', 'verified_date': '2026-11-24'}]}, '東郷公園': {'official_url': 'https://togo-koen.jp/', 'hours': None, 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会 紅葉情報', 'url': 'https://hanno-tourism.jp/special/hanno-momiji/', 'verified_date': '2026-11-24'}]}, '名栗川橋': {'official_url': 'https://hanno-tourism.jp/special/sakurainfo/', 'hours': '通行可能', 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会 桜情報', 'url': 'https://hanno-tourism.jp/special/sakurainfo/', 'verified_date': '2026-11-24'}]}, 'たいら栗園': {'official_url': None, 'hours': None, 'closed': '火曜日（GW・お盆期間除く場合あり）、年末年始', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会 まるっと飯能', 'url': 'https://hanno-tourism.jp/wp/wp-content/uploads/2025/03/hanno_marutto_2025.3-1.pdf', 'verified_date': '2026-11-24'}]}, '名栗温泉 大松閣': {'official_url': 'https://www.taishoukaku.com/', 'hours': 'チェックイン15:00～／チェックアウト～10:00（プランにより異なる場合あり）', 'closed': None, 'sources': [{'type': 'official_facility', 'name': '名栗温泉 大松閣 公式', 'url': 'https://www.taishoukaku.com/', 'verified_date': '2026-11-24'}]}, '休暇村 奥武蔵': {'official_url': 'https://www.qkamura.or.jp/musashi/', 'hours': None, 'closed': None, 'sources': [{'type': 'official_facility', 'name': '休暇村 奥武蔵 公式', 'url': 'https://www.qkamura.or.jp/musashi/access/', 'verified_date': '2026-11-24'}]}, 'ホテル・ヘリテイジ飯能sta.': {'official_url': 'https://hanno-heritagehotel.com/', 'hours': 'チェックイン14:00／チェックアウト11:00', 'closed': None, 'sources': [{'type': 'official_facility', 'name': 'ホテル・ヘリテイジ飯能sta. 公式', 'url': 'https://hanno-heritagehotel.com/', 'verified_date': '2026-11-24'}, {'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/stay/s002/', 'verified_date': '2026-11-24'}]}, '奥むさし旅館': {'official_url': 'https://hpdsp.jp/Okumusashi/', 'hours': None, 'closed': '旅館は無休', 'sources': [{'type': 'official_facility', 'name': '奥むさし旅館 公式', 'url': 'https://hpdsp.jp/Okumusashi/', 'verified_date': '2026-11-24'}, {'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/stay/s003/', 'verified_date': '2026-11-24'}]}, 'マロウドイン飯能': {'official_url': 'https://www.marroad.jp/hanno/', 'hours': 'チェックイン15:00／チェックアウト10:00', 'closed': None, 'sources': [{'type': 'official_facility', 'name': 'マロウドイン飯能 公式', 'url': 'https://www.marroad.jp/hanno/faq/', 'verified_date': '2026-11-24'}]}, '西山荘・笑美亭': {'official_url': 'http://www.warabitei.com/', 'hours': 'チェックイン16:00／チェックアウト10:00', 'closed': None, 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/stay/s006/', 'verified_date': '2026-11-24'}]}, '旅荘 京都': {'official_url': None, 'hours': '24時間', 'closed': 'なし', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/stay/s008/', 'verified_date': '2026-11-24'}]}, 'Alive サステナブルラボ飯能': {'official_url': 'https://alive-slab.com/', 'hours': '24時間', 'closed': '年中無休', 'sources': [{'type': 'official_tourism', 'name': '奥むさし飯能観光協会', 'url': 'https://hanno-tourism.jp/stay/alive-%E3%82%B5%E3%82%B9%E3%83%86%E3%83%8A%E3%83%96%E3%83%AB%E3%83%A9%E3%83%9C%E9%A3%AF%E8%83%BD/', 'verified_date': '2026-11-24'}]}, '手打ちそば処 せいたろう': {'hours': '11:00～14:30（夜は予約・宴会のみ）', 'closed': '水曜日', 'official_url': 'https://hanno-tourism.jp/eat/g003/', 'verified_date': '2026-11-24'}, '手打ちそば・うどん 青田や': {'hours': '11:00～15:00', 'closed': '月～金曜日（2026年4月1日以降、土日のみ営業）', 'official_url': 'https://hanno-tourism.jp/eat/g001/', 'verified_date': '2026-11-24'}, 'うどん ゆずの庄': {'hours': '11:00～15:00', 'closed': '火・水曜日、冬季不定休（1月・2月休業）', 'official_url': 'https://hanno-tourism.jp/eat/g006/', 'verified_date': '2026-11-24'}, '清河園・蜻蛉亭': {'hours': '11:30～15:00（LO14:00）／17:00～22:00（LO20:30）', 'closed': '年末年始を除き無休', 'official_url': 'http://www.seikaen-tonbotei.jp/', 'verified_date': '2026-11-24'}, '極和美膳 暖らん': {'hours': '11:00～15:00／17:00～21:30', 'closed': '月曜日（祝日を除く）', 'official_url': 'http://danran-hanno.jimdo.com/', 'verified_date': '2026-11-24'}, 'レストラン HAMA': {'hours': '平日11:00～15:00／土日祝11:00～15:00・17:00～20:00', 'closed': '火曜日、第3水曜日、臨時休業あり', 'official_url': 'http://www.ha-ma.net/', 'verified_date': '2026-11-24'}, 'COUNTRY CAFE ターニップ': {'hours': '11:00～15:00（LO14:30）／17:00～20:00（LO19:30）', 'closed': '水・木曜日', 'official_url': 'https://hanno-tourism.jp/eat/g013/', 'verified_date': '2026-11-24'}, 'Cafe&Shop YAMASEMI': {'hours': '夏季10:00～18:00／冬季10:00～17:00', 'closed': 'なし（施設点検等で臨時休業あり）', 'official_url': 'http://nolla-naguri.jp/', 'verified_date': '2026-11-24'}, 'レイクサイドテラス名栗湖': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/eat/g015/', 'verified_date': '2026-11-24'}, '喫茶＆ギャラリー 名栗の杜': {'hours': '10:30～17:00', 'closed': '火・水・木曜日', 'official_url': 'http://n-mori.info/', 'verified_date': '2026-11-24'}, 'おくむら茶屋': {'hours': '平日9:00～16:00／土日祝8:00～17:00', 'closed': '不定休', 'official_url': 'https://foodplace.jp/okumura/', 'verified_date': '2026-11-24'}, 'まるよね 伊勢屋': {'hours': '8:30～19:30', 'closed': '月曜日', 'official_url': 'https://hanno-tourism.jp/eat/g029/', 'verified_date': '2026-11-24'}, '大里屋本店': {'hours': '8:30～17:00', 'closed': '月曜日（祝祭日は営業）', 'official_url': 'https://hanno-tourism.jp/eat/g026/', 'verified_date': '2026-11-24'}, '御菓子処 亀屋': {'hours': '9:00～19:00', 'closed': '月曜日（休日の場合は翌平日）', 'official_url': 'https://hanno-tourism.jp/eat/g023/', 'verified_date': '2026-11-24'}, 'Brewery & Restaurant CARVAAN': {'hours': '曜日により異なる', 'closed': None, 'official_url': 'https://carvaan.jp/', 'verified_date': '2026-11-24'}, 'そば處 長寿庵': {'hours': '11:00～15:00', 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, 'うどん こくや': {'hours': '11:00～14:10', 'closed': None, 'official_url': None, 'verified_date': '2026-11-24'}, '献上飯能そば 竹むら': {'hours': '11:30～15:00', 'closed': None, 'official_url': None, 'verified_date': '2026-11-24'}, 'マルトクカフェ': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '雑貨＆カフェ kinoca': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, 'BBQ&Camping Kitchen BlueTarp': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '古民家ひらぬま': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '大松閣別館 山の茶屋': {'hours': None, 'closed': None, 'official_url': 'https://www.taishoukaku.com/', 'verified_date': '2026-11-24'}, '花廼家大衆割烹': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '五郎八': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '古民家レストラン ぽれぽれ': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '山里の古民家レストラン むつみ': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, 'Spice＆Curry タットゥカダ': {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, "Café Y's Garden": {'hours': None, 'closed': None, 'official_url': 'https://hanno-tourism.jp/tourismassociation/about/', 'verified_date': '2026-11-24'}, '焼き鳥Dining 高': {'hours': '16:00～24:00', 'closed': None, 'official_url': None, 'verified_date': '2026-11-24'}, 'ムーミン谷の食堂': {'hours': 'ムーミンバレーパーク営業時間に準ずる', 'closed': '営業カレンダーに準ずる', 'official_url': 'https://metsa-hanno.com/place/', 'verified_date': '2026-11-24'}, 'Market hall 1F フードエリア': {'hours': '店舗ごとに異なる', 'closed': '営業カレンダーに準ずる', 'official_url': 'https://metsa-hanno.com/place/32874/', 'verified_date': '2026-11-24'}, 'マクドナルド 299バイパス飯能店': {'hours': '7:00～23:00', 'closed': '年中無休', 'official_url': 'https://map.mcdonalds.co.jp/map/11724', 'verified_date': '2026-11-24'}}}
+
+
+def _schedule_text(value):
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    if value.lower() in {"", "none", "null", "nan", "-", "情報なし", "公式情報なし", "未確認", "不明", "要確認"}:
+        return None
+    return value
+
+
+def _schedule_specific(value):
+    if not value:
+        return False
+    return not (value.startswith(("営業時間は", "定休日は", "定休日・不定休は", "公式情報要確認", "要確認")) and ("確認" in value))
+
+
+def _schedule_hotel_time(text, field):
+    if not text:
+        return None
+    label = "チェックイン" if field == "check_in" else "チェックアウト"
+    # Only explicitly labelled times; never infer from front desk opening hours.
+    m = re.search(label + r"\s*[：:]?\s*([～〜~]?\s*\d{1,2}[:：]\d{2}(?:\s*[～〜~]\s*(?:\d{1,2}[:：]\d{2})?)?)", text)
+    if not m:
+        return None
+    # Preserve the whole original text, including room/plan conditions and exceptions.
+    return text
+
+
+def _schedule_records(place):
+    if not isinstance(place, dict):
+        return []
+    name = place.get("name")
+    region = _CROSS_OWNERS.get(name, ACTIVE_REGION_CODE) if ACTIVE_REGION_CODE == "cross" else ACTIVE_REGION_CODE
+    override = _SCHEDULE_UPDATES.get(region, {}).get(name, {})
+    master = facility_master.get(name, {}) if name else {}
+    food = next((r for r in restaurants if r.get("name") == name), {}) if name else {}
+    original = _SCHEDULE_ORIGINAL.get(region, {}).get(name, {})
+    return [override, master, food, place, original]
+
+
+def _schedule_resolve(place, field):
+    aliases = {"hours": ("hours", "business_hours"), "closed": ("closed", "master_closed", "regular_holiday"), "check_in": ("check_in", "checkin"), "check_out": ("check_out", "checkout")}
+    fallback = None
+    for record in _schedule_records(place):
+        if not isinstance(record, dict):
+            continue
+        for key in aliases.get(field, (field,)):
+            value = _schedule_text(record.get(key))
+            if value and _schedule_specific(value):
+                return value, record
+            if value and fallback is None:
+                fallback = (value, record)
+        if field in ("check_in", "check_out"):
+            for key in ("checkin_checkout", "hours"):
+                value = _schedule_hotel_time(_schedule_text(record.get(key)), field)
+                if value:
+                    return value, record
+    return fallback or ("要確認（施設公式情報）", {})
+
+
+@app.template_global()
+def facility_schedule_value(place, field):
+    return _schedule_resolve(place, field)[0]
+
+
+@app.template_global()
+def facility_schedule_source(place, field):
+    value, record = _schedule_resolve(place, field)
+    url = record.get("source") or record.get("official_url")
+    checked = record.get("checked") or record.get("source_checked_at") or record.get("verified_date")
+    if not isinstance(url, str) or not url.startswith(("https://", "http://")):
+        url = None
+    if not url and isinstance(record.get("sources"), list):
+        for source in record["sources"]:
+            if isinstance(source, dict) and str(source.get("url", "")).startswith(("https://", "http://")):
+                url = source["url"]
+                checked = checked or source.get("verified_date")
+                break
+    return {"url": url, "checked": checked, "label": "今回照合" if record.get("checked") == "2026-11-26" else "既存登録情報"}
+
+
 def normalize_place_for_display(item):
     """
     結果表示に使う施設dictを正規化。
@@ -1707,6 +1815,10 @@ def get_trip_style(member, purpose, age):
         purpose
         or []
     )
+
+    if ACTIVE_REGION_CODE == "hanno":
+        themes = "・".join(purpose or []) or "自然と文化"
+        return f"{member}で楽しむ飯能の{themes}旅"
 
     if ACTIVE_REGION_CODE == "kawagoe":
 
@@ -2355,7 +2467,8 @@ def calculate_chichibu_spot_score(
     walking_amount="普通",
     travel_pace="普通",
     season=None,
-    travel_date=""
+    travel_date="",
+    start_point=None
 ):
     name = str(
         spot.get(
@@ -2406,6 +2519,9 @@ def calculate_chichibu_spot_score(
     ) = _chichibu_access_score(
         spot
     )
+
+    if start_point is not None:
+        access_score, access_reason = _hanno_departure_access_score(start_point, spot)
 
     (
         itinerary_score,
@@ -3087,7 +3203,8 @@ def calculate_kawagoe_spot_score(
     walking_amount="普通",
     travel_pace="普通",
     season=None,
-    travel_date=""
+    travel_date="",
+    start_point=None
 ):
     name = str(
         spot.get(
@@ -3172,6 +3289,9 @@ def calculate_kawagoe_spot_score(
         access_reason = (
             "移動にはやや時間の確保が必要"
         )
+
+    if start_point is not None:
+        access_score, access_reason = _hanno_departure_access_score(start_point, spot)
 
     itinerary_score, itinerary_reason = (
         _kawagoe_itinerary_score(
@@ -3285,6 +3405,211 @@ def calculate_kawagoe_spot_score(
     if kawagoe_score >= 18:
         reasons.append(
             "川越らしさを強く感じられる"
+        )
+
+    if access_score >= 9:
+        reasons.append(
+            "旅程に組み込みやすい立地"
+        )
+
+    # 既存関数との互換用。評価には使わない。
+    _ = car
+    _ = age
+    _ = people
+    _ = budget
+    _ = gender
+    _ = walking_amount
+    _ = travel_pace
+
+    return (
+        total_score,
+        reasons,
+        breakdown
+    )
+
+def calculate_hanno_spot_score(
+    spot,
+    member,
+    purpose,
+    car,
+    age,
+    people,
+    days,
+    budget,
+    gender,
+    walking_amount="普通",
+    travel_pace="普通",
+    season=None,
+    travel_date="",
+    start_point=None
+):
+    name = str(
+        spot.get(
+            "name",
+            ""
+        )
+    ).strip()
+
+    tags = spot.get("tags", [])
+    members = spot.get("member_tags", [])
+    profile = {
+        "purpose": {p: (30 if tags and p == tags[0] else 25 if p in tags else 0) for p in HANNO_PURPOSES},
+        "member": {m: (18 if m in members else 8) for m in ("一人", "デート", "家族", "友人")},
+        "kawagoe": spot.get("localness_score", 10),
+        "access": 9 if spot.get("car") else 6,
+    }
+
+    purpose_score, purpose_reason = (
+        _kawagoe_purpose_score(
+            profile,
+            purpose
+        )
+    )
+
+    member_score, member_reason = (
+        _kawagoe_member_score(
+            profile,
+            member
+        )
+    )
+
+    kawagoe_score = int(
+        profile.get(
+            "kawagoe",
+            10
+        )
+        or 0
+    )
+
+    if kawagoe_score >= 18:
+        kawagoe_reason = (
+            "飯能を代表する観光資源としての特色が強い"
+        )
+    elif kawagoe_score >= 14:
+        kawagoe_reason = (
+            "飯能の自然・文化・景観を感じやすい"
+        )
+    else:
+        kawagoe_reason = (
+            "飯能観光の一要素として組み込みやすい"
+        )
+
+    # 飯能のみ: 選択した出発地点からの実道路行列の補正時間を利用。
+    # 10点満点を維持。時間帯の閾値は観光計画用の設定値であり実測評価ではない。
+    access_score, access_reason = _hanno_departure_access_score(start_point, spot)
+
+    itinerary_score, itinerary_reason = (
+        _kawagoe_itinerary_score(
+            spot,
+            days
+        )
+    )
+
+    (
+        season_score,
+        season_reason,
+        unavailable
+    ) = _kawagoe_season_score(
+        spot,
+        season,
+        travel_date
+    )
+
+    if unavailable:
+        return (
+            -900,
+            [
+                "旅行予定日の営業条件に合わない"
+            ],
+            [
+                _score_item_with_max(
+                    "season",
+                    "季節・旅行時期",
+                    0,
+                    10,
+                    season_reason
+                )
+            ]
+        )
+
+    breakdown = [
+        _score_item_with_max(
+            "purpose",
+            "旅行目的との相性",
+            purpose_score,
+            30,
+            purpose_reason
+        ),
+        _score_item_with_max(
+            "member",
+            "旅行メンバーとの相性",
+            member_score,
+            20,
+            member_reason
+        ),
+        _score_item_with_max(
+            "localness",
+            "飯能らしさ",
+            kawagoe_score,
+            20,
+            kawagoe_reason
+        ),
+        _score_item_with_max(
+            "access",
+            "アクセス・移動",
+            access_score,
+            10,
+            access_reason
+        ),
+        _score_item_with_max(
+            "days",
+            "旅行日程への組み込みやすさ",
+            itinerary_score,
+            10,
+            itinerary_reason
+        ),
+        _score_item_with_max(
+            "season",
+            "季節・旅行時期",
+            season_score,
+            10,
+            season_reason
+        ),
+    ]
+
+    total_score = sum(
+        int(
+            item.get(
+                "score",
+                0
+            )
+        )
+        for item in breakdown
+    )
+
+    total_score = max(
+        0,
+        min(
+            100,
+            total_score
+        )
+    )
+
+    reasons = []
+
+    if purpose_score >= 25:
+        reasons.append(
+            "旅行目的との相性が高い"
+        )
+
+    if member_score >= 18:
+        reasons.append(
+            f"{member}旅行に向いている"
+        )
+
+    if kawagoe_score >= 18:
+        reasons.append(
+            "飯能らしさを強く感じられる"
         )
 
     if access_score >= 9:
@@ -3561,6 +3886,76 @@ def _load_kawagoe_dataset():
 
 KAWAGOE_DATASET = _load_kawagoe_dataset()
 
+# 飯能: 既存の川越変換形式・共通旅程作成処理へ接続する。
+HANNO_PURPOSES = ["自然・ハイキング", "北欧・テーマパーク", "温泉・癒やし", "歴史・文化"]
+HANNO_HOTEL_PURPOSE_TAGS = {
+    "名栗温泉 大松閣": ["自然・ハイキング", "温泉・癒やし"],
+    "休暇村 奥武蔵": ["自然・ハイキング", "温泉・癒やし"],
+    "西山荘・笑美亭": ["自然・ハイキング"],
+    "Alive サステナブルラボ飯能": ["自然・ハイキング"],
+}
+
+def _load_hanno_dataset():
+    master = _safe_load_json(HANNO_FACILITY_MASTER_FILE)
+    food = _safe_load_json(HANNO_RESTAURANT_FILE)
+    location_data = _safe_load_json(HANNO_ROUTE_LOCATION_FILE)
+    matrix = _safe_load_json(HANNO_ROUTE_MATRIX_FILE)
+    facilities = master.get("facilities", [])
+    excluded = set(location_data.get("excluded_locations", {}))
+    locations = location_data.get("route_locations", {})
+    routes = matrix.get("routes", {})
+    # 61地点・全方向の計算結果が揃わなければ飯能を公開しない。
+    expected = {x["name"] for x in facilities} | {x["name"] for x in food.get("restaurants", []) if x["name"] not in excluded} | {"飯能駅", "狭山日高IC"}
+    ready = (excluded == {"ラス・フィンカス"} and len(expected) == 61
+             and set(locations) == expected and set(routes) == expected
+             and set(matrix.get("locations", {})) == expected
+             and matrix.get("available_pair_count") == 3660)
+    if ready:
+        import math
+        try:
+            ready = all(routes[a][b].get("available") is True
+                        and all(math.isfinite(float(routes[a][b][k])) and float(routes[a][b][k]) >= 0 for k in ("distance_meters", "duration_seconds"))
+                        for a in expected for b in expected if a != b)
+        except (KeyError, TypeError, ValueError):
+            ready = False
+    result = {"spots": [], "hotels": [], "restaurants": [], "facility_master": {},
+              "route_locations": locations, "route_matrix_data": matrix, "route_matrix_routes": routes, "ready": ready}
+    for raw in facilities:
+        name = raw["name"]
+        item = dict(raw)
+        basic = item.get("basic") or {}
+        item.update({"address": basic.get("address"), "phone": basic.get("phone"), "type": basic.get("type"), "area": basic.get("area")})
+        point = locations.get(name, {})
+        item.update({k: point[k] for k in ("latitude", "longitude") if k in point})
+        result["facility_master"][name] = item
+        if raw.get("category") == "観光スポット":
+            x = _kawagoe_facility_to_spot(item)
+            x.update(tags=list(raw.get("purpose_tags", [])), member_tags=list(raw.get("member_tags", [])),
+                     localness_score=raw.get("localness_score", 10), area=basic.get("area", "飯能"),
+                     car=(raw.get("parking") or {}).get("available") is True or name in {"天覧山", "能仁寺", "トーベ・ヤンソンあけぼの子どもの森公園", "ムーミンバレーパーク", "メッツァビレッジ"})
+            result["spots"].append(x)
+        elif raw.get("category") == "宿泊施設":
+            x = _kawagoe_facility_to_hotel(item)
+            x.update(tags=HANNO_HOTEL_PURPOSE_TAGS.get(name, []), area=basic.get("area", "飯能"))
+            result["hotels"].append(x)
+        else:
+            continue
+        x.update({k: item.get(k) for k in ("latitude", "longitude", "parking", "access", "walking_difficulty")})
+        x.update(master_closed=item.get("closed"), master_status=item.get("status"), master_address=item.get("address"))
+    for raw in food.get("restaurants", []):
+        name = raw["name"]
+        if name in excluded or name == "ラス・フィンカス":
+            continue
+        x = dict(raw)
+        point = locations.get(name, {})
+        x.update({k: point[k] for k in ("latitude", "longitude") if k in point})
+        x["url"] = x.get("official_url", "")
+        result["restaurants"].append(x)
+    return result
+
+HANNO_DATASET = _load_hanno_dataset()
+
+
 
 REGION_CONFIG = {
     "chichibu": {
@@ -3612,7 +4007,37 @@ REGION_CONFIG = {
         ],
         "dataset": KAWAGOE_DATASET,
     },
+    "hanno": {
+        "name": "飯能", "name_en": "HANNO",
+        "weather_lat": 35.851208, "weather_lon": 139.320114,
+        "arrival_labels": {"狭山日高IC": "圏央道方面から（狭山日高IC）", "飯能駅": "市街地方面から（飯能駅周辺）"},
+        "default_arrival": "狭山日高IC",
+        "purpose_options": [{"value": p, "label": p} for p in HANNO_PURPOSES],
+        "dataset": HANNO_DATASET,
+    },
 }
+
+
+def _departure_routes_ready(config, name):
+    """選択値と往復の行列データを検証。別の入口への代替はしない。"""
+    if name not in config["arrival_labels"]:
+        return False
+    data = config["dataset"]
+    matrix = data["route_matrix_data"]
+    locations = matrix.get("locations", {})
+    routes = data["route_matrix_routes"]
+    if name not in locations or name not in routes:
+        return False
+    names = {item.get("name") for key in ("spots", "hotels", "restaurants")
+             for item in data[key] if item.get("name")}
+    # 既存地域の一部の施設データにルートが未登録の場合も、
+    # 出発地点そのものの正当性と登録済み地点への接続は必ず確認する。
+    registered = names & set(locations)
+    return bool(registered) and all(
+        routes.get(name, {}).get(other, {}).get("available") is True and
+        routes.get(other, {}).get(name, {}).get("available") is True
+        for other in registered if other != name
+    )
 
 
 def activate_region(region_code):
@@ -3812,7 +4237,7 @@ def _map_context(item):
 
         parts.extend(
             [
-                "秩父",
+                ACTIVE_REGION_NAME,
                 "埼玉県",
                 "日本"
             ]
@@ -4012,10 +4437,10 @@ def _route_coordinates(place):
 
         if isinstance(matrix_location, dict):
             lat = _valid_coordinate(
-                matrix_location.get("latitude")
+                matrix_location.get("route_latitude", matrix_location.get("latitude"))
             )
             lng = _valid_coordinate(
-                matrix_location.get("longitude")
+                matrix_location.get("route_longitude", matrix_location.get("longitude"))
             )
 
             if lat is not None and lng is not None:
@@ -4053,10 +4478,10 @@ def _route_coordinates(place):
 
         if isinstance(matrix_location, dict):
             lat = _valid_coordinate(
-                matrix_location.get("latitude")
+                matrix_location.get("route_latitude", matrix_location.get("latitude"))
             )
             lng = _valid_coordinate(
-                matrix_location.get("longitude")
+                matrix_location.get("route_longitude", matrix_location.get("longitude"))
             )
 
             if lat is not None and lng is not None:
@@ -4233,7 +4658,7 @@ def _google_maps_directions_url(
         "api": "1",
         "origin": origin_text,
         "destination": destination_text,
-        "travelmode": "driving"
+        "travelmode": "walking" if profile == "foot-walking" else "driving"
     }
 
     return (
@@ -4243,6 +4668,17 @@ def _google_maps_directions_url(
     )
 
 
+def _route_map_query(name):
+    """車の到着座標を優先し、施設表示座標とは分離する。"""
+    record = route_matrix_data.get("locations", {}).get(name, {})
+    for lat_key, lon_key in (("route_latitude", "route_longitude"), ("latitude", "longitude")):
+        lat = _valid_coordinate(record.get(lat_key))
+        lon = _valid_coordinate(record.get(lon_key))
+        if lat is not None and lon is not None:
+            return f"{lat},{lon}"
+    return f"{name} {ACTIVE_REGION_NAME} 埼玉県 日本"
+
+
 def _route_display_text(
     place
 ):
@@ -4250,11 +4686,8 @@ def _route_display_text(
     外部地図リンク表示用の地点名を作る。
     """
 
-    if isinstance(
-        place,
-        str
-    ):
-        return place
+    if isinstance(place, str):
+        return _route_map_query(place)
 
     if not isinstance(
         place,
@@ -4336,95 +4769,69 @@ _ROUTE_CACHE = {}
 TOUR_DRIVING_SPEED_KMH = {
     "chichibu": 30.0,
     "kawagoe": 25.0,
+    "hanno": 30.0,  # 秩父同様の郊外・山間部を含む暫定観光速度
 }
 
 TOUR_DRIVING_ACCESS_BUFFER_SECONDS = 120
 
 
-def _realistic_driving_duration_seconds(
-    distance_meters,
-    raw_duration_seconds
-):
-    """
-    観光プラン用に車移動時間を現実寄りへ補正する。
+def _route_endpoint_region(name):
+    # 地域別採点の一時的な ACTIVE_REGION_CODE の切替に依存しない。
+    return globals().get("_CROSS_OWNERS", {}).get(_segment_name(name), ACTIVE_REGION_CODE)
 
-    補正時間 =
-        距離 ÷ 地域別平均旅行速度
-        + 2分
 
-    元のOSMnx時間より短くしない。
-    最終的に1分単位で切り上げる。
-    """
-    try:
-        distance_meters = max(
-            0.0,
-            float(distance_meters)
-        )
+def _driving_time_method(origin, destination):
+    a, b = _route_endpoint_region(origin), _route_endpoint_region(destination)
+    if a != b:
+        return "cross_osm_time_with_access_buffer"
+    return "regional_tourism_speed_floor"
 
-        raw_duration_seconds = max(
-            0.0,
-            float(raw_duration_seconds)
-        )
 
-    except (
-        TypeError,
-        ValueError
-    ):
-        return raw_duration_seconds
+def _realistic_driving_duration_seconds(distance_meters, raw_duration_seconds, origin=None, destination=None):
+    """同じ区間は評価・日程・表示で同じ計画時間を使う。
+    地域内は従来の補正。地域間は道路別OSM推定時間に従来の余裕2分を加える。
+    実測やリアルタイム交通状況ではない。"""
+    meters, raw = float(distance_meters), float(raw_duration_seconds)
+    if not all(math.isfinite(x) and x >= 0 for x in (meters, raw)):
+        raise ValueError("invalid route metrics")
+    if meters <= 0:
+        return int(round(raw))
+    if _driving_time_method(origin, destination) == "cross_osm_time_with_access_buffer":
+        corrected = raw + TOUR_DRIVING_ACCESS_BUFFER_SECONDS
+    else:
+        speed = TOUR_DRIVING_SPEED_KMH.get(_route_endpoint_region(origin), 30.0)
+        corrected = max(raw, meters / 1000.0 / speed * 3600.0 + TOUR_DRIVING_ACCESS_BUFFER_SECONDS)
+    return 60 * math.ceil(corrected / 60)
 
-    if distance_meters <= 0:
-        return int(
-            round(
-                raw_duration_seconds
-            )
-        )
 
-    average_speed_kmh = (
-        TOUR_DRIVING_SPEED_KMH.get(
-            ACTIVE_REGION_CODE,
-            30.0
-        )
-    )
+def _matrix_plan_seconds(a, b, raw):
+    transfer = _local_transfer(a, b, raw)
+    if transfer:
+        return transfer[1]
+    return _realistic_driving_duration_seconds(round(float(raw["distance_meters"])), round(float(raw["duration_seconds"])), a, b)
 
-    speed_based_seconds = (
-        (
-            distance_meters
-            /
-            1000.0
-        )
-        /
-        average_speed_kmh
-        *
-        3600.0
-    )
 
-    corrected_seconds = max(
-        raw_duration_seconds,
-        (
-            speed_based_seconds
-            +
-            TOUR_DRIVING_ACCESS_BUFFER_SECONDS
-        )
-    )
+# 公式に徒歩時間が示されている施設間のみ確定情報として扱う。
+_LOCAL_WALK_TIMES = {
+    frozenset(("名栗温泉 大松閣", "大松閣別館 山の茶屋")): 60,
+}
 
-    # 表示が「約0分」にならないよう、
-    # 観光用の補正時間は1分単位で切り上げる。
-    corrected_seconds = int(
-        (
-            int(
-                corrected_seconds
-            )
-            +
-            59
-        )
-        //
-        60
-        *
-        60
-    )
+def _local_transfer(a, b, raw):
+    if a == b:
+        return None
+    seconds = _LOCAL_WALK_TIMES.get(frozenset((a, b)))
+    if seconds is not None:
+        return ("徒歩", seconds, "official_walk_time", "foot-walking")
+    method = raw.get("calculation_method", "road_network")
+    meters = float(raw["distance_meters"])
+    # 10mは要確認の抽出基準であり、徒歩経路の認定基準ではない。
+    if meters <= 10 or method in {"shared_road_arrival", "same_coordinate_same_node", "same_node_nearby_estimate"}:
+        estimated = _realistic_driving_duration_seconds(round(meters), round(float(raw["duration_seconds"])), a, b)
+        return ("現地移動（要確認）", estimated, "local_transfer_unverified", None)
+    return None
 
-    return corrected_seconds
-
+def _local_transfer_query(name):
+    return f"{name} {ACTIVE_REGION_NAME} 埼玉県 日本"
 
 def calculate_route_between(
     origin,
@@ -4457,6 +4864,7 @@ def calculate_route_between(
             "duration_text": "0分",
             "source": "OpenStreetMap + OSMnx local route matrix",
             "calculation_method": "same_location",
+            "mode_label": "移動なし",
             "is_estimate": False,
             "maps_url": _google_maps_directions_url(
                 _route_display_text(origin),
@@ -4522,14 +4930,24 @@ def calculate_route_between(
         )
 
         duration_seconds = (
-            _realistic_driving_duration_seconds(
-                distance_meters,
-                raw_duration_seconds
-            )
+            _matrix_plan_seconds(origin_name, destination_name, matrix_route)
         )
 
     except (TypeError, ValueError):
         return None
+
+    transfer = _local_transfer(origin_name, destination_name, matrix_route)
+    if transfer:
+        mode, seconds, method, profile = transfer
+        return {
+            "available": True, "distance_meters": None, "distance_km": None,
+            "distance_text": "距離未確認", "distance_known": False,
+            "duration_seconds": seconds, "duration_minutes": round(seconds / 60, 1),
+            "duration_text": _format_duration(seconds) if profile else "時間未確認（計画値 " + _format_duration(seconds) + "）",
+            "mode_label": mode, "calculation_method": method, "is_estimate": True,
+            "source": "https://www.taishoukaku.com/yamanochaya/" if profile else "道路接続位置のみ確認済み",
+            "maps_url": _google_maps_directions_url(_local_transfer_query(origin_name), _local_transfer_query(destination_name), profile) if profile else "",
+        }
 
     route_data = {
         "available": True,
@@ -4549,7 +4967,7 @@ def calculate_route_between(
             raw_duration_seconds
         ),
         "duration_adjustment_method": (
-            "tourism_realistic_driving_time"
+            _driving_time_method(origin_name, destination_name)
         ),
         "duration_minutes": round(
             duration_seconds / 60,
@@ -4563,7 +4981,7 @@ def calculate_route_between(
             "calculation_method",
             "road_network"
         ),
-        "is_estimate": False,
+        "is_estimate": True,
         "maps_url": _google_maps_directions_url(
             _route_display_text(origin),
             _route_display_text(destination),
@@ -4587,6 +5005,19 @@ def calculate_route_between(
     _ = walking_amount
 
     return route_data
+
+
+def _hanno_departure_access_score(start_point, spot):
+    if start_point not in REGION_CONFIG[ACTIVE_REGION_CODE]["arrival_labels"] and not (start_point in START_POINT_OPTIONS and start_point in _CROSS_OWNERS):
+        raise ValueError(f"{ACTIVE_REGION_NAME}の出発地点が指定されていません")
+    name = _segment_name(spot)
+    route = calculate_route_between(start_point, name, "あり", "普通")
+    if route is None:
+        # ルート未登録施設を高評価にしない。日程作成時も未取得経路は除外。
+        return 0, f"{start_point}からの道路行列が未登録"
+    minutes = route["duration_seconds"] / 60
+    score = next((points for limit, points in ((10,10),(20,8),(30,6),(45,4),(60,2)) if minutes <= limit), 1)
+    return score, f"{start_point}から車で約{minutes:g}分（道路行列・観光用時間補正）"
 
 
 def _segment_name(
@@ -4632,25 +5063,21 @@ def build_route_segment(
     )
 
     segment = {
-        "origin":
-            _segment_name(
-                origin
-            ),
-        "destination":
-            _segment_name(
-                destination
-            ),
-        "available":
-            bool(route)
+        "origin": _segment_name(origin),
+        "destination": _segment_name(destination),
+        "origin_map_query": _route_map_query(_segment_name(origin)),
+        "destination_map_query": _route_map_query(_segment_name(destination)),
+        "available": bool(route),
+        "mode_label": "車"
     }
 
     if not route:
         return segment
 
-    segment.update(
-        route
-    )
-
+    segment.update(route)
+    if route.get("distance_known") is not False:
+        segment["maps_url"] = _google_maps_directions_url(
+            segment["origin_map_query"], segment["destination_map_query"], "driving-car")
     return segment
 
 
@@ -4702,6 +5129,13 @@ def _route_total_distance(
             total += meters
 
     return total
+
+
+def _route_distance_summary(segments):
+    text = _format_distance(_route_total_distance(segments))
+    if any(x.get("distance_known") is False for x in segments):
+        return text + "（距離未確認区間を除く）"
+    return text
 
 
 def _route_candidate_segments(
@@ -5013,72 +5447,25 @@ def _fast_distance_km_between(
     )
 
 
-def _fast_route_seconds_between(
-    origin,
-    destination
-):
-    """
-    S1/S13候補比較専用の高速所要時間推定。
-
-    直線距離×1.30で道路距離を近似し、
-    最終表示と同じ地域別平均旅行速度を利用する。
-
-    川越 : 25 km/h
-    秩父 : 30 km/h
-
-    さらに観光移動の余裕として2分を加える。
-    """
-    distance_km = (
-        _fast_distance_km_between(
-            origin,
-            destination
-        )
-    )
-
-    if distance_km is None:
+def _fast_route_seconds_between(origin, destination):
+    """全地域共通: 表示と同じ道路行列・時間補正。直線距離による代替なし。"""
+    a, b = _segment_name(origin), _segment_name(destination)
+    if not a or not b:
+        return None
+    if a == b:
+        return 0
+    route = route_matrix_routes.get(a, {}).get(b)
+    if not isinstance(route, dict) or route.get("available") is not True:
+        return None
+    try:
+        meters = float(route["distance_meters"])
+        seconds = float(route["duration_seconds"])
+        if not all(math.isfinite(x) and x >= 0 for x in (meters, seconds)):
+            return None
+        return _matrix_plan_seconds(a, b, route)
+    except (KeyError, TypeError, ValueError, OverflowError):
         return None
 
-    estimated_road_km = (
-        distance_km
-        *
-        1.30
-    )
-
-    average_speed_kmh = (
-        TOUR_DRIVING_SPEED_KMH.get(
-            ACTIVE_REGION_CODE,
-            30.0
-        )
-    )
-
-    estimated_seconds = (
-        estimated_road_km
-        /
-        average_speed_kmh
-        *
-        3600.0
-        +
-        TOUR_DRIVING_ACCESS_BUFFER_SECONDS
-    )
-
-    estimated_seconds = max(
-        60,
-        int(
-            (
-                int(
-                    estimated_seconds
-                )
-                +
-                59
-            )
-            //
-            60
-            *
-            60
-        )
-    )
-
-    return estimated_seconds
 
 
 def _fast_candidate_segments(
@@ -5140,131 +5527,95 @@ def _fast_candidate_segments(
     return segments
 
 
-def _s1_shortest_day_route(
-    origin,
-    spots_for_day,
-    destination,
-    car,
-    walking_amount
-):
-    """
-    1日3件までを全順列で比較し、
-    実ルート所要時間が最短の順番を返す。
-    """
-    spots_for_day = list(
-        spots_for_day
-        or []
-    )
 
-    if not spots_for_day:
+# Conservative timetable constraints. Unknown/conditional text is never treated as confirmed open.
+from contextvars import ContextVar
+from functools import lru_cache
+_schedule_trip_date = ContextVar('schedule_trip_date', default='')
 
-        segments = []
+@lru_cache(maxsize=4096)
+def _simple_windows(text):
+    import unicodedata
+    text=unicodedata.normalize('NFKC',text or '')
+    # Only uniform hours, optionally with a last-order annotation or simple caveat.
+    if re.search(r'平日|土日|曜日|[月火水木金土日]曜|夏季|冬季|季節|期間|体験|受付|売店|雑貨|変更|変動|臨時|要確認|要予約|予約制|予約のみ|プラン|入館|入場|ランチ|カフェ|月[0-9]|[0-9]月',text):
+        return None
+    pattern=r'(\d{1,2}):(\d{2})\s*[~〜～－–-]\s*(\d{1,2}):(\d{2})'
+    result=[]
+    for m in re.finditer(pattern,text):
+        a,b,c,d=map(int,m.groups())
+        if a>=24 or b>=60 or c>24 or d>=60 or (c==24 and d): return None
+        start,end=a*60+b,c*60+d
+        if end<=start: return None
+        result.append((start,end))
+    if not result: return None
+    # Refuse stray times outside ranges, e.g. different service times or last order.
+    if re.search(r'\d{1,2}:\d{2}',re.sub(pattern,'',text)): return None
+    return tuple(result)
 
-        if destination is not None:
+@lru_cache(maxsize=4096)
+def _simple_closed_days(text):
+    import unicodedata
+    text=unicodedata.normalize('NFKC',text or '').strip()
+    # Only unconditional weekly closures. Holiday exceptions remain unknown.
+    m=re.fullmatch(r'(?:毎週)?([月火水木金土日](?:曜日|曜)?(?:[・、,][月火水木金土日](?:曜日|曜)?)*)(?:定休|休業)?',text)
+    if not m: return ()
+    return tuple('月火水木金土日'.index(x) for x in re.sub(r'曜日|曜','',m.group(1)) if x in '月火水木金土日')
 
-            segments = (
-                _route_candidate_segments(
-                    origin,
-                    [],
-                    destination,
-                    car,
-                    walking_amount
-                )
-            )
+def _schedule_day(index):
+    from datetime import date
+    value=_schedule_trip_date.get()
+    return date.fromisoformat(value)+timedelta(days=index) if value else None
 
-        available = all(
-            segment.get(
-                "available"
-            )
-            for segment in segments
-        )
+def _schedule_allowed(place,day_index,arrival,stay):
+    day=_schedule_day(day_index)
+    closed=facility_schedule_value(place,'closed')
+    if day and day.weekday() in _simple_closed_days(closed): return False
+    windows=_simple_windows(facility_schedule_value(place,'hours'))
+    return windows is None or any(a<=arrival and arrival+stay<=b for a,b in windows)
 
-        return (
-            [],
-            segments,
-            (
-                _route_total_seconds(
-                    segments
-                )
-                if available
-                else None
-            )
-        )
+def _schedule_start(day_index):
+    # Planning assumption, not a user-selected departure time.
+    return 10*60 if day_index==0 else 9*60
 
-    best_order = None
-    best_segments = None
-    best_seconds = None
+def _schedule_order_allowed(origin,order,day_index):
+    clock=_schedule_start(day_index)
+    previous=origin
+    for i,place in enumerate(order):
+        seconds=_fast_route_seconds_between(previous,place)
+        if seconds is None: return False
+        clock+=math.ceil(seconds/60)
+        stay=_s1_stay_minutes(place)
+        if not _schedule_allowed(place,day_index,clock,stay): return False
+        clock+=stay
+        if i==0: clock+=60
+        previous=place
+    return True
 
-    for order_tuple in itertools.permutations(
-        spots_for_day
-    ):
+def _schedule_meal_allowed(place,day_index,arrival,kind):
+    # Explicit reservation-only evening is not treated as a confirmed meal.
+    text=facility_schedule_value(place,'hours')
+    if kind=='夕食' and re.search(r'(?:夜|夕食)[^／/。]*(?:完全予約|予約制|予約のみ|予約・宴会|要予約)',text): return False
+    return _schedule_allowed(place,day_index,arrival,60)
 
-        order = list(
-            order_tuple
-        )
 
-        segments = (
-            _route_candidate_segments(
-                origin,
-                order,
-                destination,
-                car,
-                walking_amount
-            )
-        )
-
-        if not segments:
+def _s1_shortest_day_route(origin, spots_for_day, destination, car, walking_amount, build_segments=True, schedule_day_index=None):
+    """全順列の車移動時間を同じ道路行列で比較する。"""
+    visits = list(spots_for_day or [])
+    best_order, best_seconds = None, None
+    for order in itertools.permutations(visits):
+        if schedule_day_index is not None and not _schedule_order_allowed(origin,order,schedule_day_index):
             continue
-
-        if not all(
-            segment.get(
-                "available"
-            )
-            for segment in segments
-        ):
+        points = [origin, *order] + ([destination] if destination is not None else [])
+        times = [_fast_route_seconds_between(a, b) for a,b in zip(points, points[1:])]
+        if any(t is None for t in times):
             continue
-
-        seconds = (
-            _route_total_seconds(
-                segments
-            )
-        )
-
-        if (
-            best_seconds is None
-            or
-            seconds < best_seconds
-        ):
-
-            best_order = order
-            best_segments = segments
-            best_seconds = seconds
-
-    if best_order is None:
-
-        fallback_order = spots_for_day
-
-        fallback_segments = (
-            _route_candidate_segments(
-                origin,
-                fallback_order,
-                destination,
-                car,
-                walking_amount
-            )
-        )
-
-        return (
-            fallback_order,
-            fallback_segments,
-            None
-        )
-
-    return (
-        best_order,
-        best_segments,
-        best_seconds
-    )
+        seconds = sum(times)
+        if best_seconds is None or (seconds, tuple(_segment_name(x) for x in order)) < (best_seconds, tuple(_segment_name(x) for x in best_order)):
+            best_order, best_seconds = list(order), seconds
+    order = visits if best_order is None else best_order
+    segments = _route_candidate_segments(origin, order, destination, car, walking_amount) if build_segments else []
+    return order, segments, best_seconds
 
 
 
@@ -5377,13 +5728,8 @@ def build_s1_route_aware_spot_plan(
         reverse=True
     )
 
-    # リアルタイム応答を優先し、通常候補は上位8件まで。
-    # 行きたい場所は順位に関係なく必ず追加する。
-    # 最終候補だけ実道路ルートで比較することで、
-    # ORSへの大量リクエストを防ぐ。
-    candidate_items = list(
-        ranked_items[:8]
-    )
+    # ローカル道路行列なので順位だけで候補を切り捨てない。
+    candidate_items = list(ranked_items)
 
     candidate_names = {
         item.get(
@@ -5462,7 +5808,9 @@ def build_s1_route_aware_spot_plan(
             candidate_spots,
             destination,
             car,
-            walking_amount
+            walking_amount,
+            build_segments=False,
+            schedule_day_index=day_index
         )
 
         if route_seconds is None:
@@ -5884,20 +6232,12 @@ def _s1_plan_travel_minutes(
             else hotel
         )
 
-        (
-            _order,
-            _segments,
-            route_seconds
-        ) = _s1_shortest_day_route(
-            origin,
-            spots_for_day,
-            destination,
-            car,
-            walking_amount
-        )
-
-        if route_seconds is None:
+        # The schedule optimizer already chose the feasible visit order.
+        points = [origin, *spots_for_day, destination]
+        times = [_fast_route_seconds_between(a,b) for a,b in zip(points,points[1:])]
+        if any(t is None for t in times):
             return None
+        route_seconds = sum(times)
 
         total_seconds += route_seconds
 
@@ -5917,20 +6257,20 @@ def build_s1_best_hotel_plan(
     car,
     walking_amount,
     must_visit_names=None,
-    max_hotels=5
+    max_hotels=None,
+    restaurant_score_items=None
 ):
     """
     S1後半。
 
-    宿上位5軒ごとにS1旅程を作り、
-    観光地点数合計 - 0.3×移動時間 + 宿点数
+    全宿泊候補ごとにS1旅程を作り、
+    観光地点推薦点合計 - 0.3×移動時間 + 宿点数
     が最大の旅行全体を採用する。
 
-    上位5軒のどれでも必須観光地を入れられない場合は、
-    残りの宿も試す。
+    必須観光地を満たす案を優先する。
     """
     ranked_hotels = sorted(
-        hotel_score_items or [],
+        [item for item in (hotel_score_items or []) if float(item.get("score",0) or 0)>-900],
         key=lambda item:
             float(
                 item.get(
@@ -5950,17 +6290,9 @@ def build_s1_best_hotel_plan(
         or []
     )
 
-    initial_candidates = (
-        ranked_hotels[
-            :max_hotels
-        ]
-    )
-
-    remaining_candidates = (
-        ranked_hotels[
-            max_hotels:
-        ]
-    )
+    # 明示的な上限が指定された場合のみ制限する。
+    initial_candidates = ranked_hotels if max_hotels is None else ranked_hotels[:max_hotels]
+    remaining_candidates = [] if max_hotels is None else ranked_hotels[max_hotels:]
 
     def evaluate_candidates(
         candidates
@@ -6044,6 +6376,18 @@ def build_s1_best_hotel_plan(
             if travel_minutes is None:
                 continue
 
+            sightseeing_travel_minutes = travel_minutes
+            meal_plan = []
+            missing_meals = 0
+            if restaurant_score_items is not None:
+                meal_plan = build_s13_meal_schedule(restaurant_score_items, plan["day_spots"], hotel, start_point, car, walking_amount, age=age)
+                total_seconds = _s1_plan_with_meals_seconds(plan["day_spots"], hotel, start_point, meal_plan)
+                if total_seconds is None:
+                    continue
+                travel_minutes = total_seconds / 60
+                needed = sum(bool(d) for d in plan["day_spots"]) + (len(plan["day_spots"])-1 if not _hotel_dinner_available(hotel) else 0)
+                missing_meals = max(0,needed-len(meal_plan))
+
             spot_score_total = sum(
                 float(
                     item.get(
@@ -6091,8 +6435,11 @@ def build_s1_best_hotel_plan(
                 "plan":
                     plan,
 
-                "travel_minutes":
-                    travel_minutes,
+                "travel_minutes": round(travel_minutes,1),
+                "sightseeing_travel_minutes": sightseeing_travel_minutes,
+                "meal_travel_minutes": round(travel_minutes-sightseeing_travel_minutes,1),
+                "missing_meals": missing_meals,
+                "meal_plan": meal_plan,
 
                 "spot_score_total":
                     spot_score_total,
@@ -6153,12 +6500,15 @@ def build_s1_best_hotel_plan(
                     []
                 )
             ),
+            item.get("missing_meals",0),
             -float(
                 item.get(
                     "total_value",
                     -10**9
                 )
-            )
+            ),
+            item["travel_minutes"],
+            _segment_name(item["hotel_item"]["hotel"])
         )
     )
 
@@ -6285,583 +6635,130 @@ def _decorate_restaurant_from_score_item(
     )
 
     return normalize_place_for_display(restaurant)
-def _route_minutes_between_places(
-    origin,
-    destination,
-    car,
-    walking_amount
-):
-    """2地点間のルート時間（分）。取得できない場合はNone。"""
-    if (
-        origin is None
-        or
-        destination is None
-    ):
+def _route_minutes_between_places(origin, destination, car, walking_amount):
+    seconds = _fast_route_seconds_between(origin, destination)
+    return None if seconds is None else seconds / 60
+
+
+
+def _hotel_dinner_available(hotel):
+    """夕食付きの予約プランが明示的に確認された場合のみ真。"""
+    return isinstance(hotel, dict) and hotel.get("booking_plan_confirmed") is True and hotel.get("booking_plan_dinner_included") is True
+
+
+def _s13_best_restaurant_between(restaurant_score_items, previous_place, next_place, used_names, car, walking_amount, candidate_limit=None, max_detour_minutes=None, schedule_day_index=0, departure_minute=None, following_visits=None):
+    """全飲食店の道路上の追加移動時間を比較。既存の点数と0.3係数は維持。"""
+    direct = _route_minutes_between_places(previous_place, next_place, car, walking_amount)
+    if direct is None:
         return None
-
-    route = (
-        calculate_route_between(
-
-            origin,
-            destination,
-            car,
-            walking_amount
-
-        )
-    )
-
-    if not route:
-        return None
-
-    try:
-
-        return (
-            float(
-                route.get(
-                    "duration_seconds",
-                    0
-                )
-            )
-            /
-            60
-        )
-
-    except (
-        TypeError,
-        ValueError
-    ):
-
-        return None
-
-
-
-def _hotel_dinner_available(
-    hotel
-):
-    """
-    S13の夕食判定。
-    plan_extra.jsonをまだ直接読んでいない環境でも、
-    既存フィールドと確認済み宿名で判定する。
-    """
-    if not isinstance(
-        hotel,
-        dict
-    ):
-        return False
-
-    dinner = hotel.get(
-        "dinner"
-    )
-
-    if isinstance(
-        dinner,
-        bool
-    ):
-        return dinner
-
-    dinner_text = str(
-        dinner
-        or ""
-    ).strip().lower()
-
-    if dinner_text in {
-        "あり",
-        "有",
-        "true",
-        "yes",
-        "1",
-        "夕食あり",
-        "夕朝食あり"
-    }:
-        return True
-
-    if dinner_text in {
-        "なし",
-        "無",
-        "false",
-        "no",
-        "0",
-        "夕食なし"
-    }:
-        return False
-
-    name = str(
-        hotel.get(
-            "name"
-        )
-        or ""
-    )
-
-    confirmed_with_dinner = {
-        "和どう",
-        "新木鉱泉",
-        "NIPPONIA 秩父 門前町",
-        "NIPPONIA秩父 門前町",
-        "ホテルルートインGrand秩父",
-        "ホテル美やま",
-        "はなのや",
-        "PICA秩父",
-        "御宿 竹取物語"
-    }
-
-    return any(
-        key in name
-        for key in
-        confirmed_with_dinner
-    )
-
-
-def _s13_best_restaurant_between(
-    restaurant_score_items,
-    previous_place,
-    next_place,
-    used_names,
-    car,
-    walking_amount,
-    candidate_limit=4
-):
-    """
-    前地点→店→次地点の寄り道が少ない昼食店を選ぶ。
-    店の値 = S6点数 - 0.3×寄り道時間。
-    """
-    direct_minutes = (
-        _route_minutes_between_places(
-
-            previous_place,
-            next_place,
-            car,
-            walking_amount
-
-        )
-    )
-
     best = None
-
-    for item in sorted(
-        restaurant_score_items or [],
-        key=lambda x:
-            float(
-                x.get(
-                    "score",
-                    0
-                )
-                or 0
-            ),
-        reverse=True
-    )[:candidate_limit]:
-
-        restaurant = (
-            item.get(
-                "restaurant"
-            )
-        )
-
-        if not isinstance(
-            restaurant,
-            dict
-        ):
+    ranked = sorted(restaurant_score_items or [], key=lambda x: float(x.get("score", 0) or 0), reverse=True)
+    for item in ranked if candidate_limit is None else ranked[:candidate_limit]:
+        if float(item.get("score", 0) or 0) <= -900:
             continue
-
-        name = str(
-            restaurant.get(
-                "name"
-            )
-            or ""
-        )
-
-        if (
-            not name
-            or
-            name in used_names
-        ):
+        restaurant = item.get("restaurant")
+        if not isinstance(restaurant, dict):
             continue
-
-        first_minutes = (
-            _route_minutes_between_places(
-
-                previous_place,
-                restaurant,
-                car,
-                walking_amount
-
-            )
-        )
-
-        second_minutes = (
-            _route_minutes_between_places(
-
-                restaurant,
-                next_place,
-                car,
-                walking_amount
-
-            )
-        )
-
-        if (
-            first_minutes is None
-            or
-            second_minutes is None
-        ):
+        name = _segment_name(restaurant)
+        if not name or name in used_names:
             continue
-
-        if direct_minutes is None:
-
-            detour_minutes = (
-                first_minutes
-                +
-                second_minutes
-            )
-
-        else:
-
-            detour_minutes = max(
-                0,
-                first_minutes
-                +
-                second_minutes
-                -
-                direct_minutes
-            )
-
-        value = (
-            float(
-                item.get(
-                    "score",
-                    0
-                )
-                or 0
-            )
-            -
-            0.3
-            *
-            detour_minutes
-        )
-
-        if (
-            best is None
-            or
-            value
-            >
-            best[
-                "value"
-            ]
-        ):
-
-            best = {
-
-                "item":
-                    item,
-
-                "detour_minutes":
-                    round(
-                        detour_minutes,
-                        1
-                    ),
-
-                "value":
-                    value
-
-            }
-
+        first = _route_minutes_between_places(previous_place, restaurant, car, walking_amount)
+        second = _route_minutes_between_places(restaurant, next_place, car, walking_amount)
+        if first is None or second is None:
+            continue
+        if departure_minute is not None and not _schedule_meal_allowed(restaurant,schedule_day_index,departure_minute+math.ceil(first),"昼食"):
+            continue
+        if departure_minute is not None and following_visits is not None:
+            clock = departure_minute + math.ceil(first) + 60
+            previous = restaurant
+            feasible = True
+            for spot in following_visits:
+                seconds = _fast_route_seconds_between(previous, spot)
+                if seconds is None:
+                    feasible = False
+                    break
+                clock += math.ceil(seconds / 60)
+                stay = _s1_stay_minutes(spot)
+                if not _schedule_allowed(spot, schedule_day_index, clock, stay):
+                    feasible = False
+                    break
+                clock += stay
+                previous = spot
+            if not feasible:
+                continue
+        detour = max(0, first + second - direct)
+        if max_detour_minutes is not None and detour > max_detour_minutes:
+            continue
+        value = float(item.get("score", 0) or 0) - 0.3 * detour
+        if best is None or (value, -detour, name) > (best["value"], -best["detour_minutes"], _segment_name(best["item"]["restaurant"])):
+            best = {"item": item, "detour_minutes": detour, "value": value, "arrival_minute": departure_minute + math.ceil(first) if departure_minute is not None else None}
     return best
 
 
 
-def _s13_best_restaurant_near_hotel(
-    restaurant_score_items,
-    hotel,
-    used_names,
-    car,
-    walking_amount,
-    candidate_limit=4
-):
-    """夕食なし宿の場合に、宿から近い店を選ぶ。"""
+def _s13_best_restaurant_near_hotel(restaurant_score_items, hotel, used_names, car, walking_amount, candidate_limit=None, schedule_day_index=0, departure_minute=18*60):
+    """宿からの往復時間を全地域・全店で比較する。"""
     best = None
-
-    for item in sorted(
-        restaurant_score_items or [],
-        key=lambda x:
-            float(
-                x.get(
-                    "score",
-                    0
-                )
-                or 0
-            ),
-        reverse=True
-    )[:candidate_limit]:
-
-        restaurant = (
-            item.get(
-                "restaurant"
-            )
-        )
-
-        if not isinstance(
-            restaurant,
-            dict
-        ):
+    ranked = sorted(restaurant_score_items or [], key=lambda x: float(x.get("score", 0) or 0), reverse=True)
+    for item in ranked if candidate_limit is None else ranked[:candidate_limit]:
+        if float(item.get("score", 0) or 0) <= -900:
             continue
-
-        name = str(
-            restaurant.get(
-                "name"
-            )
-            or ""
-        )
-
-        if (
-            not name
-            or
-            name in used_names
-        ):
+        restaurant = item.get("restaurant")
+        if not isinstance(restaurant, dict):
             continue
-
-        minutes = (
-            _route_minutes_between_places(
-
-                hotel,
-                restaurant,
-                car,
-                walking_amount
-
-            )
-        )
-
-        if minutes is None:
+        name = _segment_name(restaurant)
+        if not name or name in used_names:
             continue
-
-        value = (
-            float(
-                item.get(
-                    "score",
-                    0
-                )
-                or 0
-            )
-            -
-            0.3
-            *
-            minutes
-        )
-
-        if (
-            best is None
-            or
-            value
-            >
-            best[
-                "value"
-            ]
-        ):
-
-            best = {
-
-                "item":
-                    item,
-
-                "distance_minutes":
-                    round(
-                        minutes,
-                        1
-                    ),
-
-                "value":
-                    value
-
-            }
-
+        first = _route_minutes_between_places(hotel, restaurant, car, walking_amount)
+        second = _route_minutes_between_places(restaurant, hotel, car, walking_amount)
+        if first is None or second is None:
+            continue
+        if not _schedule_meal_allowed(restaurant,schedule_day_index,departure_minute+math.ceil(first),"夕食"):
+            continue
+        total = first + second
+        value = float(item.get("score", 0) or 0) - 0.3 * total
+        if best is None or (value, -total, name) > (best["value"], -best["roundtrip_minutes"], _segment_name(best["item"]["restaurant"])):
+            best = {"item": item, "distance_minutes": first, "roundtrip_minutes": total, "value": value, "arrival_minute": departure_minute + math.ceil(first)}
     return best
 
 
 
-def build_s13_meal_schedule(
-    restaurant_score_items,
-    day_spots,
-    hotel,
-    start_point,
-    car,
-    walking_amount
-):
-    """
-    S13 食事組み込み。
-
-    ・昼食は1件目の観光地と次地点の間
-    ・夕食なし宿の宿泊日のみ夕食候補
-    ・同じ飲食店は重複させない
-    """
-    day_spots = list(
-        day_spots
-        or []
-    )
-
-    used_names = set()
-    meals = []
-    day_count = len(
-        day_spots
-    )
-
-    for day_index, spots_for_day in enumerate(
-        day_spots
-    ):
-
-        spots_for_day = list(
-            spots_for_day
-            or []
-        )
-
-        if not spots_for_day:
-            continue
-
-        previous_place = (
-            spots_for_day[
-                0
-            ]
-        )
-
-        if len(
-            spots_for_day
-        ) >= 2:
-
-            next_place = (
-                spots_for_day[
-                    1
-                ]
-            )
-
-        else:
-
-            next_place = (
-                start_point
-                if day_index
-                ==
-                day_count - 1
-                else hotel
-            )
-
-        lunch = (
-            _s13_best_restaurant_between(
-
-                restaurant_score_items,
-                previous_place,
-                next_place,
-                used_names,
-                car,
-                walking_amount
-
-            )
-        )
-
-        if lunch:
-
-            item = lunch[
-                "item"
-            ]
-
-            name = str(
-                item.get(
-                    "name"
-                )
-                or ""
-            )
-
-            used_names.add(
-                name
-            )
-
-            meals.append({
-
-                "day":
-                    day_index + 1,
-
-                "meal_type":
-                    "昼食",
-
-                "restaurant_item":
-                    item,
-
-                "detour_minutes":
-                    lunch.get(
-                        "detour_minutes"
-                    ),
-
-                "distance_minutes":
-                    None,
-
-                "note":
-                    "観光ルート途中で寄り道が少ない店を優先"
-
-            })
-
-        # 最終日は宿泊しないため夕食を組まない。
-        if (
-            day_index
-            >=
-            day_count - 1
-        ):
-            continue
-
-        # 宿で夕食が出る場合は外食夕食を出さない。
-        if _hotel_dinner_available(
-            hotel
-        ):
-            continue
-
-        dinner = (
-            _s13_best_restaurant_near_hotel(
-
-                restaurant_score_items,
-                hotel,
-                used_names,
-                car,
-                walking_amount
-
-            )
-        )
-
-        if dinner:
-
-            item = dinner[
-                "item"
-            ]
-
-            name = str(
-                item.get(
-                    "name"
-                )
-                or ""
-            )
-
-            used_names.add(
-                name
-            )
-
-            meals.append({
-
-                "day":
-                    day_index + 1,
-
-                "meal_type":
-                    "夕食",
-
-                "restaurant_item":
-                    item,
-
-                "detour_minutes":
-                    None,
-
-                "distance_minutes":
-                    dinner.get(
-                        "distance_minutes"
-                    ),
-
-                "note":
-                    "夕食なしの宿のため、宿から近い店を優先"
-
-            })
-
+def build_s13_meal_schedule(restaurant_score_items, day_spots, hotel, start_point, car, walking_amount, age=20):
+    day_spots = list(day_spots or [])
+    day_count = len(day_spots)
+    settings = _s1_day_settings("1泊2日" if day_count == 2 else "2泊3日", age)
+    used_names, meals = set(), []
+    for i, day in enumerate(day_spots):
+        visits = list(day or [])
+        origin = start_point if i == 0 else hotel
+        destination = start_point if i == day_count-1 else hotel
+        hotel_arrival = _schedule_start(i)
+        if visits:
+            points = [origin, *visits, destination]
+            times = [_fast_route_seconds_between(a,b) for a,b in zip(points,points[1:])]
+            if all(t is not None for t in times):
+                base_minutes = _s1_day_total_minutes(visits, sum(times))
+                remaining = settings[i]["minutes"] - base_minutes
+                hotel_arrival += base_minutes
+                lunch = _s13_best_restaurant_between(restaurant_score_items, visits[0], visits[1] if len(visits)>1 else destination, used_names, car, walking_amount, max_detour_minutes=remaining, schedule_day_index=i, departure_minute=_schedule_start(i)+math.ceil(times[0]/60)+_s1_stay_minutes(visits[0]), following_visits=visits[1:])
+                if lunch:
+                    item = lunch["item"]
+                    used_names.add(_segment_name(item["restaurant"]))
+                    hotel_arrival += math.ceil(lunch["detour_minutes"])
+                    meals.append({"day":i+1,"meal_type":"昼食","restaurant_item":item,"arrival_minute":lunch["arrival_minute"],"detour_minutes":round(lunch["detour_minutes"],1),"distance_minutes":None,"note":"寄り道後の観光施設の営業時間も照合して比較"})
+        if i < day_count-1 and not _hotel_dinner_available(hotel):
+            if not visits:
+                seconds = _fast_route_seconds_between(origin, destination)
+                if seconds is None:
+                    continue
+                hotel_arrival += math.ceil(seconds / 60)
+            dinner = _s13_best_restaurant_near_hotel(restaurant_score_items, hotel, used_names, car, walking_amount, schedule_day_index=i, departure_minute=max(18*60, hotel_arrival))
+            if dinner:
+                item = dinner["item"]
+                used_names.add(_segment_name(item["restaurant"]))
+                meals.append({"day":i+1,"meal_type":"夕食","restaurant_item":item,"arrival_minute":dinner["arrival_minute"],"detour_minutes":None,"distance_minutes":round(dinner["distance_minutes"],1),"roundtrip_minutes":round(dinner["roundtrip_minutes"],1),"note":"宿泊プランの夕食は未確認のため、外食する場合の候補（宿からの往復移動を含む）"})
     return meals
+
 
 
 def optimize_day_route(
@@ -7036,19 +6933,12 @@ def build_trip_routes(
             else recommended_hotel
         )
 
-        (
-            optimized_spots,
-            segments
-
-        ) = optimize_day_route(
-
-            origin,
-            day_spots,
-            destination,
-            car,
-            walking_amount
-
-        )
+        if preplanned_days is not None:
+            # Do not reorder a timetable-validated plan at rendering time.
+            optimized_spots = list(day_spots)
+            segments = _route_candidate_segments(origin, optimized_spots, destination, car, walking_amount)
+        else:
+            optimized_spots, segments = optimize_day_route(origin, day_spots, destination, car, walking_amount)
 
         optimized_days.append(
             optimized_spots
@@ -7095,11 +6985,7 @@ def build_trip_routes(
                 ),
             "total_distance_text":
                 (
-                    _format_distance(
-                        _route_total_distance(
-                            segments
-                        )
-                    )
+                    _route_distance_summary(segments)
                     if any(
                         segment.get(
                             "available"
@@ -7185,9 +7071,7 @@ def build_trip_routes(
             total_distance,
         "total_distance_text":
             (
-                _format_distance(
-                    total_distance
-                )
+                _route_distance_summary(all_segments)
                 if available_segments
                 else None
             ),
@@ -7227,6 +7111,67 @@ def build_trip_routes(
         route_days,
         summary
     )
+
+
+def _s1_day_points_with_meals(day_spots, hotel, start_point, meals, i, day_count):
+    visits = list(day_spots[i])
+    origin = start_point if i == 0 else hotel
+    destination = start_point if i == day_count-1 else hotel
+    def restaurant(meal_type):
+        m = next((m for m in meals if m.get("day")==i+1 and m.get("meal_type")==meal_type),None)
+        if not m:
+            return None
+        return m.get("restaurant") or m.get("restaurant_item",{}).get("restaurant")
+    lunch,dinner=restaurant("昼食"),restaurant("夕食")
+    if lunch:
+        visits.insert(min(1,len(visits)),lunch)
+    if dinner and i<day_count-1:
+        visits.extend([hotel,dinner])
+    return [origin,*visits,destination]
+
+
+def _s1_plan_with_meals_seconds(day_spots,hotel,start_point,meals):
+    total=0
+    for i in range(len(day_spots)):
+        points=_s1_day_points_with_meals(day_spots,hotel,start_point,meals,i,len(day_spots))
+        times=[_fast_route_seconds_between(a,b) for a,b in zip(points,points[1:])]
+        if any(t is None for t in times):
+            return None
+        total+=sum(times)
+    return total
+
+
+def _hanno_include_meal_routes(route_days, route_summary, day_spots, hotel, start_point, meals, car, walking_amount):
+    """全地域: 食事を含む実際の移動を日別・総合集計に反映する。旧関数名維持。"""
+    proposed = []
+    for i, day in enumerate(route_days):
+        points=_s1_day_points_with_meals(day_spots,hotel,start_point,meals,i,len(route_days))
+        segments=_route_candidate_segments(points[0],points[1:-1],points[-1],car,walking_amount)
+        if not segments or not all(x.get("available") for x in segments):
+            raise ValueError(f"{ACTIVE_REGION_NAME}の日別食事ルートに未取得区間: {i+1}日目")
+        proposed.append(segments)
+    for day, segments in zip(route_days, proposed):
+        seconds, meters = _route_total_seconds(segments), _route_total_distance(segments)
+        cross_segments = [x for x in segments if _route_endpoint_region(x["origin"]) != _route_endpoint_region(x["destination"])]
+        day["cross_segment_count"] = len(cross_segments)
+        day["cross_duration_seconds"] = _route_total_seconds(cross_segments)
+        day["cross_duration_text"] = _format_duration(day["cross_duration_seconds"])
+        day.update(segments=segments, total_duration_seconds=seconds, total_duration_text=_format_duration(seconds), total_distance_meters=meters, total_distance_text=_route_distance_summary(segments), all_routes_available=True)
+    segments = [seg for day in route_days for seg in day["segments"]]
+    seconds, meters = _route_total_seconds(segments), _route_total_distance(segments)
+    missing_lunch = [str(i+1) for i in range(len(route_days)) if day_spots[i] and not any(m.get("day")==i+1 and m.get("meal_type")=="昼食" for m in meals)]
+    note = "OpenStreetMap道路データを基に事前計算した車ルートと確認済み徒歩移動（食事移動を含む）。現地移動の未確認区間は計画上の時間のみ加算し、距離集計から除外。所要時間は推定、駐車場入口・当日の交通状況は未確認"
+    if missing_lunch:
+        note += "。" + "・".join(missing_lunch) + "日目は時間枠内の昼食候補を確定できませんでした。"
+    missing_dinner = [str(i+1) for i in range(len(route_days)-1) if not _hotel_dinner_available(hotel) and not any(m.get("day")==i+1 and m.get("meal_type")=="夕食" for m in meals)]
+    if missing_dinner:
+        note += "。" + "・".join(missing_dinner) + "日目の夕食候補を確定できませんでした。"
+    note += " 地域内は既存の地域別速度補正、地域間は道路別OSM推定時間に進入・乗降の余裕2分を加算。営業時間は初日10時・翌日以降9時出発、夕食18時以降を仮定し、昼食寄り道後も単純な営業時間・例外のない週定休を照合。複雑な営業条件・祝日・臨時休業・予約条件は要確認です。夕食は外食する場合の暫定案で、食事代・交通費を含む総予算の保証はありません。"
+    route_summary["cross_segment_count"] = sum(d["cross_segment_count"] for d in route_days)
+    route_summary["cross_duration_seconds"] = sum(d["cross_duration_seconds"] for d in route_days)
+    route_summary["cross_duration_text"] = _format_duration(route_summary["cross_duration_seconds"])
+    route_summary.update(total_duration_seconds=seconds, total_duration_text=_format_duration(seconds), total_distance_meters=meters, total_distance_text=_route_distance_summary(segments), segment_count=len(segments), available_segment_count=len(segments), complete=True, note=note)
+
 
 
 def _favorite_catalog_item(
@@ -7772,7 +7717,7 @@ def normalize_travel_preferences(
         travel_pace = "普通"
 
     if start_point not in START_POINT_OPTIONS:
-        start_point = default_start
+        raise ValueError("選択した出発地点が地域と一致しません")
 
     return (
         walking_amount,
@@ -9498,6 +9443,9 @@ def _summary_purpose_text(
         if str(p).strip()
     ]
 
+    if ACTIVE_REGION_CODE == "hanno":
+        return "・".join(purpose) if purpose else "飯能らしい観光"
+
     if not purpose:
         return (
             "川越らしい観光"
@@ -9534,6 +9482,9 @@ def _build_summary_concept(
         purpose
         or []
     )
+
+    if ACTIVE_REGION_CODE == "hanno":
+        return ("・".join(purpose or []) + "を楽しみながら") if purpose else "飯能の自然や文化を楽しみながら"
 
     if ACTIVE_REGION_CODE == "kawagoe":
 
@@ -9951,7 +9902,9 @@ def _build_trip_summary(
             "観光地は入力条件との相性を比較して選び、"
         )
 
-    if ACTIVE_REGION_CODE == "kawagoe":
+    if ACTIVE_REGION_CODE == "hanno":
+        second += "飯能の自然・北欧文化・歴史などの魅力を楽しめる構成にしています。"
+    elif ACTIVE_REGION_CODE == "kawagoe":
         second += (
             "小江戸らしい町並みや歴史文化、"
             "街歩きの楽しさを感じられるように構成しています。"
@@ -10016,7 +9969,9 @@ def _build_trip_summary(
         )
 
     if car:
-        if ACTIVE_REGION_CODE == "kawagoe":
+        if ACTIVE_REGION_CODE == "hanno":
+            fourth = "飯能の事前計算済み車ルートと観光移動の補正時間を使い、訪問順を調整しています。"
+        elif ACTIVE_REGION_CODE == "kawagoe":
             fourth = (
                 "車移動では川越IC・川越駅周辺を入口として、"
                 "完成済みの道路ルートデータを使い、"
@@ -10055,7 +10010,9 @@ def _build_trip_summary(
     food_sentence = ""
 
     if restaurant_names:
-        if ACTIVE_REGION_CODE == "kawagoe":
+        if ACTIVE_REGION_CODE == "hanno":
+            food_sentence = f"食事では{_join_names(restaurant_names)}などを候補にし、飯能の食文化と移動条件を考慮しています。"
+        elif ACTIVE_REGION_CODE == "kawagoe":
             food_sentence = (
                 f"食事では{_join_names(restaurant_names)}などを候補にし、"
                 "うなぎ・和食・甘味・軽食など、"
@@ -10092,7 +10049,9 @@ def _build_trip_summary(
             f"1人あたり{budget:,}円の設定予算を旅行条件として扱っています。"
         )
 
-    if ACTIVE_REGION_CODE == "kawagoe":
+    if ACTIVE_REGION_CODE == "hanno":
+        closing = "観光・食事・宿泊のバランスを取り、飯能の魅力を楽しめる旅行プランにしています。"
+    elif ACTIVE_REGION_CODE == "kawagoe":
         if "食べ歩き・グルメ" in purpose:
             closing = (
                 "観光だけでなく食事や街歩きまで含めて、"
@@ -10447,8 +10406,12 @@ def calculate_spot_score(
     walking_amount="普通",
     travel_pace="普通",
     season=None,
-    travel_date=""
+    travel_date="",
+    start_point=None
 ):
+
+    if ACTIVE_REGION_CODE == "hanno":
+        return calculate_hanno_spot_score(spot, member, purpose, car, age, people, days, budget, gender, walking_amount, travel_pace, season, travel_date, start_point=start_point)
 
     if ACTIVE_REGION_CODE == "kawagoe":
         return calculate_kawagoe_spot_score(
@@ -10464,7 +10427,8 @@ def calculate_spot_score(
             walking_amount=walking_amount,
             travel_pace=travel_pace,
             season=season,
-            travel_date=travel_date
+            travel_date=travel_date,
+            start_point=start_point
         )
 
     if ACTIVE_REGION_CODE == "chichibu":
@@ -10481,7 +10445,8 @@ def calculate_spot_score(
             walking_amount=walking_amount,
             travel_pace=travel_pace,
             season=season,
-            travel_date=travel_date
+            travel_date=travel_date,
+            start_point=start_point
         )
 
     difficulty = normalize_walking_difficulty(
@@ -11033,6 +10998,13 @@ def calculate_restaurant_score(
         else:
             local_reason = "秩父名物・郷土料理による加点なし"
 
+    elif ACTIVE_REGION_CODE == "hanno":
+        if any(k in local_text for k in ("飯能", "名栗", "すいーとん", "郷土料理")):
+            local_score = 30
+            local_reason = "飯能の名物・郷土料理に該当"
+            reasons.append("飯能ならではの食を楽しめる")
+        else:
+            local_reason = "飯能名物・郷土料理による加点なし"
     else:
         kawagoe_keywords = [
             "うなぎ",
@@ -11251,7 +11223,7 @@ def calculate_restaurant_score(
         ):
             genre_score += 8
             genre_reasons.append(
-                "秩父旅行で選びやすい食事ジャンル"
+                f"{ACTIVE_REGION_NAME}旅行で選びやすい食事ジャンル"
             )
 
         if member == "デート":
@@ -12779,55 +12751,94 @@ REVIEW_FACILITY_TYPES = {
 }
 
 
+_REVIEW_SQLITE_PATH = os.path.join(BASE_DIR, "data", "reviews.sqlite3")
+
+
 def _review_database_ready():
-    """レビューDBを利用できる状態か確認する。"""
-    return bool(DATABASE_URL and psycopg is not None)
+    # A configured PostgreSQL database must never silently fall back to another store.
+    return not DATABASE_URL or psycopg is not None
+
+
+def _review_local_connect():
+    import sqlite3
+    from contextlib import closing
+    os.makedirs(os.path.dirname(_REVIEW_SQLITE_PATH), exist_ok=True)
+    return closing(sqlite3.connect(_REVIEW_SQLITE_PATH, timeout=10))
 
 
 def _ensure_review_table():
-    """reviewsテーブルが無ければ作成する。"""
     if not _review_database_ready():
         return False
-
-    with psycopg.connect(DATABASE_URL) as conn:
+    if not DATABASE_URL:
+        with _review_local_connect() as conn:
+            conn.execute("""CREATE TABLE IF NOT EXISTS reviews (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                facility_type TEXT NOT NULL, facility_name TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+                nickname TEXT NOT NULL CHECK(length(nickname) BETWEEN 1 AND 40),
+                comment TEXT NOT NULL CHECK(length(comment) BETWEEN 1 AND 500),
+                created_at TEXT NOT NULL
+            )""")
+            conn.execute("CREATE INDEX IF NOT EXISTS reviews_facility_idx ON reviews(facility_type, facility_name, created_at DESC)")
+            conn.commit()
+        return True
+    with psycopg.connect(DATABASE_URL, connect_timeout=5) as conn:
         with conn.cursor() as cur:
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS reviews (
-                    id BIGSERIAL PRIMARY KEY,
-                    facility_type TEXT NOT NULL,
-                    facility_name TEXT NOT NULL,
-                    rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-                    nickname VARCHAR(40) NOT NULL,
-                    comment VARCHAR(500) NOT NULL,
-                    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-                )
-                """
-            )
-            cur.execute(
-                """
-                CREATE INDEX IF NOT EXISTS reviews_facility_idx
-                ON reviews (facility_type, facility_name, created_at DESC)
-                """
-            )
+            cur.execute("""CREATE TABLE IF NOT EXISTS reviews (
+                id BIGSERIAL PRIMARY KEY, facility_type TEXT NOT NULL,
+                facility_name TEXT NOT NULL,
+                rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                nickname VARCHAR(40) NOT NULL, comment VARCHAR(500) NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )""")
+            cur.execute("CREATE INDEX IF NOT EXISTS reviews_facility_idx ON reviews (facility_type, facility_name, created_at DESC)")
         conn.commit()
-
     return True
 
 
 def _review_facility_exists(facility_type, facility_name):
-    """投稿先がサイトに登録済みの施設か確認する。"""
-    if facility_type not in REVIEW_FACILITY_TYPES:
+    # Do not depend on the last selected region, or a temporarily filtered cross-region dataset.
+    key = {"観光地": "spots", "飲食店": "restaurants", "宿泊施設": "hotels"}.get(facility_type)
+    if not key:
         return False
+    return any(str(item.get("name") or "").strip() == facility_name
+               for code in ("chichibu", "kawagoe", "hanno")
+               for item in REGION_CONFIG[code]["dataset"][key])
 
-    catalog = build_favorite_catalog()
-    rows = catalog.get(facility_type, [])
 
-    return any(
-        str(item.get("name") or "").strip() == facility_name
-        for item in rows
-        if isinstance(item, dict)
-    )
+def _review_read_rows(facility_type, facility_name):
+    _ensure_review_table()
+    params = (facility_type, facility_name)
+    if not DATABASE_URL:
+        with _review_local_connect() as conn:
+            rows = conn.execute("SELECT id,rating,nickname,comment,created_at FROM reviews WHERE facility_type=? AND facility_name=? ORDER BY created_at DESC,id DESC LIMIT 100", params).fetchall()
+            count, average = conn.execute("SELECT COUNT(*),COALESCE(AVG(rating),0) FROM reviews WHERE facility_type=? AND facility_name=?", params).fetchone()
+        return rows, count, average
+    with psycopg.connect(DATABASE_URL, connect_timeout=5) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id,rating,nickname,comment,created_at FROM reviews WHERE facility_type=%s AND facility_name=%s ORDER BY created_at DESC,id DESC LIMIT 100", params)
+            rows = cur.fetchall()
+            cur.execute("SELECT COUNT(*),COALESCE(AVG(rating),0) FROM reviews WHERE facility_type=%s AND facility_name=%s", params)
+            count, average = cur.fetchone()
+    return rows, count, average
+
+
+def _review_write_row(facility_type, facility_name, rating, nickname, comment):
+    _ensure_review_table()
+    params = (facility_type, facility_name, rating, nickname, comment)
+    if not DATABASE_URL:
+        created = datetime.now(timezone.utc).isoformat()
+        with _review_local_connect() as conn:
+            cur = conn.execute("INSERT INTO reviews(facility_type,facility_name,rating,nickname,comment,created_at) VALUES (?,?,?,?,?,?)", (*params, created))
+            review_id = cur.lastrowid
+            conn.commit()
+        return review_id, created
+    with psycopg.connect(DATABASE_URL, connect_timeout=5) as conn:
+        with conn.cursor() as cur:
+            cur.execute("INSERT INTO reviews(facility_type,facility_name,rating,nickname,comment) VALUES (%s,%s,%s,%s,%s) RETURNING id,created_at", params)
+            review_id, created = cur.fetchone()
+        conn.commit()
+    return review_id, created
 
 
 @app.route("/api/reviews", methods=["GET"])
@@ -12857,35 +12868,11 @@ def get_reviews():
             "error": "レビュー用データベースに接続できません。",
         }), 503
 
+    if not _review_facility_exists(facility_type, facility_name):
+        return jsonify({"ok": False, "error": "登録されていない施設です。"}), 400
+
     try:
-        _ensure_review_table()
-
-        with psycopg.connect(DATABASE_URL) as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    SELECT id, rating, nickname, comment, created_at
-                    FROM reviews
-                    WHERE facility_type = %s
-                      AND facility_name = %s
-                    ORDER BY created_at DESC, id DESC
-                    LIMIT 100
-                    """,
-                    (facility_type, facility_name),
-                )
-                rows = cur.fetchall()
-
-                cur.execute(
-                    """
-                    SELECT COUNT(*), COALESCE(AVG(rating), 0)
-                    FROM reviews
-                    WHERE facility_type = %s
-                      AND facility_name = %s
-                    """,
-                    (facility_type, facility_name),
-                )
-                count, average = cur.fetchone()
-
+        rows, count, average = _review_read_rows(facility_type, facility_name)
     except Exception as exc:
         print("Review GET error:", exc)
         return jsonify({
@@ -12920,7 +12907,9 @@ def get_reviews():
 
 @app.route("/api/reviews", methods=["POST"])
 def post_review():
-    body = request.get_json(silent=True) or {}
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict) or not all(isinstance(body.get(k), str) for k in ("facility_type", "facility_name", "nickname", "comment")):
+        return jsonify({"ok": False, "error": "投稿内容が正しくありません。"}), 400
 
     facility_type = str(
         body.get("facility_type") or ""
@@ -12936,7 +12925,8 @@ def post_review():
     ).strip()
 
     try:
-        rating = int(body.get("rating"))
+        raw_rating = body.get("rating")
+        rating = int(raw_rating) if type(raw_rating) is int or (isinstance(raw_rating, str) and raw_rating in ("1", "2", "3", "4", "5")) else 0
     except (TypeError, ValueError):
         rating = 0
 
@@ -12995,33 +12985,7 @@ def post_review():
         }), 503
 
     try:
-        _ensure_review_table()
-
-        with psycopg.connect(DATABASE_URL) as conn:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    INSERT INTO reviews (
-                        facility_type,
-                        facility_name,
-                        rating,
-                        nickname,
-                        comment
-                    )
-                    VALUES (%s, %s, %s, %s, %s)
-                    RETURNING id, created_at
-                    """,
-                    (
-                        facility_type,
-                        facility_name,
-                        rating,
-                        nickname,
-                        comment,
-                    ),
-                )
-                review_id, created_at = cur.fetchone()
-            conn.commit()
-
+        review_id, created_at = _review_write_row(facility_type, facility_name, rating, nickname, comment)
     except Exception as exc:
         print("Review POST error:", exc)
         return jsonify({
@@ -13749,43 +13713,48 @@ def history():
     )
 
 
-@app.route(
-    "/favorites"
-)
+def build_all_region_favorite_catalog():
+    """お気に入りは旅行プランの地域指定と独立して全地域から表示する。"""
+    original = ACTIVE_REGION_CODE
+    catalog = {"観光地": [], "飲食店": [], "宿泊施設": []}
+    try:
+        for code in ("chichibu", "kawagoe", "hanno"):
+            activate_region(code)
+            regional = build_favorite_catalog()
+            for category, items in regional.items():
+                for item in items:
+                    item["facility_region"] = code
+                    catalog[category].append(item)
+    finally:
+        activate_region(original)
+    return catalog
+
+
+@app.route("/favorites")
 def favorites():
-
-    return render_template(
-
-        "favorites.html",
-
-        favorite_catalog=
-            build_favorite_catalog()
-
-    )
+    return render_template("favorites.html", favorite_catalog=build_all_region_favorite_catalog())
 
 
-@app.route("/")
+def _area_selection_page():
+    available = ['chichibu', 'kawagoe'] + (['hanno'] if HANNO_DATASET['ready'] else [])
+    selected = [c for c in available if c in request.args.getlist('target_regions')] if 'target_regions' in request.args else (available if 'cross' in REGION_CONFIG else available[:1])
+    if 'cross' not in REGION_CONFIG:
+        selected = selected[:1]
+    return render_template('area_select.html', hanno_available=HANNO_DATASET['ready'], cross_available='cross' in REGION_CONFIG, selected_regions=selected)
+
+@app.route('/')
 def start():
+    return _area_selection_page()
 
-    return render_template(
-        "area_select.html"
-    )
-
-
-@app.route(
-    "/areas"
-)
+@app.route('/areas')
 def area_select():
-
-    return render_template(
-        "area_select.html"
-    )
+    return _area_selection_page()
 
 
-def _render_region_input(region_code):
+def _render_region_input(region_code, area_mode="fixed", selected_regions=None):
     config = activate_region(region_code)
 
-    weather_data, weather_error = get_weather_forecast()
+    weather_data, weather_error = (None, "地域横断では地域ごとの天気を確認してください。") if region_code == "cross" else get_weather_forecast()
 
     weather_forecast = (
         weather_data.get("forecasts", [])
@@ -13802,6 +13771,10 @@ def _render_region_input(region_code):
     return render_template(
         "index.html",
         region_code=region_code,
+        area_mode=area_mode,
+        selected_regions=selected_regions or ([region_code] if region_code != 'cross' else list(_CROSS_CODES)),
+        selected_region_labels=[REGION_CONFIG[c]['name'] for c in (selected_regions or ([region_code] if region_code != 'cross' else list(_CROSS_CODES)))],
+        cross_available="cross" in REGION_CONFIG,
         region_name=config["name"],
         region_name_en=config["name_en"],
         purpose_options=config.get("purpose_options", []),
@@ -13810,6 +13783,7 @@ def _render_region_input(region_code):
                 "value": value,
                 "label": label,
                 "selected": value == config["default_arrival"],
+                "region": _CROSS_OWNERS.get(value, region_code),
             }
             for value, label in config["arrival_labels"].items()
         ],
@@ -13820,7 +13794,8 @@ def _render_region_input(region_code):
         spot_options=[
             {
                 "name": spot.get("name", ""),
-                "area": spot.get("area", "")
+                "area": spot.get("area", ""),
+                "region": _CROSS_OWNERS.get(spot.get("name"), region_code)
             }
             for spot in spots
             if spot.get("name")
@@ -13846,20 +13821,9 @@ def kawagoe():
     "/hanno"
 )
 def hanno():
-    return render_template(
-        "regional_input.html",
-        region_name="飯能",
-        region_name_en="HANNO",
-        region_code="hanno",
-        available=False,
-        intro="森林・湖・アウトドアなど、自然を楽しむ旅行プランへ対応予定です。",
-        feature_tags=[
-            "森林",
-            "アウトドア",
-            "自然",
-            "宿泊"
-        ]
-    )
+    if not HANNO_DATASET["ready"]:
+        return "飯能のルートデータが未完成です。61地点・3660区間を確認してください。", 503
+    return _render_region_input("hanno")
 
 
 @app.route(
@@ -13908,17 +13872,41 @@ def manual_plan_view():
     ]
 )
 def result():
+    token = _schedule_trip_date.set('')
+    original = REGION_CONFIG.get("cross")
+    try:
+        if request.form.get("region_code") == "cross" and original:
+            mode = request.form.get("area_mode", "cross")
+            selected = request.form.getlist("target_regions") if mode == "cross" and "area_mode" in request.form else list(_CROSS_CODES)
+            if mode not in ("cross", "auto") or not selected or not set(selected) <= set(_CROSS_CODES):
+                return "旅行対象地域を選び直してください。", 400
+            if mode == "cross":
+                REGION_CONFIG["cross"] = _cross_filtered_config(original, set(selected))
+        return _result_with_schedule()
+    finally:
+        if original is not None:
+            REGION_CONFIG["cross"] = original
+            if ACTIVE_REGION_CODE == "cross":
+                activate_region("cross")
+        _schedule_trip_date.reset(token)
+
+def _result_with_schedule():
 
     region_code = str(
-        request.form.get("region_code") or "chichibu"
+        request.form.get("region_code") or ""
     ).strip()
 
+    if region_code == "cross" and region_code not in REGION_CONFIG:
+        return "地域間経路が未完成です。", 503
     if region_code not in REGION_CONFIG:
         return (
             "地域指定に問題があります。"
             "最初からやり直してください。",
             400
         )
+
+    if region_code == "hanno" and not HANNO_DATASET["ready"]:
+        return "飯能のルートデータが未完成です。", 503
 
     region_config = activate_region(region_code)
 
@@ -14008,17 +13996,13 @@ def result():
         # 移動は車に統一。
         travel_mode = "車"
 
-        arrival_detail = request.form.get(
-            "arrival_detail",
-            region_config["default_arrival"]
-        ).strip()
-
-        if arrival_detail not in set(
-            region_config["arrival_labels"].keys()
-        ):
-            arrival_detail = region_config["default_arrival"]
-
+        arrival_values = request.form.getlist("arrival_detail")
+        if len(arrival_values) != 1 or arrival_values[0].strip() not in region_config["arrival_labels"]:
+            return "出発地点が未選択または地域と一致していません。入力画面を再読み込みして選び直してください。", 400
+        arrival_detail = arrival_values[0].strip()
         start_point = arrival_detail
+        if not _departure_routes_ready(region_config, start_point):
+            return "選択した出発地点のルートデータが不足しています。", 503
 
         (
             walking_amount,
@@ -14038,9 +14022,23 @@ def result():
 
         return (
             "入力内容に問題があります。"
-            "最初からやり直してください。"
+            "最初からやり直してください。", 400
         )
 
+
+    if not (10 <= age <= 120 and 1 <= people <= 6 and budget in {10000,15000,20000,30000,50000} and days in {"1泊2日","2泊3日"} and member in {"一人","デート","家族","友人"}):
+        return "年齢・人数・予算・旅行日数・メンバーの指定に問題があります。", 400
+    if (people == 1) != (member == "一人"):
+        return "人数と旅行メンバーの指定が一致していません。", 400
+    if any(p not in {x["value"] for x in region_config["purpose_options"]} for p in purpose):
+        return "旅行目的が選択した地域と一致していません。", 400
+    if travel_date:
+        from datetime import date
+        try:
+            date.fromisoformat(travel_date)
+        except ValueError:
+            return "旅行予定日の形式に問題があります。", 400
+    must_visit_names = list(dict.fromkeys(must_visit_names))
 
     valid_spot_names = {
         str(spot.get("name") or "").strip()
@@ -14134,6 +14132,7 @@ def result():
         travel_date = ""
 
 
+    _schedule_trip_date.set(travel_date)
     season = (
         get_season_from_date(
             travel_date
@@ -14381,7 +14380,8 @@ def result():
 
             travel_date=
                 travel_date
-
+,
+            start_point=route_start_point
         )
 
 
@@ -14710,6 +14710,10 @@ def result():
     # S1完成：宿を複数試して旅行全体で最良を選ぶ
     # =====================================================
 
+    hotel_scores = [item for item in hotel_scores if float(item.get("score",0) or 0)>-900 and item.get("name") in route_matrix_routes]
+    if not hotel_scores:
+        return "指定条件で利用可能な宿泊施設の経路がありません。条件を見直してください。", 503
+
     s1_best = (
         build_s1_best_hotel_plan(
 
@@ -14737,10 +14741,9 @@ def result():
             must_visit_names=
                 must_visit_names,
 
-            # ライブ画面では上位2軒を高速比較。
-            # 行きたい場所が入らない場合だけ残りも追加比較する。
-            max_hotels=
-                3
+            # 全宿泊候補をローカル行列で比較する。
+            max_hotels=None,
+            restaurant_score_items=restaurant_scores
 
         )
     )
@@ -15106,7 +15109,7 @@ def result():
     # =====================================================
 
     meal_schedule_raw = (
-        build_s13_meal_schedule(
+        s1_best["meal_plan"] if s1_best else build_s13_meal_schedule(
 
             restaurant_score_items=
                 restaurant_scores,
@@ -15137,7 +15140,8 @@ def result():
                 car,
 
             walking_amount=
-                walking_amount
+                walking_amount,
+            age=age
 
         )
     )
@@ -15180,6 +15184,13 @@ def result():
             display_meal
         )
 
+
+    try:
+        _hanno_include_meal_routes(route_days, route_summary, [day1, day2, day3], recommended_hotel, route_start_point, meal_schedule, car, walking_amount)
+    except ValueError as exc:
+        return str(exc), 503
+    if s1_best and round(route_summary["total_duration_seconds"]/60,1) != s1_best["travel_minutes"]:
+        return "旅程と経路の移動時間が一致しません。条件を見直してください。", 503
 
     # 日程に採用された飲食店をおすすめグルメの先頭へ。
     if meal_schedule:
@@ -15361,7 +15372,11 @@ def result():
 
     feature_text = []
 
-    if ACTIVE_REGION_CODE == "kawagoe":
+    if ACTIVE_REGION_CODE == "cross":
+        feature_text.extend(purpose or ["対象地域の施設を比較して効率的に観光"])
+    elif ACTIVE_REGION_CODE == "hanno":
+        feature_text.extend(purpose or ["飯能の自然と文化を楽しむ"])
+    elif ACTIVE_REGION_CODE == "kawagoe":
 
         if "小江戸・町並み" in purpose:
             feature_text.append(
@@ -15588,6 +15603,16 @@ def result():
     # =====================================================
     # 履歴保存用データ
     # =====================================================
+
+    # 入力値・最初の区間・最終日の帰着地点が一致することを保存前に確認。
+    first_segments = route_days[0].get("segments", []) if route_days else []
+    last_segments = route_days[-1].get("segments", []) if route_days else []
+    if (not first_segments or not last_segments
+        or first_segments[0].get("origin") != start_point
+        or last_segments[-1].get("destination") != start_point):
+        return "出発地点と旅程の整合性を確認できませんでした。", 503
+    if any(not seg.get("available") for day in route_days for seg in day.get("segments", [])):
+        return "旅行ルートに計算できない区間があります。", 503
 
     safe_route_days_for_history = (
         json.loads(
@@ -15859,7 +15884,11 @@ def result():
     return render_template(
 
         "result.html",
-
+        cross_region_labels={name: REGION_CONFIG[code]["name"] for name, code in _CROSS_OWNERS.items()} if ACTIVE_REGION_CODE == "cross" else {},
+        area_mode=request.form.get("area_mode", "cross" if ACTIVE_REGION_CODE == "cross" else "fixed"),
+        target_region_codes=[c for c in _CROSS_CODES if c in request.form.getlist("target_regions")] or (list(_CROSS_CODES) if ACTIVE_REGION_CODE == "cross" else [ACTIVE_REGION_CODE]),
+        visited_region_labels=list(dict.fromkeys(REGION_CONFIG[_CROSS_OWNERS[_segment_name(x)]]["name"] for x in [*(day1 or []), *(day2 or []), *(day3 or []), recommended_hotel, *(m.get("restaurant") for m in meal_schedule)] if _segment_name(x) in _CROSS_OWNERS)) if ACTIVE_REGION_CODE == "cross" else [],
+        target_region_labels=[REGION_CONFIG[c]["name"] for c in _CROSS_CODES if c in request.form.getlist("target_regions")] if ACTIVE_REGION_CODE == "cross" and request.form.get("area_mode") == "cross" else [],
         region_code=
             ACTIVE_REGION_CODE,
 
@@ -16036,10 +16065,13 @@ print(
 )
 
 
+print("[HANNO REGION DATA]", "ready =", HANNO_DATASET["ready"], "| spots =", len(HANNO_DATASET["spots"]), "| hotels =", len(HANNO_DATASET["hotels"]), "| restaurants =", len(HANNO_DATASET["restaurants"]), "| route pairs =", HANNO_DATASET["route_matrix_data"].get("available_pair_count"))
+
 print(
     "[TOUR DRIVING TIME]",
     "Chichibu = 30 km/h + 2 min",
     "| Kawagoe = 25 km/h + 2 min",
+    "| Hanno = 30 km/h + 2 min (planning estimate)",
     "| raw OSM time is kept when longer"
 )
 
@@ -16056,7 +16088,528 @@ print(
 # Flask起動
 # =========================================================
 
+def verify_hanno_departure_calculations():
+    """実際のローカル飯能データを読み、2出発地点の全区間・評価・日程を検査。"""
+    import math
+    if not HANNO_DATASET["ready"]:
+        raise RuntimeError("飯能の61地点・3660区間が読み込めません")
+    config = activate_region("hanno")
+    names = set(route_matrix_routes)
+    for start in config["arrival_labels"]:
+        assert _departure_routes_ready(config, start), start
+        for other in sorted(names - {start}):
+            for a,b in ((start,other),(other,start)):
+                raw = route_matrix_routes[a][b]
+                got = calculate_route_between(a,b,"あり","普通")
+                meters = round(float(raw["distance_meters"]))
+                raw_seconds = round(float(raw["duration_seconds"]))
+                expected = raw_seconds if meters == 0 else 60 * math.ceil(max(raw_seconds, meters / 1000 / 30 * 3600 + 120)/60)
+                transfer = _local_transfer(a,b,raw)
+                assert got and got["distance_meters"] == (None if transfer else meters) and got["duration_seconds"] == (transfer[1] if transfer else expected), (a,b,got,expected)
+        for spot in spots:
+            score, _, breakdown = calculate_spot_score(spot,"友人",[],"あり",20,2,"1泊2日",20000,"未使用",start_point=start)
+            access = next((x for x in breakdown if x["key"] == "access"), None)
+            if score > -900:
+                expected, reason = _hanno_departure_access_score(start,spot)
+                assert access and access["score"] == expected and access["reason"] == reason
+                assert score == min(100,max(0,sum(x["score"] for x in breakdown)))
+        for days in ("1泊2日","2泊3日"):
+            n = 2 if days == "1泊2日" else 3
+            chosen = [spots[i] for i in range(n)]
+            hotel = hotels[0]
+            d1,d2,d3,rd,rs = build_trip_routes(chosen,hotel,days,start,"あり","普通",preplanned_days=[[x] for x in chosen])
+            meals = [{"day":1,"meal_type":"昼食","restaurant":restaurants[0]},{"day":1,"meal_type":"夕食","restaurant":restaurants[1]}]
+            _hanno_include_meal_routes(rd,rs,[d1,d2,d3],hotel,start,meals,"あり","普通")
+            assert rd[0]["segments"][0]["origin"] == start and rd[-1]["segments"][-1]["destination"] == start
+            segs = [x for day in rd for x in day["segments"]]
+            assert all(x["available"] for x in segs)
+            assert all(a["destination"] == b["origin"] for a,b in zip(segs,segs[1:]))
+            assert rs["total_distance_meters"] == sum(x["distance_meters"] or 0 for x in segs)
+            assert rs["total_duration_seconds"] == sum(x["duration_seconds"] for x in segs)
+            assert restaurants[0]["name"] in [x["destination"] for x in segs]
+            assert restaurants[1]["name"] in [x["destination"] for x in segs]
+            print(f"[PASS] {start} {days}: 往復・食事移動・距離時間集計")
+        print(f"[PASS] {start}: 120方向・全観光地アクセス評価")
+    print("[HANNO DEPARTURE CHECK] COMPLETE")
+
+def verify_all_region_plans():
+    """実PCの3地域の行列・全方向・全6入口・12旅程を一括検証。外部API不使用。"""
+    import contextlib, io, sys
+    expected = {"chichibu":(76,5700),"kawagoe":(72,5112),"hanno":(61,3660)}
+    original = ACTIVE_REGION_CODE
+    try:
+        for code,(count,pairs) in expected.items():
+            config = activate_region(code)
+            names = set(route_matrix_routes)
+            assert len(names)==count, (code,len(names))
+            checked = 0
+            with contextlib.redirect_stdout(io.StringIO()):
+                for a in names:
+                    for b in names-{a}:
+                        raw = route_matrix_routes[a][b]
+                        t = _fast_route_seconds_between(a,b)
+                        r = calculate_route_between(a,b,"あり","普通")
+                        assert r and t is not None and t==r["duration_seconds"], (code,a,b)
+                        assert r["distance_meters"]==(None if _local_transfer(a,b,raw) else round(float(raw["distance_meters"])))
+                        checked += 1
+            if code == "hanno":
+                a,b = "名栗温泉 大松閣", "大松閣別館 山の茶屋"
+                for x,y in ((a,b),(b,a)):
+                    seg = build_route_segment(x,y,"あり","普通")
+                    assert seg["mode_label"] == "徒歩" and seg["duration_seconds"] == 60
+                    assert seg["distance_meters"] is None and "travelmode=walking" in seg["maps_url"]
+                print("[LOCAL WALK CHECK] 大松閣 ↔ 山の茶屋 PASS", flush=True)
+            assert checked==pairs
+            print(f"[PLAN CHECK MATRIX] {code} {checked} PASS",flush=True)
+            for start in config["arrival_labels"]:
+                assert _departure_routes_ready(config,start)
+                with contextlib.redirect_stdout(io.StringIO()):
+                    def score_item(x,kind):
+                        if kind=="spot":
+                            value,_,detail=calculate_spot_score(x,"友人",[],"あり",20,2,"1泊2日",20000,"未使用",start_point=start)
+                            if value > -900:
+                                access=next(y for y in detail if y["key"]=="access")
+                                points,reason=_hanno_departure_access_score(start,x)
+                                assert access["score"]==points and access["reason"]==reason,(code,start,x["name"])
+                        elif kind=="hotel":
+                            value,_,_=calculate_hotel_score(x,"友人",[],30000,2,20,"あり","1泊2日","未使用")
+                        else:
+                            value,_,_=calculate_restaurant_score(x,"友人",[],"あり",2,30000,20,"1泊2日","未使用")
+                        return {"name":x["name"],kind:x,"score":value}
+                    ss=[score_item(x,"spot") for x in spots if x["name"] in names]
+                    ss=[x for x in ss if x["score"]>-900]
+                    hs=[score_item(x,"hotel") for x in hotels if x["name"] in names]
+                    hs=[x for x in hs if x["score"]>-900]
+                    fs=[score_item(x,"restaurant") for x in restaurants if x["name"] in names]
+                    assert ss and hs and fs
+                    for days in ("1泊2日","2泊3日"):
+                        best=build_s1_best_hotel_plan(hs,ss,days,20,start,"あり","普通",restaurant_score_items=fs)
+                        assert best and best["evaluated_hotel_count"]==len(hs),(code,start,days)
+                        hotel=best["hotel_item"]["hotel"]
+                        planned=best["plan"]["day_spots"]
+                        chosen=[x for d in planned for x in d]
+                        assert len({_segment_name(x) for x in chosen})==len(chosen)
+                        d1,d2,d3,rd,rs=build_trip_routes(chosen,hotel,days,start,"あり","普通",preplanned_days=planned)
+                        assert [[_segment_name(x) for x in d] for d in [d1,d2,d3][:len(rd)]] == [[_segment_name(x) for x in d] for d in planned], (code,start,days,"scheduled order changed")
+                        raw=best["meal_plan"]
+                        meals=[dict(m,restaurant=m["restaurant_item"]["restaurant"]) for m in raw]
+                        assert len({_segment_name(m["restaurant"]) for m in meals})==len(meals)
+                        _hanno_include_meal_routes(rd,rs,[d1,d2,d3],hotel,start,meals,"あり","普通")
+                        segs=[x for d in rd for x in d["segments"]]
+                        assert segs and all(x["available"] for x in segs)
+                        assert segs[0]["origin"]==start and segs[-1]["destination"]==start
+                        assert all(a["destination"]==b["origin"] for a,b in zip(segs,segs[1:]))
+                        assert rs["total_duration_seconds"]==sum(x["duration_seconds"] for x in segs)
+                        assert round(rs["total_duration_seconds"]/60,1)==best["travel_minutes"],(code,start,days,best["travel_minutes"],rs["total_duration_seconds"])
+                        assert rs["total_distance_meters"]==sum(x["distance_meters"] or 0 for x in segs)
+                        assert all(_segment_name(m["restaurant"]) in [x["destination"] for x in segs] for m in meals)
+                        settings=_s1_day_settings(days,20)
+                        for i,visits in enumerate([d1,d2,d3][:len(rd)]):
+                            lunch=next((m for m in meals if m["day"]==i+1 and m["meal_type"]=="昼食"),None)
+                            points=[start if i==0 else hotel,*visits,start if i==len(rd)-1 else hotel]
+                            if lunch: points.insert(2,lunch["restaurant"])
+                            time=sum(_fast_route_seconds_between(a,b) for a,b in zip(points,points[1:]))
+                            assert _s1_day_total_minutes(visits,time)<=settings[i]["minutes"],(code,start,days,i)
+                        print(f"[PLAN CHECK] {code} {start} {days} hotels={len(hs)} restaurants={len(fs)} spots={len(chosen)} meals={len(meals)} PASS",file=sys.__stdout__,flush=True)
+        print("[PLAN LOGIC CHECK] COMPLETE | 14472 directions | 12 plans")
+        with app.test_client() as client:
+            for code in expected:
+                for start in REGION_CONFIG[code]["arrival_labels"]:
+                    for days in ("1泊2日","2泊3日"):
+                        with contextlib.redirect_stdout(io.StringIO()):
+                            response=client.post("/result",data={"region_code":code,"arrival_detail":start,"days":days,"age":"20","people":"2","member":"友人","budget":"30000"})
+                        assert response.status_code==200,(code,start,days,response.status_code,response.get_data(as_text=True)[:250])
+                        assert "routeData" in response.get_data(as_text=True),(code,start,days,"route display missing")
+                        print(f"[PLAN CHECK HTML] {code} {start} {days} PASS",flush=True)
+                wrong_start=next(iter(REGION_CONFIG["hanno" if code!="hanno" else "chichibu"]["arrival_labels"]))
+                response=client.post("/result",data={"region_code":code,"arrival_detail":wrong_start})
+                assert response.status_code==400,(code,"foreign start not rejected")
+        print("[ALL REGION PLAN CHECK] COMPLETE | 14472 directions | 12 plans | 12 HTML results")
+    finally:
+        activate_region(original)
+
+def verify_final_profiles():
+    import contextlib, io
+    original=ACTIVE_REGION_CODE
+    profiles=[("20","1","一人","10000","1泊2日"),("50","4","家族","50000","2泊3日"),("30","2","デート","30000","1泊2日"),("40","6","友人","50000","2泊3日")]
+    assert not _hotel_dinner_available({"name":"ホテル美やま","dinner":True})
+    assert _hotel_dinner_available({"booking_plan_confirmed":True,"booking_plan_dinner_included":True})
+    count=invalid=0
+    try:
+        with app.test_client() as client:
+            for code in ("chichibu", "kawagoe", "hanno"):
+                config=REGION_CONFIG[code]
+                activate_region(code)
+                for i,profile in enumerate(profiles):
+                    data=dict(zip(("age","people","member","budget","days"),profile))
+                    data.update(region_code=code,arrival_detail=list(config["arrival_labels"])[i%2],purpose=config["purpose_options"][i%len(config["purpose_options"])]["value"])
+                    if i==2: data["must_visit_spots"]=next(x["name"] for x in spots if x["name"] in route_matrix_routes)
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        r=client.post("/result",data=data)
+                    assert r.status_code==200 and "routeData" in r.get_data(as_text=True),(code,profile,r.status_code)
+                    count+=1
+                    print(f"[FINAL PROFILE] {code} {profile[2]} {profile[4]} PASS",flush=True)
+                base=dict(region_code=code,arrival_detail=config["default_arrival"],age="20",people="2",member="友人",budget="30000",days="1泊2日")
+                for patch in ({"age":"abc"},{"people":"0"},{"budget":"-1"},{"days":"4泊5日"},{"purpose":"invalid"},{"travel_date":"not-a-date"},{"member":"一人"},{"must_visit_spots":"invalid"}):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        r=client.post("/result",data=dict(base,**patch))
+                    assert r.status_code==400,(code,patch,r.status_code)
+                    invalid+=1
+        print(f"[FINAL PROFILE CHECK] COMPLETE | {count} profiles | {invalid} invalid inputs rejected",flush=True)
+    finally:
+        activate_region(original)
+
+
+def verify_schedule_order_regression():
+    """Feasible A->B order must not be replaced by a faster B->A order."""
+    from unittest.mock import patch
+    import sys
+    module=sys.modules[__name__]
+    origin, hotel, a, b = "O", "H", {"name":"A"}, {"name":"B"}
+    times={('O','A'):600,('A','B'):900,('B','H'):600,('O','B'):60,('B','A'):60,('A','H'):60,('H','O'):600}
+    def seconds(x,y):
+        return times[(_segment_name(x),_segment_name(y))]
+    def segments(o,visits,d,*args):
+        pts=[o,*visits,d]
+        return [{"origin":_segment_name(x),"destination":_segment_name(y),"duration_seconds":seconds(x,y),"distance_meters":100,"available":True} for x,y in zip(pts,pts[1:])]
+    with patch.object(module,'_fast_route_seconds_between',seconds), patch.object(module,'_route_candidate_segments',segments):
+        planned=[[a,b],[]]
+        assert _s1_plan_travel_minutes({"day_spots":planned},hotel,origin,"あり","普通")==45
+        d1,d2,d3,rd,rs=build_trip_routes([a,b],hotel,"1泊2日",origin,"あり","普通",preplanned_days=planned)
+        assert d1==[a,b] and d2==[]
+        assert rs["total_duration_seconds"]==2700
+    print("[SCHEDULE ORDER REGRESSION] PASS",flush=True)
+
+def verify_lunch_detour_regression():
+    from unittest.mock import patch
+    import sys
+    module = sys.modules[__name__]
+    first, next_spot, lunch_ok, lunch_late = ({"name": n} for n in ("A","B","R1","R2"))
+    times = {("A","B"): 5, ("A","R1"): 5, ("R1","B"): 5, ("A","R2"): 25, ("R2","B"): 25}
+    def mins(a,b,*args):
+        return times.get((_segment_name(a),_segment_name(b)))
+    def seconds(a,b):
+        t = mins(a,b)
+        return None if t is None else t*60
+    with patch.object(module,"_route_minutes_between_places",mins), patch.object(module,"_fast_route_seconds_between",seconds), patch.object(module,"_schedule_meal_allowed",return_value=True), patch.object(module,"_s1_stay_minutes",return_value=30), patch.object(module,"_schedule_allowed",side_effect=lambda place,day,arrival,stay: arrival+stay<=14*60):
+        items=[{"score":50,"restaurant":lunch_ok},{"score":100,"restaurant":lunch_late}]
+        result=_s13_best_restaurant_between(items,first,next_spot,set(),"あり","普通",departure_minute=12*60,following_visits=[next_spot])
+        assert result and result["item"]["restaurant"] == lunch_ok
+    print("[LUNCH DETOUR CHECK] PASS",flush=True)
+
+
+def verify_schedule_constraints():
+    verify_lunch_detour_regression()
+    assert _simple_windows("11:00～15:00／17:00～21:00") == ((660,900),(1020,1260))
+    assert _simple_windows("平日11:00～15:00／土日祝17:00～20:00") is None
+    assert _simple_windows("11:00～15:00（L.O.14:30）") is None
+    assert _simple_closed_days("毎週水曜日") == (2,)
+    assert _simple_closed_days("水・木曜日") == (2,3)
+    assert _simple_closed_days("水曜日（祝日は営業）") == ()
+    token=_schedule_trip_date.set("2026-11-25")
+    try:
+        place={"name":"__schedule_test__","hours":"11:00～15:00","closed":"水曜日"}
+        assert not _schedule_allowed(place,0,720,60)
+        assert _schedule_allowed(place,1,720,60)
+        assert not _schedule_allowed(place,1,870,60)
+        assert not _schedule_allowed(place,1,1080,60)
+        assert _schedule_allowed({"name":"__unknown__"},1,720,60)
+    finally:
+        _schedule_trip_date.reset(token)
+    print("[SCHEDULE CHECK] PASS",flush=True)
+
+# Cross-region integration: regional data and its original scoring remain unchanged.
+_CROSS_OWNERS = {}
+_CROSS_ERROR = ''
+_CROSS_CODES = ('chichibu','kawagoe','hanno')
+_CROSS_FILES = dict(zip(_CROSS_CODES,(ROUTE_MATRIX_FILE,KAWAGOE_ROUTE_MATRIX_FILE,HANNO_ROUTE_MATRIX_FILE)))
+
+def _cross_sha(path):
+    with open(path,'rb') as f:
+        return hashlib.file_digest(f,'sha256').hexdigest()
+
+def _cross_dataset(candidate, configs, verify_hash=True):
+    import copy
+    owners={}; locations={}; routes={}; merged={k:[] for k in ('spots','hotels','restaurants')}; master={}; route_locs={}
+    for code in _CROSS_CODES:
+        data=configs[code]['dataset']; matrix=data['route_matrix_data']
+        source=candidate['sources'][code]
+        if verify_hash and _cross_sha(_CROSS_FILES[code])!=source['matrix_sha256']:
+            raise ValueError('地域内行列が変更されています: '+code)
+        for name,record in matrix['locations'].items():
+            if name in owners: raise ValueError('重複施設名: '+name)
+            owners[name]=code; locations[name]=record; routes[name]=dict(data['route_matrix_routes'][name])
+        for k in merged:
+            merged[k].extend(dict(item,facility_region=code) for item in data[k] if item.get('name') in matrix['locations'])
+        master.update(data['facility_master']); route_locs.update(data['route_locations'])
+    ids={code+'::'+name:name for name,code in owners.items()}
+    if candidate.get('location_regions')!={k:owners[v] for k,v in ids.items()}: raise ValueError('地域間地点一覧不一致')
+    if set(candidate['routes'])!=set(ids): raise ValueError('地域間出発地点一覧不一致')
+    count=0
+    for key,row in candidate['routes'].items():
+        a=ids[key]; expected={k for k,v in ids.items() if owners[v]!=owners[a]}
+        if set(row)!=expected: raise ValueError('地域間到着地点一覧不一致: '+key)
+        for k,r in row.items():
+            if r.get('available') is not True or not all(math.isfinite(float(r[f])) and float(r[f])>0 for f in ('distance_meters','duration_seconds')):
+                raise ValueError('地域間経路の不正値: '+key+' / '+k)
+            routes[a][ids[k]]=r; count+=1
+    if candidate.get('missing') or count!=candidate.get('expected_cross_directions') or count!=candidate.get('available_cross_directions'): raise ValueError('地域間経路件数不一致')
+    if verify_hash and (len(owners)!=209 or count!=29000): raise ValueError('地域間経路数不足')
+    for a,row in routes.items():
+        if not (set(owners)-{a})<=set(row): raise ValueError('経路不足: '+a)
+    return dict(**merged,facility_master=master,route_locations=route_locs,route_matrix_data={'locations':locations,'available_pair_count':len(owners)*(len(owners)-1)},route_matrix_routes=routes,ready=True),owners
+
+def _load_cross_config():
+    global _CROSS_OWNERS,_CROSS_ERROR
+    try:
+        path=os.path.join(BASE_DIR,'data','cross_region_route_matrix_candidate.json')
+        with open(path,encoding='utf-8') as f: candidate=json.load(f)
+        data,owners=_cross_dataset(candidate,REGION_CONFIG)
+        labels={name:REGION_CONFIG[c]['name']+'：'+label for c in _CROSS_CODES for name,label in REGION_CONFIG[c]['arrival_labels'].items()}
+        purposes=list(dict.fromkeys(p['value'] for c in _CROSS_CODES for p in REGION_CONFIG[c]['purpose_options']))
+        REGION_CONFIG['cross']={'name':'埼玉県南西部','name_en':'SOUTHWEST SAITAMA','weather_lat':35.851208,'weather_lon':139.320114,'arrival_labels':labels,'default_arrival':'花園IC','purpose_options':[{'value':p,'label':p} for p in purposes],'dataset':data}
+        _CROSS_OWNERS=owners
+        print('[CROSS READY] 43472 directions (provisional)',flush=True)
+    except (OSError,ValueError,TypeError,KeyError,AttributeError) as exc:
+        _CROSS_ERROR=str(exc)
+        print('[CROSS NOT READY]',_CROSS_ERROR,flush=True)
+
+# Region-specific scoring uses the original algorithms with the combined matrix.
+from functools import wraps as _cross_wraps
+import inspect as _cross_inspect
+_CROSS_PURPOSE_GROUPS=(('自然','自然・散策','自然・ハイキング'),('温泉','温泉・癒やし'),('歴史','歴史・文化','小江戸・町並み'),('グルメ','食べ歩き・グルメ'))
+def _cross_translate_purpose(values,code):
+    allowed={p['value'] for p in REGION_CONFIG[code]['purpose_options']}
+    result=[]
+    for value in values or []:
+        if value in allowed: result.append(value)
+        for group in _CROSS_PURPOSE_GROUPS:
+            if value in group: result.extend(p for p in group if p in allowed)
+    # If a chosen purpose has no equivalent, retain it so the original scorer can distinguish it from no preference.
+    return list(dict.fromkeys(result)) or list(values or [])
+
+def _cross_score_wrapper(fn):
+    sig=_cross_inspect.signature(fn)
+    @_cross_wraps(fn)
+    def wrapped(*args,**kwargs):
+        global ACTIVE_REGION_CODE,ACTIVE_REGION_NAME,ACTIVE_REGION_NAME_EN
+        if ACTIVE_REGION_CODE!='cross': return fn(*args,**kwargs)
+        bound=sig.bind(*args,**kwargs)
+        item=next(iter(bound.arguments.values())); code=_CROSS_OWNERS.get(item.get('name'))
+        if code not in _CROSS_CODES: raise ValueError('所属地域不明: '+str(item.get('name')))
+        old=(ACTIVE_REGION_CODE,ACTIVE_REGION_NAME,ACTIVE_REGION_NAME_EN)
+        try:
+            ACTIVE_REGION_CODE=code; ACTIVE_REGION_NAME=REGION_CONFIG[code]['name']; ACTIVE_REGION_NAME_EN=REGION_CONFIG[code]['name_en']
+            if 'purpose' in bound.arguments: bound.arguments['purpose']=_cross_translate_purpose(bound.arguments['purpose'],code)
+            return fn(*bound.args,**bound.kwargs)
+        finally:
+            ACTIVE_REGION_CODE,ACTIVE_REGION_NAME,ACTIVE_REGION_NAME_EN=old
+    return wrapped
+
+calculate_spot_score=_cross_score_wrapper(calculate_spot_score)
+calculate_restaurant_score=_cross_score_wrapper(calculate_restaurant_score)
+calculate_hotel_score=_cross_score_wrapper(calculate_hotel_score)
+_load_cross_config()
+
+@app.route('/cross')
+def cross():
+    explicit = 'selection' in request.args or 'target_regions' in request.args
+    requested = request.args.getlist('target_regions') if explicit else list(_CROSS_CODES)
+    if not requested or not set(requested) <= set(_CROSS_CODES):
+        return '旅行対象地域を1つ以上選び直してください。',400
+    selected = [c for c in _CROSS_CODES if c in requested]
+    if 'hanno' in selected and not HANNO_DATASET['ready']:
+        return '飯能のルートデータが未完成です。',503
+    if len(selected) == 1:
+        return redirect(url_for(selected[0]))
+    if 'cross' not in REGION_CONFIG:
+        return '地域間経路が未完成です。',503
+    original = REGION_CONFIG['cross']
+    previous = ACTIVE_REGION_CODE
+    try:
+        REGION_CONFIG['cross'] = _cross_filtered_config(original, set(selected))
+        return _render_region_input('cross', 'cross', selected)
+    finally:
+        REGION_CONFIG['cross'] = original
+        activate_region(previous)
+
+@app.route('/auto')
+def auto_region():
+    # Legacy URL: same region selection flow, with all three regions.
+    return cross()
+
+def _cross_filtered_config(original, selected):
+    data = original['dataset']
+    filtered = dict(data)
+    for key in ('spots','hotels','restaurants'):
+        filtered[key] = [item for item in data[key] if _CROSS_OWNERS.get(item.get('name')) in selected]
+    labels = {name: label for name,label in original['arrival_labels'].items() if _CROSS_OWNERS.get(name) in selected}
+    purposes = list(dict.fromkeys(p['value'] for c in _CROSS_CODES if c in selected for p in REGION_CONFIG[c]['purpose_options']))
+    return dict(original, dataset=filtered, arrival_labels=labels, default_arrival=next(iter(labels)), purpose_options=[{'value':v,'label':v} for v in purposes])
+
+# The original application switches module-level region state. Serialize requests
+# so simultaneous plans cannot overwrite one another's selected region.
+from threading import RLock as _RegionLock
+from flask import g as _region_request_g
+_region_request_lock = _RegionLock()
+@app.before_request
+def _lock_region_request():
+    _region_request_lock.acquire()
+    _region_request_g.region_lock_acquired = True
+@app.teardown_request
+def _unlock_region_request(error):
+    if _region_request_g.pop('region_lock_acquired', False):
+        _region_request_lock.release()
+
+def verify_cross_time_consistency():
+    """全経路: 採点中の所属地域切替と結果画面で時間が変わらないことを検証。"""
+    import contextlib, io
+    global ACTIVE_REGION_CODE
+    original = ACTIVE_REGION_CODE
+    try:
+        activate_region("cross")
+        with contextlib.redirect_stdout(io.StringIO()):
+            count = 0
+            for a, row in route_matrix_routes.items():
+                for b, raw in row.items():
+                    if a == b:
+                        continue
+                    ACTIVE_REGION_CODE = "cross"
+                    expected = _fast_route_seconds_between(a, b)
+                    for code in (_CROSS_OWNERS[a], _CROSS_OWNERS[b]):
+                        ACTIVE_REGION_CODE = code
+                        assert _fast_route_seconds_between(a,b) == expected, (a,b,code)
+                    assert calculate_route_between(a,b,"あり","普通")["duration_seconds"] == expected, (a,b)
+                    count += 1
+            assert count == 43472
+        print("[CROSS TIME CONSISTENCY] 43472 directions PASS", flush=True)
+    finally:
+        activate_region(original)
+
+
+def verify_cross_region():
+    assert 'cross' in REGION_CONFIG, _CROSS_ERROR
+    verify_cross_time_consistency()
+    original=ACTIVE_REGION_CODE
+    try:
+        cfg=activate_region('cross')
+        assert len(route_matrix_routes)==209
+        count=0
+        for a,row in route_matrix_routes.items():
+            for b in _CROSS_OWNERS:
+                if a==b: continue
+                assert _fast_route_seconds_between(a,b) is not None,(a,b)
+                count+=1
+        assert count==43472
+        assert all(_departure_routes_ready(cfg,s) for s in cfg['arrival_labels'])
+        def validate_html(response, allowed):
+            assert response.status_code == 200, (response.status_code,response.get_data(as_text=True)[:300])
+            match = re.search(r'<script[^>]*id=["\']tripRouteData["\'][^>]*>(.*?)</script>', response.get_data(as_text=True), re.S | re.I)
+            assert match, 'route JSON missing'
+            payload = json.loads(match.group(1))
+            segs = [seg for day in payload['route_days'] for seg in day['segments']]
+            assert segs and all(_CROSS_OWNERS[seg[k]] in allowed for seg in segs for k in ('origin','destination'))
+            assert all(seg['duration_seconds'] == _fast_route_seconds_between(seg['origin'], seg['destination']) for seg in segs)
+            assert all(x['destination'] == y['origin'] for x,y in zip(segs,segs[1:]))
+            for day in payload['route_days']:
+                cross = [seg for seg in day['segments'] if _CROSS_OWNERS[seg['origin']] != _CROSS_OWNERS[seg['destination']]]
+                assert day['cross_segment_count'] == len(cross)
+                assert day['cross_duration_seconds'] == sum(seg['duration_seconds'] for seg in cross)
+                assert day['total_duration_seconds'] == sum(seg['duration_seconds'] for seg in day['segments'])
+        with app.test_client() as client:
+            for start in cfg['arrival_labels']:
+                for days in ('1泊2日','2泊3日'):
+                    response=client.post('/result',data={'region_code':'cross','arrival_detail':start,'days':days,'age':'20','people':'2','member':'友人','budget':'30000'})
+                    validate_html(response,set(_CROSS_CODES))
+                    print('[CROSS PLAN HTML]',start,days,'PASS',flush=True)
+            for mode, selected in [('cross',['hanno']),('cross',['chichibu','kawagoe']),('auto',[])]:
+                start = '飯能駅' if selected == ['hanno'] else '花園IC'
+                fields = {'region_code':'cross','area_mode':mode,'target_regions':selected,'arrival_detail':start,'days':'1泊2日','age':'20','people':'2','member':'友人','budget':'30000'}
+                response = client.post('/result',data=fields)
+                validate_html(response,set(selected) if selected else set(_CROSS_CODES))
+                print('[CROSS MODE CHECK]',mode,selected,'PASS',flush=True)
+            bad = client.post('/result',data=dict(fields,area_mode='cross',target_regions=['hanno'],arrival_detail='花園IC'))
+            assert bad.status_code == 400, bad.status_code
+            for url in ('/areas','/cross','/auto'):
+                assert client.get(url).status_code == 200,url
+        print('[CROSS CHECK] COMPLETE | 43472 directions | 15 HTML results | modes and input validation PASS',flush=True)
+    finally:
+        activate_region(original)
+
+def verify_reviews():
+    import tempfile
+    global DATABASE_URL, _REVIEW_SQLITE_PATH
+    old_url, old_path = DATABASE_URL, _REVIEW_SQLITE_PATH
+    try:
+        with tempfile.TemporaryDirectory() as folder:
+            DATABASE_URL = ""
+            _REVIEW_SQLITE_PATH = os.path.join(folder, "reviews_test.sqlite3")
+            with app.test_client() as client:
+                original = ACTIVE_REGION_CODE
+                catalog = build_all_region_favorite_catalog()
+                assert ACTIVE_REGION_CODE == original
+                for kind, key in (("観光地", "spots"), ("飲食店", "restaurants"), ("宿泊施設", "hotels")):
+                    expected = {(code, item["name"]) for code in ("chichibu", "kawagoe", "hanno") for item in REGION_CONFIG[code]["dataset"][key]}
+                    assert {(item["facility_region"], item["name"]) for item in catalog[kind]} == expected
+                page = client.get("/favorites")
+                assert page.status_code == 200 and b"facilityReviewDialog" in page.data
+                print("[FAVORITE CATALOG CHECK] all regions PASS", flush=True)
+                cases = []
+                for code in ("chichibu", "kawagoe", "hanno"):
+                    for kind, key in (("観光地", "spots"), ("飲食店", "restaurants"), ("宿泊施設", "hotels")):
+                        items = REGION_CONFIG[code]["dataset"][key]
+                        assert items, (code, key)
+                        assert all(_review_facility_exists(kind, x["name"]) for x in items)
+                        cases.append((kind, items[0]["name"]))
+                for kind, name in cases:
+                    query = {"facility_type": kind, "facility_name": name}
+                    assert client.get("/api/reviews", query_string=query).get_json()["count"] == 0
+                    for rating in (3, 5):
+                        assert client.post("/api/reviews", json=dict(query, rating=rating, nickname="検証", comment="テスト投稿")).status_code == 201
+                    result = client.get("/api/reviews", query_string=query).get_json()
+                    assert result["count"] == 2 and result["average_rating"] == 4.0 and len(result["reviews"]) == 2
+                valid = dict(facility_type=cases[0][0], facility_name=cases[0][1], rating=5, nickname="検証", comment="テスト")
+                for change in ({"rating":6}, {"rating":4.5}, {"rating":True}, {"nickname":""}, {"comment":"x"*501}, {"facility_name":"未登録テスト施設"}):
+                    assert client.post("/api/reviews", json=dict(valid, **change)).status_code == 400
+                assert client.post("/api/reviews", json=[1]).status_code == 400
+                assert client.get("/api/reviews", query_string={"facility_type":"観光地","facility_name":"未登録テスト施設"}).status_code == 400
+            print("[REVIEW CHECK] PASS | 9 facility cases | persistence / average / input validation", flush=True)
+    finally:
+        DATABASE_URL, _REVIEW_SQLITE_PATH = old_url, old_path
+
+
 if __name__ == "__main__":
+    import sys
+    if "--check-reviews" in sys.argv:
+        verify_reviews()
+        raise SystemExit(0)
+    if "--check-release" in sys.argv:
+        verify_schedule_constraints()
+        verify_schedule_order_regression()
+        verify_cross_region()
+        verify_all_region_plans()
+        verify_final_profiles()
+        print("[RELEASE CHECK] COMPLETE", flush=True)
+        raise SystemExit(0)
+    if "--check-cross" in sys.argv:
+        verify_cross_region()
+        raise SystemExit(0)
+    if "--check-schedule" in sys.argv:
+        verify_schedule_constraints()
+        verify_schedule_order_regression()
+        raise SystemExit(0)
+    if "--check-final" in sys.argv:
+        verify_schedule_constraints()
+        verify_schedule_order_regression()
+        verify_all_region_plans()
+        verify_final_profiles()
+        raise SystemExit(0)
+    if "--check-all-region-plans" in sys.argv:
+        verify_all_region_plans()
+        raise SystemExit(0)
+    if "--check-hanno-departures" in sys.argv:
+        verify_hanno_departure_calculations()
+        raise SystemExit(0)
 
     app.run(
         host="127.0.0.1",
